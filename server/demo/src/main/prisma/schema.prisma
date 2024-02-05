@@ -17,11 +17,96 @@ model user {
   zone              String   @db.VarChar(100)
   role              String   @db.VarChar(20)
   admin             admin[]
+  supervisor        supervisor[]
+  field_worker      field_worker[]
+  doctor            doctor[]
+  patient           patient[]
+  task              task[]
 }
 
 model admin {
-  id              Int      @id @default(autoincrement())
-  email           String   @db.VarChar(100)
-  date_of_joining DateTime @db.Date
+  id              Int      @id
+  email           String
+  date_of_joining DateTime
   user_relation   user     @relation(fields: [id], references: [role_id])
+}
+
+model supervisor{
+  id              Int      @id
+  email           String
+  date_of_joining DateTime
+  district        String
+  field_worker    field_worker[]
+  user_relation   user     @relation(fields: [id], references: [role_id])
+}
+
+model field_worker{
+  id                Int      @id
+  email             String
+  date_of_joining   DateTime
+  area              String
+  date_of_assignment DateTime
+  supervisor_id     Int
+  daily_schedule    Int
+  monthly_schedule  Int
+  supervisor_relation supervisor @relation(fields: [supervisor_id], references: [id])
+  daily_schedule_relation daily_schedule @relation(fields: [daily_schedule], references: [id])
+  monthly_schedule_relation monthly_schedule @relation(fields: [monthly_schedule], references: [id])
+  user_relation   user     @relation(fields: [id], references: [role_id])
+}
+
+model hospital{
+  id        Int  @id @default(autoincrement())
+  api_key   String
+  doctor    doctor[]
+}
+
+model doctor{
+  id            Int     @id
+  email         String
+  date_of_joing DateTime
+  hospital      Int
+  hospital_relation hospital @relation(fields: [hospital], references: [id])
+  patient       patient[]
+  user_relation   user     @relation(fields: [id], references: [role_id])
+}
+
+model patient{
+  id                Int      @id
+  doctor_allocated  Int
+  status            String
+  email             String?
+  doctor_relation   doctor  @relation(fields: [doctor_allocated], references: [id])
+  task              task[]
+  user_relation     user     @relation(fields: [id], references: [role_id])
+}
+
+model task{
+  id                Int       @id @default(autoincrement())
+  address           String
+  patient_id        Int
+  type              String
+  desciption        String    @db.VarChar(1000)
+  assigned_by       Int
+  date_of_creation  DateTime  @default(now())
+  daily_schedule_id Int
+  patient_relation  patient   @relation(fields: [patient_id], references: [id])
+  daily_schedule_relation daily_schedule @relation(fields: [daily_schedule_id], references: [id])
+  assigned_by_relation user @relation(fields: [assigned_by], references: [id])
+}
+
+model daily_schedule{
+  id      Int      @id @default(autoincrement())
+  date    DateTime
+  monthly_schedule_id   Int
+  task    task[]
+  monthly_schedule_relation monthly_schedule  @relation(fields: [monthly_schedule_id], references: [id])
+  field_worker field_worker[]
+}
+
+model monthly_schedule{
+  id      Int     @id @default(autoincrement())
+  month   String
+  daily_schedule daily_schedule[]
+  field_worker field_worker[]
 }
