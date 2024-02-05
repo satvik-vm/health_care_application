@@ -1,0 +1,27 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id                Int      @id @default(autoincrement())
+  role_id           Int      @unique @db.Integer
+  first_name        String   @db.VarChar(100)
+  last_name         String   @db.VarChar(100)
+  adhaar            String   @db.VarChar(12)
+  dob               DateTime @db.Date
+  phone_number      String   @db.VarChar(10)
+  address           String   @db.VarChar(100)
+  emergency_contact String   @db.VarChar(100)
+  gender            String   @db.VarChar(1)
+  zone              String   @db.VarChar(100)
+  role              String   @db.VarChar(20)
+  admin             admin[]
+}
+
+model admin {
+  id              Int      @id @default(autoincrement())
+  email           String   @db.VarChar(100)
+  date_of_joining DateTime @db.Date
+  user_relation   user     @relation(fields: [id], references: [role_id])
+}
