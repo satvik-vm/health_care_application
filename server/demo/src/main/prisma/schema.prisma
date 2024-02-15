@@ -27,6 +27,7 @@ model user {
 model admin {
   id              Int      @id
   email           String
+  password        String   @db.VarChar(100)
   date_of_joining DateTime
   user_relation   user     @relation(fields: [id], references: [role_id])
 }
@@ -34,6 +35,7 @@ model admin {
 model supervisor{
   id              Int      @id
   email           String
+  password        String   @db.VarChar(100)
   date_of_joining DateTime
   district        String
   field_worker    field_worker[]
@@ -43,6 +45,7 @@ model supervisor{
 model field_worker{
   id                Int      @id
   email             String
+  password        String   @db.VarChar(100)
   date_of_joining   DateTime
   area              String
   date_of_assignment DateTime
@@ -64,6 +67,7 @@ model hospital{
 model doctor{
   id            Int     @id
   email         String
+  password        String   @db.VarChar(100)
   date_of_joing DateTime
   hospital      Int
   hospital_relation hospital @relation(fields: [hospital], references: [id])
