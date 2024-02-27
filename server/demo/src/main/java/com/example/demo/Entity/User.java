@@ -1,70 +1,96 @@
 package com.example.demo.Entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.sql.Date;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Getter
-//@Setter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "User")
-public class User {
+@Table(name = "App_User")
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
     private int uniqueId;
 
-    @Column(name="first_name")
-    private String firstName;
+    @Column(name="email", unique = true, nullable = false)
+    private String email;
 
-    @Column(name="last_name")
-    private String lastName;
+    @Column(name="password", nullable = false)
+    private String password;
 
-    @Column(name="adhaar")
-    private String adhaar;
+    @Column(name = "firstName", columnDefinition = "VARCHAR(255) DEFAULT ''")
+    private String firstName = "";
 
-    @Column(name="dob")
-    private Date dob;
+    @Column(name = "lastName", columnDefinition = "VARCHAR(255) DEFAULT ''")
+    private String lastName = "";
 
-    @Column(name="phone_number")
-    private String phoneNumber;
+    @Column(name = "DOB")
+    private java.util.Date dob;
 
-    @Column(name="address")
-    private String address;
+    @Column(name = "date_of_joining")
+    private Date dateOfJoining;
 
-    @Column(name="emergency_contact")
-    private String emergencyContact;
+    @Column(name= "Contact", columnDefinition = "VARCHAR(255) DEFAULT ''")
+    private String phone = "";
 
-    @Column(name="gender")
-    private char gender;
+    @Column(name = "emergencyContact", columnDefinition = "VARCHAR(255) DEFAULT ''")
+    private String emContact = "";
 
-    @Column(name="zone")
-    private String zone;
+    @Column(name= "address", columnDefinition = "VARCHAR(255) DEFAULT ''")
+    private String address = "";
 
-    @Column(name="role")
-    private String role;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-    void delete_user(){
-        firstName = "XXXXXXXXXXXX";
-        lastName = "XXXXXXXXXX";
-        adhaar = "XXXXXXXXXXXX";
-        dob = Date.valueOf(LocalDate.now());
-        phoneNumber = "XXXXXXXXXX";
-        address = "XXXXXX";
-        emergencyContact = "XXXXXXXXXXX";
-        gender = 'X';
-        zone = "XXXXXXXXXXX";
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        Role role = this.role;
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+        return authorities;
     }
 
-    void change_address(String new_address){
-        this.address = new_address;
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 
-    void change_phone_number(String new_phone_number){
-        this.phoneNumber = new_phone_number;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.dateOfJoining = new Date(); // Set current date on creation
+    }
 }

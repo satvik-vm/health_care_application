@@ -1,10 +1,14 @@
 package com.example.demo.controllers;
 
 import com.example.demo.Entity.Admin;
+import com.example.demo.Entity.Role;
+import com.example.demo.Entity.User;
+import com.example.demo.models.AdminCreationRequest;
 import com.example.demo.models.JwtRequest;
 import com.example.demo.models.JwtResponse;
 import com.example.demo.security.JwtHelper;
 import com.example.demo.services.AdminService;
+import com.example.demo.services.UserService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -33,12 +38,15 @@ public class AuthController {
     @Autowired
     AdminService adminService;
 
+    @Autowired
+    UserService userService;
+
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
-        System.out.println("Hewwoooo");
+        System.out.println(request.getEmail()+ " " + request.getPassword());
         this.doAuthenticate(request.getEmail(), request.getPassword());
 
 
@@ -58,8 +66,15 @@ public class AuthController {
             manager.authenticate(authentication);
 
 
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException(" Invalid Username or Password  !!");
+        }
+//        catch (BadCredentialsException e) {
+//            throw new BadCredentialsException(" Invalid Username or Password  !! " + email);
+//        }
+        catch (AuthenticationException e) {
+            // General authentication exception occurred, log the exception stack trace
+            System.err.println("Authentication failed for user: " + email);
+            e.printStackTrace(); // Log the stack trace
+            throw e; // Re-throw the exception
         }
 
     }
@@ -70,9 +85,32 @@ public class AuthController {
     }
 
     @PostMapping("/create-admin")
-    public Admin createAdmin(@RequestBody Admin admin)
+    public ResponseEntity<String> createAdmin(@RequestBody AdminCreationRequest request)
     {
-        return adminService.createAdmin(admin);
+        try {
+            // Extract user information from the request
+            String email = request.getUser().getEmail();
+            String password = request.getUser().getPassword();
+            String roleName = request.getUser().getRole().getName();
+
+
+            // Create a new Role object
+            Role role = new Role();
+            role.setName(roleName);
+
+            User user = userService.createUser(email, password, role);
+
+            // Create a new Admin object
+            Admin admin = new Admin();
+            admin.setUser(user);
+
+            // Save the Admin object
+            adminService.createAdmin(admin);
+
+            return ResponseEntity.ok("Admin created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create admin");
+        }
     }
 
 }
