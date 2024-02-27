@@ -15,13 +15,16 @@ import java.util.List;
 public class AdminService {
 
     @Autowired
-    AdminRepository adminRepository;
+    private AdminRepository adminRepository;
 
     @Autowired
-    SupervisorRepository supervisorRepository;
+    private SupervisorRepository supervisorRepository;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
 
     public List<Admin> getAdmin()
     {
@@ -36,5 +39,19 @@ public class AdminService {
     public Supervisor createSupervisor(Supervisor supervisor)
     {
         return supervisorRepository.save(supervisor);
+    }
+
+    public void sendSupervisorCredentials(String email, String password, String district)
+    {
+        String subject = "Appointment as Supervisor";
+
+        String body = "Dear Supervisor,\n\n" +
+                "Congratulations! You have been appointed as a supervisor for district " + district+".\n\n" +
+                "Your credentials:\n" +
+                "Email: "+email+"\n" +
+                "Password: "+password+"\n\n" +
+                "Best regards,\n" +
+                "Medimate India";
+        emailSenderService.sendEmail(email, subject, body);
     }
 }

@@ -5,6 +5,7 @@ import com.example.demo.Entity.Supervisor;
 import com.example.demo.Entity.User;
 import com.example.demo.models.SupervisorCreationRequest;
 import com.example.demo.services.AdminService;
+import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.RoleService;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class AdminController {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
     @GetMapping("/get-admins")
     public List<Admin> getAdmin()
     {
@@ -48,7 +52,7 @@ public class AdminController {
             System.out.println("mukul");
             // Extract user information from the request
             String email = request.getUser().getEmail();
-            String password = request.getUser().getPassword();
+            String password = userService.generatePassword();
             String roleName = request.getUser().getRole().getName();
             String district = request.getDistrict();
 
@@ -60,8 +64,9 @@ public class AdminController {
             supervisor.setUser(user);
             supervisor.setDistrict(district);
 
-            // Save the Admin object
+            // Save the Supervisor object
             adminService.createSupervisor(supervisor);
+            adminService.sendSupervisorCredentials(email, password, district);
 
             return ResponseEntity.ok("Supervisor created successfully");
 //        }
