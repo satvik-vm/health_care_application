@@ -5,11 +5,14 @@ import com.example.demo.Entity.Supervisor;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.AdminRepository;
 import com.example.demo.Repository.SupervisorRepository;
+import com.example.demo.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdminService {
@@ -19,6 +22,9 @@ public class AdminService {
 
     @Autowired
     private SupervisorRepository supervisorRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -39,6 +45,23 @@ public class AdminService {
     public Supervisor createSupervisor(Supervisor supervisor)
     {
         return supervisorRepository.save(supervisor);
+    }
+
+    @Transactional
+    public boolean removeSupervisor(int id) {
+        System.out.println(id);
+        Optional<Supervisor> supervisorOptional = supervisorRepository.findById(id);
+        System.out.println(supervisorOptional);
+        if (supervisorOptional.isPresent()) {
+            Supervisor supervisor = supervisorOptional.get();
+
+            // Delete the supervisor
+            supervisorRepository.deleteById(id);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     public void sendSupervisorCredentials(String email, String password, String district)

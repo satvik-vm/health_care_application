@@ -8,6 +8,7 @@ import com.example.demo.models.JwtRequest;
 import com.example.demo.models.JwtResponse;
 import com.example.demo.security.JwtHelper;
 import com.example.demo.services.AdminService;
+import com.example.demo.services.CustomUserDetailsService;
 import com.example.demo.services.UserService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ import org.slf4j.Logger;
 public class AuthController {
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private CustomUserDetailsService userDetailsService;
 
     @Autowired
     private AuthenticationManager manager;
@@ -51,11 +52,14 @@ public class AuthController {
 
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        String token = this.helper.generateToken(userDetails);
+        String role = userDetailsService.loadRoleByUsername(request.getEmail());
 
+        System.out.println(userDetails + "hello");
+        String token = this.helper.generateToken(userDetails);
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
-                .username(userDetails.getUsername()).build();
+                .username(userDetails.getUsername())
+                .role(role).build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

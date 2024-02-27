@@ -4,6 +4,7 @@ import com.example.demo.Entity.Role;
 import com.example.demo.Entity.Supervisor;
 import com.example.demo.Entity.User;
 import com.example.demo.models.SupervisorCreationRequest;
+import com.example.demo.models.SupervisorRemovalRequest;
 import com.example.demo.services.AdminService;
 import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.RoleService;
@@ -46,9 +47,9 @@ public class AdminController {
     }
 
     @PostMapping("/regSup")
-    public ResponseEntity<String> registerSupervisor(@RequestBody SupervisorCreationRequest request)
+    public ResponseEntity<Supervisor> registerSupervisor(@RequestBody SupervisorCreationRequest request)
     {
-//        try {
+        try {
             System.out.println("mukul");
             // Extract user information from the request
             String email = request.getUser().getEmail();
@@ -65,13 +66,28 @@ public class AdminController {
             supervisor.setDistrict(district);
 
             // Save the Supervisor object
-            adminService.createSupervisor(supervisor);
+            Supervisor createdSupervisor = adminService.createSupervisor(supervisor);
             adminService.sendSupervisorCredentials(email, password, district);
 
-            return ResponseEntity.ok("Supervisor created successfully");
-//        }
-//        catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create Supervisor");
-//        }
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdSupervisor);
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
+
+    @PostMapping("/remSup")
+    public ResponseEntity<String> removeSupervisor(@RequestBody SupervisorRemovalRequest request)
+    {
+        int sup_id = request.getSup_id();
+        boolean response = adminService.removeSupervisor(sup_id);
+        if(response)
+        {
+            return ResponseEntity.ok("Supervisor removed successfully");
+        }
+        else {
+            return ResponseEntity.ok("Can Not delete supervisor");
+        }
+    }
+
 }
