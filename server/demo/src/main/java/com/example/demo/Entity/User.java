@@ -38,7 +38,7 @@ public class User implements UserDetails {
     private String lastName = "";
 
     @Column(name = "DOB")
-    private java.util.Date dob;
+    private String dob;
 
     @Column(name = "date_of_joining")
     private Date dateOfJoining;
