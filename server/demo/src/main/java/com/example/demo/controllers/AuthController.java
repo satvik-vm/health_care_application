@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -93,20 +94,25 @@ public class AuthController {
     {
         try {
             // Extract user information from the request
+
             String email = request.getUser().getEmail();
+
             String password = request.getUser().getPassword();
+
             String roleName = request.getUser().getRole().getName();
-
-
             // Create a new Role object
             Role role = new Role();
             role.setName(roleName);
 
+
             User user = userService.createUser(email, password, role);
+
+
 
             // Create a new Admin object
             Admin admin = new Admin();
             admin.setUser(user);
+
 
             // Save the Admin object
             adminService.createAdmin(admin);

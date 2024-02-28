@@ -15,10 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
+@CrossOrigin(origins = "*")
 public class AdminController {
 
     @Autowired
@@ -41,9 +44,11 @@ public class AdminController {
     }
 
     @GetMapping("/current-admin")
-    public String getLoggedInAdmin(Principal principal)
+    public ResponseEntity<Object> getLoggedInAdmin(Principal principal)
     {
-        return principal.getName();
+        Map<String, String>data = new HashMap<>();
+        data.put("email", principal.getName());
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     @PostMapping("/regSup")
