@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class SendOtpRequest {
     String email;
-    String otp;
 }

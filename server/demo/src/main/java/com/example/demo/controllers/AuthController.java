@@ -92,7 +92,7 @@ public class AuthController {
     @PostMapping("/create-admin")
     public ResponseEntity<String> createAdmin(@RequestBody AdminCreationRequest request)
     {
-        try {
+//        try {
             // Extract user information from the request
 
             String email = request.getUser().getEmail();
@@ -118,9 +118,10 @@ public class AuthController {
             adminService.createAdmin(admin);
 
             return ResponseEntity.ok("Admin created successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create admin");
-        }
+//        }
+//        catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create admin");
+//        }
     }
 
 }

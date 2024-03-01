@@ -1,14 +1,17 @@
 package com.example.demo.services;
 
 import com.example.demo.Entity.Admin;
+import com.example.demo.Entity.Otp;
 import com.example.demo.Entity.Role;
 import com.example.demo.Entity.User;
+import com.example.demo.Repository.OtpRepository;
 import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 
 @Service
@@ -17,7 +20,14 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private OtpRepository otpRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    OtpService otpService;
+
+
 
     public User createUser(String email, String password, Role role)
     {
@@ -40,5 +50,25 @@ public class UserService {
         }
 
         return password.toString();
+    }
+
+
+    public String generateOTP()
+    {
+        int length = 6;
+        String numbers = "0123456789";
+        StringBuilder otp = new StringBuilder();
+        SecureRandom random = new SecureRandom();
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(numbers.length());
+            otp.append(numbers.charAt(index));
+        }
+        return otp.toString();
+    }
+
+    public void createOTP(String email, String otp_num)
+    {
+        User user = userRepository.getUserByUsername(email);
+        otpService.setOrCreateOtp(user, otp_num);
     }
 }
