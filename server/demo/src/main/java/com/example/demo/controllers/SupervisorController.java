@@ -123,7 +123,7 @@ public class SupervisorController {
         // OTP is valid and not expired
         return true;
     }
-    @PostMapping("/RegFW")
+    @PostMapping("/regFW")
     public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request)
     {
         try{
@@ -148,14 +148,22 @@ public class SupervisorController {
             FieldWorker createdFieldWorker = supervisorService.createFieldWorker(fieldWorker);
             supervisorService.sendFieldWorkerCredentials(email, password, area);
 
-            // Add the field worker in the assigned supervisor table
-            supervisorService.updateSupervisor(supervisor, fieldWorker);
-
             return ResponseEntity.status(HttpStatus.CREATED).body(createdFieldWorker);
         }
 
         catch (Exception e) {
+            System.out.println("Error Occurring");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @PostMapping("/remFW")
+    public ResponseEntity<String> removeFieldWorker(@RequestParam int id)
+    {
+        boolean response = supervisorService.removeFieldWorker(id);
+        if(response)
+            return ResponseEntity.ok("Field Worker removed successfully");
+        else
+            return ResponseEntity.ok("Can Not delete Field Worker");
     }
 }

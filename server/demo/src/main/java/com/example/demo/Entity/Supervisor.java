@@ -21,9 +21,6 @@ public class Supervisor{
     @Column(name = "district", nullable = false)
     private String district;
 
-    @OneToMany(mappedBy = "supervisor")
-    private List<FieldWorker> fieldWorkers;
-
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)
     private User user;
