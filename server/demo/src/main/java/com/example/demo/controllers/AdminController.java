@@ -55,12 +55,16 @@ public class AdminController {
     public ResponseEntity<Supervisor> registerSupervisor(@RequestBody SupervisorCreationRequest request)
     {
         try {
-            System.out.println("mukul");
+            System.out.println("mukul......");
             // Extract user information from the request
             String email = request.getUser().getEmail();
+            System.out.println(email);
             String password = userService.generatePassword();
+            System.out.println(password);
             String roleName = request.getUser().getRole().getName();
+            System.out.println(roleName);
             String district = request.getDistrict();
+            System.out.println(district);
 
             Role role = roleService.getOrCreateRole(roleName);
             User user = userService.createUser(email, password, role);
