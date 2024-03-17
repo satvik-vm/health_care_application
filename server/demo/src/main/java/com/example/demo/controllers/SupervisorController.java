@@ -6,13 +6,14 @@ import com.example.demo.Entity.Supervisor;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
-//import com.example.demo.models.FWCreationRequest;
+import com.example.demo.models.FWCreationRequest;
 import com.example.demo.models.ModifyUserRequest;
 import com.example.demo.models.SendOtpRequest;
 import com.example.demo.models.VerifyOtpRequest;
 import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.RoleService;
 //import com.example.demo.services.SupervisorService;
+import com.example.demo.services.SupervisorService;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Date;
 
 
@@ -44,8 +46,8 @@ public class SupervisorController {
     @Autowired
     private RoleService roleService;
 
-//    @Autowired
-//    private SupervisorService supervisorService;
+    @Autowired
+    private SupervisorService supervisorService;
 
     @GetMapping("/hello")
     public String helloWorld()
@@ -123,47 +125,59 @@ public class SupervisorController {
         // OTP is valid and not expired
         return true;
     }
-//    @PostMapping("/regFW")
-//    public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request)
-//    {
-//        try{
-//            // Extract user information from the request
-//            String email = request.getUser().getEmail();
-//            String password = userService.generatePassword();
-//            String roleName = request.getUser().getRole().getName();
-//            int sup_id = request.getSup_id();
-//            String area = request.getArea();
-//
-//            Role role = roleService.getOrCreateRole(roleName);
-//            User user = userService.createUser(email, password, role);
-//            Supervisor supervisor = supervisorService.getDetails(sup_id);
-//
-//            // Create a new FW object
-//            FieldWorker fieldWorker = new FieldWorker();
-//            fieldWorker.setUser(user);
-//            fieldWorker.setArea(area);
-//            fieldWorker.setSupervisor(supervisor);
-//
-//            // Save the Field Worker object
-//            FieldWorker createdFieldWorker = supervisorService.createFieldWorker(fieldWorker);
-//            supervisorService.sendFieldWorkerCredentials(email, password, area);
-//
-//            return ResponseEntity.status(HttpStatus.CREATED).body(createdFieldWorker);
-//        }
+    @PostMapping("/regFW")
+    public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request)
+    {
+        try{
+            // Extract user information from the request
+            String email = request.getUser().getEmail();
+            String password = userService.generatePassword();
+            String roleName = request.getUser().getRole().getName();
+            int sup_id = request.getSup_id();
+            String area = request.getArea();
 
-//        catch (Exception e) {
-//            System.out.println("Error Occurring");
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-//        }
-//    }
+            Role role = roleService.getOrCreateRole(roleName);
+            User user = userService.createUser(email, password, role);
+            Supervisor supervisor = supervisorService.getDetails(sup_id);
 
-//    @PostMapping("/remFW")
-//    public ResponseEntity<String> removeFieldWorker(@RequestParam int id)
-//    {
-//        boolean response = supervisorService.removeFieldWorker(id);
-//        if(response)
-//            return ResponseEntity.ok("Field Worker removed successfully");
-//        else
-//            return ResponseEntity.ok("Can Not delete Field Worker");
-//    }
+            // Create a new FW object
+            FieldWorker fieldWorker = new FieldWorker();
+            fieldWorker.setUser(user);
+            fieldWorker.setArea(area);
+            fieldWorker.setSupervisor(supervisor);
+
+            // Save the Field Worker object
+            FieldWorker createdFieldWorker = supervisorService.createFieldWorker(fieldWorker);
+            supervisorService.sendFieldWorkerCredentials(email, password, area);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdFieldWorker);
+        }
+
+        catch (Exception e) {
+            System.out.println("Error Occurring");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PostMapping("/remFW")
+    public ResponseEntity<String> removeFieldWorker(@RequestParam int id)
+    {
+        boolean response = supervisorService.removeFieldWorker(id);
+        if(response)
+            return ResponseEntity.ok("Field Worker removed successfully");
+        else
+            return ResponseEntity.ok("Can Not delete Field Worker");
+    }
+
+    @GetMapping("/supId")
+    public int getSupervisorId(Principal principal) {
+        // Get the email of the logged-in user from Principal
+        String loggedInUserEmail = principal.getName();
+
+        // Assuming you have a service to retrieve supervisor ID based on the logged-in user's email
+        int supervisorId = supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
+
+        // You can return the supervisor ID or any other response as needed
+        return supervisorId;
+    }
 }

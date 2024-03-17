@@ -5,6 +5,7 @@ import com.example.demo.Entity.Supervisor;
 import com.example.demo.Repository.FieldWorkerRepository;
 import com.example.demo.Repository.SupervisorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -58,4 +59,13 @@ public class SupervisorService {
     }
 
 
+    public int getSupervisorIdByEmail(String email) {
+        Supervisor supervisor = supervisorRepository.findByUser_Email(email);
+        if (supervisor != null) {
+            return supervisor.getId(); // Assuming getId() returns the supervisor ID
+        } else {
+            return -1;
+        }
+
+    }
 }
