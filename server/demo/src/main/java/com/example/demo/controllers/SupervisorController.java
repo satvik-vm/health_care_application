@@ -12,7 +12,6 @@ import com.example.demo.models.SendOtpRequest;
 import com.example.demo.models.VerifyOtpRequest;
 import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.RoleService;
-//import com.example.demo.services.SupervisorService;
 import com.example.demo.services.SupervisorService;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import java.util.Date;
 
 @RestController
 @RequestMapping("/supervisor")
+@CrossOrigin(origins = "*")
 public class SupervisorController {
     @Autowired
     UserRepository userRepository;
@@ -66,7 +66,6 @@ public class SupervisorController {
             user.setDob(request.getDob());
             user.setPhone(request.getPhone());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
-            System.out.println(request.getPassword());
             userRepository.save(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         }
@@ -173,12 +172,14 @@ public class SupervisorController {
     public int getSupervisorId(Principal principal) {
         String loggedInUserEmail = principal.getName();
         return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
-
     }
 
     @GetMapping("/dob")
-    public String getDob(Principal principal){
+    public Boolean getDob(Principal principal){
         String email = principal.getName();
-        return userService.getDobByEmail(email);
+        if(userService.getDobByEmail(email) == null) {
+            return false;
+        }
+        return true;
     }
 }
