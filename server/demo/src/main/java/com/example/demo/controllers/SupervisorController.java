@@ -171,13 +171,14 @@ public class SupervisorController {
 
     @GetMapping("/supId")
     public int getSupervisorId(Principal principal) {
-        // Get the email of the logged-in user from Principal
         String loggedInUserEmail = principal.getName();
+        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
 
-        // Assuming you have a service to retrieve supervisor ID based on the logged-in user's email
-        int supervisorId = supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
+    }
 
-        // You can return the supervisor ID or any other response as needed
-        return supervisorId;
+    @GetMapping("/dob")
+    public String getDob(Principal principal){
+        String email = principal.getName();
+        return userService.getDobByEmail(email);
     }
 }

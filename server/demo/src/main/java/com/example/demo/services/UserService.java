@@ -71,4 +71,9 @@ public class UserService {
         User user = userRepository.getUserByUsername(email);
         otpService.setOrCreateOtp(user, otp_num);
     }
+
+    public String getDobByEmail(String email) {
+        User user = userRepository.getUserByUsername(email);
+        return user.getDob();
+    }
 }
