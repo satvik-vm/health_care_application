@@ -12,6 +12,7 @@ import com.example.demo.models.SendOtpRequest;
 import com.example.demo.models.VerifyOtpRequest;
 import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.RoleService;
+//import com.example.demo.services.SupervisorService;
 import com.example.demo.services.SupervisorService;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Date;
 
 
 @RestController
 @RequestMapping("/supervisor")
-@CrossOrigin(origins = "*")
 public class SupervisorController {
     @Autowired
     UserRepository userRepository;
@@ -89,7 +90,6 @@ public class SupervisorController {
             userService.createOTP(request.getEmail(), otp);
             emailSenderService.sendEmail(request.getEmail(), subject, body);
             return true; // Email sent successfully
-
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception for debugging purposes
             return false; // Failed to send email
@@ -133,7 +133,6 @@ public class SupervisorController {
             String email = request.getUser().getEmail();
             String password = userService.generatePassword();
             String roleName = request.getUser().getRole().getName();
-
             int sup_id = request.getSup_id();
             String area = request.getArea();
 
@@ -168,5 +167,18 @@ public class SupervisorController {
             return ResponseEntity.ok("Field Worker removed successfully");
         else
             return ResponseEntity.ok("Can Not delete Field Worker");
+    }
+
+    @GetMapping("/supId")
+    public int getSupervisorId(Principal principal) {
+        String loggedInUserEmail = principal.getName();
+        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
+
+    }
+
+    @GetMapping("/dob")
+    public String getDob(Principal principal){
+        String email = principal.getName();
+        return userService.getDobByEmail(email);
     }
 }
