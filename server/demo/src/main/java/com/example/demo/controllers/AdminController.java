@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -134,5 +137,24 @@ public class AdminController {
     {
         List<Supervisor> supervisors = adminService.getSupervisors(district);
         return ResponseEntity.ok().body(supervisors);
+    }
+
+    @PostMapping("/upload")
+    public String uploadFile(@RequestParam("file") MultipartFile file) {
+        // Implement file upload logic here
+        if (!file.isEmpty()) {
+            try {
+                String fileName = file.getOriginalFilename();
+                String filePath = "/path/to/save/" + fileName; // Change this to your desired file path
+                File dest = new File(filePath);
+                file.transferTo(dest);
+                return "File uploaded successfully!";
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Failed to upload file!";
+            }
+        } else {
+            return "File is empty!";
+        }
     }
 }
