@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
-import com.example.demo.Entity.Admin;
-import com.example.demo.Entity.Role;
-import com.example.demo.Entity.Supervisor;
-import com.example.demo.Entity.User;
+import com.example.demo.Entity.*;
 import com.example.demo.models.SupervisorCreationRequest;
+import com.example.demo.models.HospitalCreationRequest;
 import com.example.demo.models.SupervisorRemovalRequest;
 import com.example.demo.services.AdminService;
 import com.example.demo.services.EmailSenderService;
@@ -55,12 +53,16 @@ public class AdminController {
     public ResponseEntity<Supervisor> registerSupervisor(@RequestBody SupervisorCreationRequest request)
     {
         try {
-            System.out.println("mukul");
+            System.out.println("mukul......");
             // Extract user information from the request
             String email = request.getUser().getEmail();
+            System.out.println(email);
             String password = userService.generatePassword();
+            System.out.println(password);
             String roleName = request.getUser().getRole().getName();
+            System.out.println(roleName);
             String district = request.getDistrict();
+            System.out.println(district);
 
             Role role = roleService.getOrCreateRole(roleName);
             User user = userService.createUser(email, password, role);
@@ -81,6 +83,38 @@ public class AdminController {
         }
     }
 
+
+    @PostMapping("/regHospital")
+    public ResponseEntity<Hospital> registerHospital(@RequestBody HospitalCreationRequest request)
+    {
+        try {
+            String email = request.getUser().getEmail();
+            String password = userService.generatePassword();
+            String roleName = request.getUser().getRole().getName();
+            String district = request.getDistrict();
+            String subDivision = request.getSubDivision();
+
+            Role role = roleService.getOrCreateRole(roleName);
+            User user = userService.createUser(email, password, role);
+
+            // Create a new Hospital object
+            Hospital hospital = new Hospital();
+            hospital.setUser(user);
+            hospital.setDistrict(district);
+            hospital.setSubDivision(subDivision);
+            System.out.println(hospital.getSubDivision());
+            // Save the hospital object
+            Hospital createdHospital = adminService.createHospital(hospital);
+            System.out.println("Hewooo");
+            adminService.sendHospitalCredentials(email, password, district, subDivision);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdHospital);
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     @PostMapping("/remSup")
     public ResponseEntity<String> removeSupervisor(@RequestBody SupervisorRemovalRequest request)
     {
@@ -95,4 +129,10 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/getSup")
+    public ResponseEntity<List<Supervisor>> getSupervisors(@RequestParam String district)
+    {
+        List<Supervisor> supervisors = adminService.getSupervisors(district);
+        return ResponseEntity.ok().body(supervisors);
+    }
 }

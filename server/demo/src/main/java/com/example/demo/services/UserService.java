@@ -55,7 +55,7 @@ public class UserService {
 
     public String generateOTP()
     {
-        int length = 6;
+        int length = 4;
         String numbers = "0123456789";
         StringBuilder otp = new StringBuilder();
         SecureRandom random = new SecureRandom();
@@ -70,5 +70,10 @@ public class UserService {
     {
         User user = userRepository.getUserByUsername(email);
         otpService.setOrCreateOtp(user, otp_num);
+    }
+
+    public String getDobByEmail(String email) {
+        User user = userRepository.getUserByUsername(email);
+        return user.getDob();
     }
 }

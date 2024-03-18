@@ -20,11 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Date;
 
 
 @RestController
 @RequestMapping("/supervisor")
+@CrossOrigin(origins = "*")
 public class SupervisorController {
     @Autowired
     UserRepository userRepository;
@@ -64,7 +66,6 @@ public class SupervisorController {
             user.setDob(request.getDob());
             user.setPhone(request.getPhone());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
-            System.out.println(request.getPassword());
             userRepository.save(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         }
@@ -165,5 +166,20 @@ public class SupervisorController {
             return ResponseEntity.ok("Field Worker removed successfully");
         else
             return ResponseEntity.ok("Can Not delete Field Worker");
+    }
+
+    @GetMapping("/supId")
+    public int getSupervisorId(Principal principal) {
+        String loggedInUserEmail = principal.getName();
+        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
+    }
+
+    @GetMapping("/dob")
+    public Boolean getDob(Principal principal){
+        String email = principal.getName();
+        if(userService.getDobByEmail(email) == null) {
+            return false;
+        }
+        return true;
     }
 }
