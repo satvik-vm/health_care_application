@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 import com.example.demo.Entity.*;
+import com.example.demo.models.QuestionRequest;
 import com.example.demo.models.SupervisorCreationRequest;
 import com.example.demo.models.HospitalCreationRequest;
 import com.example.demo.models.SupervisorRemovalRequest;
@@ -19,6 +20,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin")
@@ -156,5 +158,23 @@ public class AdminController {
         } else {
             return "File is empty!";
         }
+    }
+
+    @PostMapping("/setQ")
+    public boolean setQuestionnaire(@RequestBody QuestionRequest request)
+    {
+        return adminService.createQuestion(request);
+    }
+
+    @GetMapping("/getQ")
+    public Optional<Question> getQuestionnaire(@RequestParam int id)
+    {
+        return adminService.getQuestionById(id);
+    }
+
+    @GetMapping("/getAllQ")
+    public List<Question> getAllQuestionnaire()
+    {
+        return adminService.getAllQuestionById();
     }
 }

@@ -1,13 +1,8 @@
 package com.example.demo.services;
 
-import com.example.demo.Entity.Admin;
-import com.example.demo.Entity.Hospital;
-import com.example.demo.Entity.Supervisor;
-import com.example.demo.Entity.User;
-import com.example.demo.Repository.AdminRepository;
-import com.example.demo.Repository.HospitalRepository;
-import com.example.demo.Repository.SupervisorRepository;
-import com.example.demo.Repository.UserRepository;
+import com.example.demo.Entity.*;
+import com.example.demo.Repository.*;
+import com.example.demo.models.QuestionRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +31,9 @@ public class AdminService {
 
     @Autowired
     private HospitalRepository hospitalRepository;
+
+    @Autowired
+    private QuestionRepository questionRepository;
 
     public List<Admin> getAdmin()
     {
@@ -113,5 +111,36 @@ public class AdminService {
     public List<Supervisor> getSupervisors(String district)
     {
         return supervisorRepository.findByDistrict(district);
+    }
+
+    public boolean createQuestion(QuestionRequest req) {
+        String type = req.getType();
+        Question qs = new Question();
+        qs.setQuestion(req.getQuestion());
+        qs.setType(req.getType());
+        if(type.equals("mcq"))
+        {
+            qs.setOptionA(req.getOptA());
+            qs.setOptionB(req.getOptB());
+            qs.setOptionC(req.getOptC());
+            qs.setOptionD(req.getOptD());
+        }
+        try {
+            questionRepository.save(qs);
+            return true;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Optional<Question> getQuestionById(int id) {
+        return questionRepository.findById(id);
+    }
+
+    public List<Question> getAllQuestionById() {
+        return questionRepository.findAll();
     }
 }
