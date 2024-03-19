@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Date;
 
 @RestController
@@ -101,6 +102,15 @@ public class FieldWorkerController {
         }
 
         // OTP is valid and not expired
+        return true;
+    }
+
+    @GetMapping("/dob")
+    public Boolean getDob(Principal principal){
+        String email = principal.getName();
+        if(userService.getDobByEmail(email) == null) {
+            return false;
+        }
         return true;
     }
 }
