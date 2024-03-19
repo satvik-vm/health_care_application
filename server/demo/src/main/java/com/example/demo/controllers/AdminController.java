@@ -165,6 +165,11 @@ public class AdminController {
     {
         return adminService.createQuestion(request);
     }
+    @PostMapping("/setQn")
+    public boolean setQuestionnaire(@RequestParam String name)
+    {
+        return adminService.createQuestionnaire(name);
+    }
 
     @GetMapping("/getQ")
     public Optional<Question> getQuestionnaire(@RequestParam int id)

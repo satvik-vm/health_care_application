@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "Questionnaire")
+@Table(name = "question")
 public class Question {
 
     @Id
@@ -32,4 +32,8 @@ public class Question {
 
     @Column(name = "optionD")
     private String optionD;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "qn_id", nullable = false)
+    private Questionnaire qn;
 }

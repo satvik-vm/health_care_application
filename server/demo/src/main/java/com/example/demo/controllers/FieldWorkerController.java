@@ -1,12 +1,15 @@
 package com.example.demo.controllers;
 
 
+import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.models.ModifyUserRequest;
+import com.example.demo.models.PatientCreationRequest;
 import com.example.demo.models.SendOtpRequest;
 import com.example.demo.models.VerifyOtpRequest;
 import com.example.demo.services.EmailSenderService;
+import com.example.demo.services.FwService;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +35,9 @@ public class FieldWorkerController {
 
     @Autowired
     EmailSenderService emailSenderService;
+
+    @Autowired
+    FwService fwService;
 
     @PostMapping("/modifyDetails")
     public ResponseEntity<User> modifyDetails(@RequestBody ModifyUserRequest request)
@@ -112,5 +118,11 @@ public class FieldWorkerController {
             return false;
         }
         return true;
+    }
+
+    @PostMapping("/regPatient")
+    public Patient regPatient(@RequestBody PatientCreationRequest request)
+    {
+        return fwService.createPatient(request);
     }
 }

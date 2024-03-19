@@ -40,6 +40,9 @@ public class User implements UserDetails {
     @Column(name = "DOB")
     private String dob;
 
+    @Column(name = "Gender")
+    private String gender;
+
     @Column(name = "date_of_joining")
     private Date dateOfJoining;
 

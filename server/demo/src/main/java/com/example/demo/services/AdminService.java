@@ -35,6 +35,9 @@ public class AdminService {
     @Autowired
     private QuestionRepository questionRepository;
 
+    @Autowired
+    private QuestionnaireRepository questionnaireRepository;
+
     public List<Admin> getAdmin()
     {
         return adminRepository.findAll();
@@ -116,8 +119,11 @@ public class AdminService {
     public boolean createQuestion(QuestionRequest req) {
         String type = req.getType();
         Question qs = new Question();
+
         qs.setQuestion(req.getQuestion());
         qs.setType(req.getType());
+        Questionnaire qn = questionnaireRepository.findById(req.getQnId()).get();
+        qs.setQn(qn);
         if(type.equals("mcq"))
         {
             qs.setOptionA(req.getOptA());
@@ -142,5 +148,18 @@ public class AdminService {
 
     public List<Question> getAllQuestionById() {
         return questionRepository.findAll();
+    }
+
+    public boolean createQuestionnaire(String name) {
+        Questionnaire qn = new Questionnaire();
+        qn.setName(name);
+        try {
+            questionnaireRepository.save(qn);
+            return true;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 }
