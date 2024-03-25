@@ -5,19 +5,21 @@ import com.example.demo.Entity.Answer;
 import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
-import com.example.demo.models.ModifyUserRequest;
-import com.example.demo.models.PatientCreationRequest;
-import com.example.demo.models.SendOtpRequest;
-import com.example.demo.models.VerifyOtpRequest;
+import com.example.demo.models.*;
 import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.FwService;
+import com.example.demo.services.GoogleDriveService;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +42,9 @@ public class FieldWorkerController {
 
     @Autowired
     FwService fwService;
+
+    @Autowired
+    GoogleDriveService googleDriveService;
 
     @PostMapping("/modifyDetails")
     public ResponseEntity<User> modifyDetails(@RequestBody ModifyUserRequest request)
@@ -132,5 +137,17 @@ public class FieldWorkerController {
     public String getCategorization(@RequestBody List<Answer> answers)
     {
         return fwService.getCategorizedClass(answers);
+    }
+
+    @PostMapping("/uploadDescMsg")
+    public Object handleFileUpload(@RequestParam("audio") MultipartFile file) throws IOException, GeneralSecurityException {
+        if (file.isEmpty()) {
+            return "FIle is empty";
+        }
+        File tempFile = File.createTempFile("temp", null);
+        file.transferTo(tempFile);
+        DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
+        System.out.println(res);
+        return res;
     }
 }
