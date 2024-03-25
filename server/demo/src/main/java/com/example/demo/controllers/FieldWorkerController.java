@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 
+import com.example.demo.Entity.Answer;
 import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/fw")
@@ -124,5 +126,11 @@ public class FieldWorkerController {
     public Patient regPatient(@RequestBody PatientCreationRequest request)
     {
         return fwService.createPatient(request);
+    }
+
+    @GetMapping("/qLogic")
+    public String getCategorization(@RequestBody List<Answer> answers)
+    {
+        return fwService.getCategorizedClass(answers);
     }
 }

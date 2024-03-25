@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.Entity.Answer;
 import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.Role;
 import com.example.demo.Entity.User;
@@ -10,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FwService {
     @Autowired
     UserRepository userRepository;
     @Autowired
     RoleService roleService;
-
     @Autowired
     UserService userService;
     @Autowired
@@ -67,6 +69,37 @@ public class FwService {
         patient.setAabhaId(request.getAabha());
         patient.setFwAssistance(request.isAssist());
         return patientRepository.save(patient);
+    }
 
+    public String getCategorizedClass(List<Answer> answers) {
+        int n1 = 0;
+        int n2 = 0;
+        int score = 0;
+        for(Answer answer : answers)
+        {
+            if(answer.getQuestion().getType().equals("mcq"))
+            {
+                if(answer.getMcqAns().equals("A"))
+                    score+=0;
+                else if(answer.getMcqAns().equals("B"))
+                    score+=10;
+                else if(answer.getMcqAns().equals("C"))
+                    score+=50;
+                else if(answer.getMcqAns().equals("D"))
+                    score+=100;
+                n1++;
+            }
+            else if(answer.getQuestion().getType().equals("range"))
+            {
+                score+= (10- answer.getRangeAns())*10;
+                n2++;
+            }
+        }
+        if(score > n1*80 || score > n2*70)
+            return "RED";
+        else if(score > n1*31 && score > n2*31)
+            return "YELLOW";
+        else
+            return "GREEN";
     }
 }
