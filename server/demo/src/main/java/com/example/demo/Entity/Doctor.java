@@ -17,6 +17,12 @@ public class Doctor {
     @Column(name = "doctor_id")
     private int id;
 
+    @Column(name = "speciality")
+    private String speciality;
+
+    @Column(name="status")
+    private String status;
+
     @ManyToOne
     @JoinColumn(name="hospital_id", nullable = false)
     private Hospital hospital;

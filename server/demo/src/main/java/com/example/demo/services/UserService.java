@@ -39,6 +39,18 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User createUserForDoctor(String email, String password, Role role, String fname, String lname)
+    {
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setRole(role);
+        user.setFirstName(fname);
+        user.setLastName(lname);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
     public String generatePassword() {
         String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         int length = 8; // Desired length of the password

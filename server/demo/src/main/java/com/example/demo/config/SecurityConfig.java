@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/login", "/auth/create-admin").permitAll().
                 requestMatchers("/admin/**").hasRole("ADMIN").
                 requestMatchers("/supervisor/**").hasRole("SUPERVISOR").
-                requestMatchers("/fw/**").hasRole("FIELD_WORKER")
+                requestMatchers("/fw/**").hasRole("FIELD_WORKER").
+                requestMatchers("/hospital/**").hasRole("HOSPITAL")
                 .anyRequest()
                 .authenticated()
                 .and().exceptionHandling(ex -> ex.authenticationEntryPoint(point))
