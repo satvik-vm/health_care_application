@@ -72,9 +72,6 @@ public class AuthController {
 
 
         }
-//        catch (BadCredentialsException e) {
-//            throw new BadCredentialsException(" Invalid Username or Password  !! " + email);
-//        }
         catch (AuthenticationException e) {
             // General authentication exception occurred, log the exception stack trace
             System.err.println("Authentication failed for user: " + email);
@@ -92,8 +89,6 @@ public class AuthController {
     @PostMapping("/create-admin")
     public ResponseEntity<String> createAdmin(@RequestBody AdminCreationRequest request)
     {
-//        try {
-            // Extract user information from the request
 
             String email = request.getUser().getEmail();
 
@@ -118,10 +113,6 @@ public class AuthController {
             adminService.createAdmin(admin);
 
             return ResponseEntity.ok("Admin created successfully");
-//        }
-//        catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create admin");
-//        }
     }
 
 }

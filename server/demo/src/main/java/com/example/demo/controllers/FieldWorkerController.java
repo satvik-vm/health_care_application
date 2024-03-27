@@ -1,59 +1,50 @@
 package com.example.demo.controllers;
 
-import com.example.demo.Entity.FieldWorker;
-import com.example.demo.Entity.Role;
-import com.example.demo.Entity.Supervisor;
+
+import com.example.demo.Entity.Answer;
+import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.User;
-import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
-import com.example.demo.models.FWCreationRequest;
-import com.example.demo.models.ModifyUserRequest;
-import com.example.demo.models.SendOtpRequest;
-import com.example.demo.models.VerifyOtpRequest;
+import com.example.demo.models.*;
 import com.example.demo.services.EmailSenderService;
-import com.example.demo.services.RoleService;
-import com.example.demo.services.SupervisorService;
+import com.example.demo.services.FwService;
+import com.example.demo.services.GoogleDriveService;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.Date;
-
+import java.util.List;
 
 @RestController
-@RequestMapping("/supervisor")
+@RequestMapping("/fw")
 @CrossOrigin(origins = "*")
-public class SupervisorController {
+public class FieldWorkerController {
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    SupervisorRepository supervisorRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    EmailSenderService emailSenderService;
-
-    @Autowired
     UserService userService;
 
     @Autowired
-    private RoleService roleService;
+    EmailSenderService emailSenderService;
 
     @Autowired
-    private SupervisorService supervisorService;
+    FwService fwService;
 
-    @GetMapping("/hello")
-    public String helloWorld()
-    {
-        return "Hello, Mukul !!";
-    }
+    @Autowired
+    GoogleDriveService googleDriveService;
 
     @PostMapping("/modifyDetails")
     public ResponseEntity<User> modifyDetails(@RequestBody ModifyUserRequest request)
@@ -66,6 +57,7 @@ public class SupervisorController {
             user.setDob(request.getDob());
             user.setPhone(request.getPhone());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            System.out.println(request.getPassword());
             userRepository.save(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         }
@@ -78,7 +70,7 @@ public class SupervisorController {
     public boolean sendOtp(@RequestBody SendOtpRequest request) {
         String otp = userService.generateOTP();
         String subject = "OTP Verification";
-        String body = "Dear Supervisor,\n\n"
+        String body = "Dear Field Worker,\n\n"
                 + "Thank you for using our service. To complete your registration/authentication process, please use the following OTP (One-Time Password):\n\n"
                 + "OTP: " + otp + "\n\n"
                 + "Please enter this OTP on the verification page to confirm your identity.\n\n"
@@ -89,7 +81,8 @@ public class SupervisorController {
             userService.createOTP(request.getEmail(), otp);
             emailSenderService.sendEmail(request.getEmail(), subject, body);
             return true; // Email sent successfully
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace(); // Log the exception for debugging purposes
             return false; // Failed to send email
         }
@@ -124,55 +117,6 @@ public class SupervisorController {
         // OTP is valid and not expired
         return true;
     }
-    @PostMapping("/regFW")
-    public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request)
-    {
-        try{
-            // Extract user information from the request
-            String email = request.getUser().getEmail();
-            String password = userService.generatePassword();
-            String roleName = request.getUser().getRole().getName();
-            int sup_id = request.getSup_id();
-            String area = request.getArea();
-
-            Role role = roleService.getOrCreateRole(roleName);
-            User user = userService.createUser(email, password, role);
-            Supervisor supervisor = supervisorService.getDetails(sup_id);
-
-            // Create a new FW object
-            FieldWorker fieldWorker = new FieldWorker();
-            fieldWorker.setUser(user);
-            fieldWorker.setArea(area);
-            fieldWorker.setSupervisor(supervisor);
-
-            // Save the Field Worker object
-            FieldWorker createdFieldWorker = supervisorService.createFieldWorker(fieldWorker);
-            supervisorService.sendFieldWorkerCredentials(email, password, area);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdFieldWorker);
-        }
-
-        catch (Exception e) {
-            System.out.println("Error Occurring");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    @PostMapping("/remFW")
-    public ResponseEntity<String> removeFieldWorker(@RequestParam int id)
-    {
-        boolean response = supervisorService.removeFieldWorker(id);
-        if(response)
-            return ResponseEntity.ok("Field Worker removed successfully");
-        else
-            return ResponseEntity.ok("Can Not delete Field Worker");
-    }
-
-    @GetMapping("/supId")
-    public int getSupervisorId(Principal principal) {
-        String loggedInUserEmail = principal.getName();
-        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
-    }
 
     @GetMapping("/dob")
     public Boolean getDob(Principal principal){
@@ -181,5 +125,29 @@ public class SupervisorController {
             return false;
         }
         return true;
+    }
+
+    @PostMapping("/regPatient")
+    public Patient regPatient(@RequestBody PatientCreationRequest request)
+    {
+        return fwService.createPatient(request);
+    }
+
+    @GetMapping("/qLogic")
+    public String getCategorization(@RequestBody List<Answer> answers)
+    {
+        return fwService.getCategorizedClass(answers);
+    }
+
+    @PostMapping("/uploadDescMsg")
+    public Object handleFileUpload(@RequestParam("audio") MultipartFile file) throws IOException, GeneralSecurityException {
+        if (file.isEmpty()) {
+            return "FIle is empty";
+        }
+        File tempFile = File.createTempFile("temp", null);
+        file.transferTo(tempFile);
+        DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
+        System.out.println(res);
+        return res;
     }
 }

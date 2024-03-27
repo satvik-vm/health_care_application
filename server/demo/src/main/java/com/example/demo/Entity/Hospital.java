@@ -1,25 +1,27 @@
 package com.example.demo.Entity;
 
+
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
 
 import java.util.List;
 
 @Entity
-@Table(name="supervisor")
 @Getter
 @Setter
-public class Supervisor{
+@Table(name = "hospital")
+public class Hospital {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sup_id")
+    @Column(name = "hospital_id")
     private int id;
 
     @Column(name = "district", nullable = false)
     private String district;
+
+    @Column(name = "subDivision", nullable = false)
+    private String subDivision;
 
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)

@@ -39,6 +39,18 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User createUserForDoctor(String email, String password, Role role, String fname, String lname)
+    {
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setRole(role);
+        user.setFirstName(fname);
+        user.setLastName(lname);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
     public String generatePassword() {
         String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         int length = 8; // Desired length of the password
@@ -55,7 +67,7 @@ public class UserService {
 
     public String generateOTP()
     {
-        int length = 6;
+        int length = 4;
         String numbers = "0123456789";
         StringBuilder otp = new StringBuilder();
         SecureRandom random = new SecureRandom();
@@ -70,5 +82,10 @@ public class UserService {
     {
         User user = userRepository.getUserByUsername(email);
         otpService.setOrCreateOtp(user, otp_num);
+    }
+
+    public String getDobByEmail(String email) {
+        User user = userRepository.getUserByUsername(email);
+        return user.getDob();
     }
 }

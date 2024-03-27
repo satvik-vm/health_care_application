@@ -1,25 +1,31 @@
 package com.example.demo.Entity;
 
+
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
 
 import java.util.List;
 
 @Entity
-@Table(name="supervisor")
 @Getter
 @Setter
-public class Supervisor{
+@Table(name = "doctor")
+public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sup_id")
+    @Column(name = "doctor_id")
     private int id;
 
-    @Column(name = "district", nullable = false)
-    private String district;
+    @Column(name = "speciality")
+    private String speciality;
+
+    @Column(name="status")
+    private String status;
+
+    @ManyToOne
+    @JoinColumn(name="hospital_id", nullable = false)
+    private Hospital hospital;
 
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)

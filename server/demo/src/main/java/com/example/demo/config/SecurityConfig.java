@@ -34,7 +34,9 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/auth/login", "/auth/create-admin").permitAll().
                 requestMatchers("/admin/**").hasRole("ADMIN").
-                requestMatchers("/supervisor/**").hasRole("SUPERVISOR")
+                requestMatchers("/supervisor/**").hasRole("SUPERVISOR").
+                requestMatchers("/fw/**").hasRole("FIELD_WORKER").
+                requestMatchers("/hospital/**").hasRole("HOSPITAL")
                 .anyRequest()
                 .authenticated()
                 .and().exceptionHandling(ex -> ex.authenticationEntryPoint(point))
