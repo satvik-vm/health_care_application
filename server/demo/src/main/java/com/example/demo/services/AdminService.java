@@ -180,20 +180,30 @@ public class AdminService {
         return questionRepository.findById(id);
     }
 
-    public List<Question> getAllQuestionById() {
-        return questionRepository.findAll();
+    public List<Question> getAllQuestionByQnName(String name) {
+        return questionRepository.findByQn_Name(name);
     }
 
-    public boolean createQuestionnaire(String name) {
+    public Questionnaire createQuestionnaire(String name) {
         Questionnaire qn = new Questionnaire();
         qn.setName(name);
         try {
-            questionnaireRepository.save(qn);
-            return true;
+            return questionnaireRepository.save(qn);
+
         }
         catch (Exception e){
             e.printStackTrace();
-            return false;
+            return null;
         }
+    }
+
+    public int getQuestionnaireByName(String name) {
+        Optional<Questionnaire> questionnaire = questionnaireRepository.findByName(name);
+        if(questionnaire.isPresent())
+            return questionnaire.get().getId();
+        else
+            return -1;
+
+
     }
 }

@@ -174,25 +174,26 @@ public class AdminController {
     }
 
     @PostMapping("/setQ")
-    public boolean setQuestionnaire(@RequestBody QuestionRequest request)
+    public boolean setQuestion(@RequestBody QuestionRequest request)
     {
         return adminService.createQuestion(request);
     }
+
     @PostMapping("/setQn")
-    public boolean setQuestionnaire(@RequestParam String name)
+    public Questionnaire setQuestionnaire(@RequestParam String name)
     {
         return adminService.createQuestionnaire(name);
     }
 
-    @GetMapping("/getQ")
-    public Optional<Question> getQuestionnaire(@RequestParam int id)
+    @GetMapping("/getQn")
+    public int getQuestionnaire(@RequestParam String name)
     {
-        return adminService.getQuestionById(id);
+        return adminService.getQuestionnaireByName(name);
     }
 
     @GetMapping("/getAllQ")
-    public List<Question> getAllQuestionnaire()
+    public List<Question> getAllQuestions(@RequestParam String name)
     {
-        return adminService.getAllQuestionById();
+        return adminService.getAllQuestionByQnName(name);
     }
 }
