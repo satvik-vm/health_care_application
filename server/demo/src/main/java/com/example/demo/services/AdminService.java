@@ -117,7 +117,7 @@ public class AdminService {
 
     public Supervisor getSupervisors(String district)
     {
-        return supervisorRepository.findByDistrict(district);
+        return supervisorRepository.findByDistrict_Name(district);
     }
 
     @Transactional
@@ -126,7 +126,8 @@ public class AdminService {
 
         // Get the current district of the supervisor with the given ID
         Optional<Supervisor> supervisorOptional = supervisorRepository.findById(sup_id);
-        Supervisor otherSupervisor = supervisorRepository.findByDistrict(district);
+        Supervisor otherSupervisor = supervisorRepository.findByDistrict_Name(district);
+        System.out.println(otherSupervisor.getDistrict().getDisrictId());
 
         if (supervisorOptional.isPresent()) {
 
@@ -136,13 +137,13 @@ public class AdminService {
 
             // Update the district of the supervisor with the given ID to the new district
             supervisor.setDistrict(districtService.getOrCreateDistrict(district));
+            otherSupervisor.setDistrict(null);
+            supervisorRepository.save(otherSupervisor);
             supervisorRepository.save(supervisor);
 
             // Update the district of the supervisor with the specified district to the current district
-            if (otherSupervisor != null) {
-                otherSupervisor.setDistrict(currentDistrict);
-                supervisorRepository.save(otherSupervisor);
-            }
+            otherSupervisor.setDistrict(currentDistrict);
+            supervisorRepository.save(otherSupervisor);
             return true;
         }
         else

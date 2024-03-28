@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class FWCreationRequest {
-    private int sup_id;
+    private DistrictRequest district;
     private String area;
     private UserRequest user;
 }

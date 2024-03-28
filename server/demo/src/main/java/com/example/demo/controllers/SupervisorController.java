@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.Entity.FieldWorker;
-import com.example.demo.Entity.Role;
-import com.example.demo.Entity.Supervisor;
-import com.example.demo.Entity.User;
+import com.example.demo.Entity.*;
+import com.example.demo.Repository.DistrictRepository;
 import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.models.FWCreationRequest;
@@ -48,6 +46,9 @@ public class SupervisorController {
 
     @Autowired
     private SupervisorService supervisorService;
+
+    @Autowired
+    private DistrictRepository districtRepository;
 
     @GetMapping("/hello")
     public String helloWorld()
@@ -124,6 +125,7 @@ public class SupervisorController {
         // OTP is valid and not expired
         return true;
     }
+
     @PostMapping("/regFW")
     public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request)
     {
@@ -132,18 +134,17 @@ public class SupervisorController {
             String email = request.getUser().getEmail();
             String password = userService.generatePassword();
             String roleName = request.getUser().getRole().getName();
-            int sup_id = request.getSup_id();
             String area = request.getArea();
+            District district = districtRepository.findByName(request.getDistrict().getName()).get();
 
             Role role = roleService.getOrCreateRole(roleName);
             User user = userService.createUser(email, password, role);
-            Supervisor supervisor = supervisorService.getDetails(sup_id);
 
             // Create a new FW object
             FieldWorker fieldWorker = new FieldWorker();
             fieldWorker.setUser(user);
             fieldWorker.setArea(area);
-            fieldWorker.setSupervisor(supervisor);
+            fieldWorker.setDistrict(district);
 
             // Save the Field Worker object
             FieldWorker createdFieldWorker = supervisorService.createFieldWorker(fieldWorker);

@@ -6,7 +6,7 @@ import com.example.demo.Entity.Supervisor;
 import java.util.List;
 
 public interface SupervisorRepository extends JpaRepository<Supervisor, Integer> {
-    Supervisor findByDistrict(String district);
+    Supervisor findByDistrict_Name(String district);
 
     Supervisor findByUser_Email(String email);
 

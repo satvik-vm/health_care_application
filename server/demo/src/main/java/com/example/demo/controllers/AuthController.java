@@ -9,6 +9,7 @@ import com.example.demo.models.JwtResponse;
 import com.example.demo.security.JwtHelper;
 import com.example.demo.services.AdminService;
 import com.example.demo.services.CustomUserDetailsService;
+import com.example.demo.services.RoleService;
 import com.example.demo.services.UserService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class AuthController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    RoleService roleService;
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -96,7 +100,7 @@ public class AuthController {
 
             String roleName = request.getUser().getRole().getName();
             // Create a new Role object
-            Role role = new Role();
+            Role role = roleService.getOrCreateRole(roleName);
             role.setName(roleName);
 
 
