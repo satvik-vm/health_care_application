@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import com.example.demo.models.QuestionRequest;
+import com.example.demo.models.SupervisorTransferRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -111,9 +112,38 @@ public class AdminService {
         emailSenderService.sendEmail(email, subject, body);
     }
 
-    public List<Supervisor> getSupervisors(String district)
+    public Supervisor getSupervisors(String district)
     {
         return supervisorRepository.findByDistrict(district);
+    }
+
+    @Transactional
+    public boolean transferSupervisor(int sup_id, String district)
+    {
+
+        // Get the current district of the supervisor with the given ID
+        Optional<Supervisor> supervisorOptional = supervisorRepository.findById(sup_id);
+        Supervisor otherSupervisor = supervisorRepository.findByDistrict(district);
+
+        if (supervisorOptional.isPresent()) {
+
+            Supervisor supervisor = supervisorOptional.get();
+            // Save the current district
+            String currentDistrict = supervisor.getDistrict();
+
+            // Update the district of the supervisor with the given ID to the new district
+            supervisor.setDistrict(district);
+            supervisorRepository.save(supervisor);
+
+            // Update the district of the supervisor with the specified district to the current district
+            if (otherSupervisor != null) {
+                otherSupervisor.setDistrict(currentDistrict);
+                supervisorRepository.save(otherSupervisor);
+            }
+            return true;
+        }
+        else
+            return false;
     }
 
     public boolean createQuestion(QuestionRequest req) {

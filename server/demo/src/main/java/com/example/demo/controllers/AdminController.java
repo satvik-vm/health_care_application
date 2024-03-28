@@ -1,9 +1,6 @@
 package com.example.demo.controllers;
 import com.example.demo.Entity.*;
-import com.example.demo.models.QuestionRequest;
-import com.example.demo.models.SupervisorCreationRequest;
-import com.example.demo.models.HospitalCreationRequest;
-import com.example.demo.models.SupervisorRemovalRequest;
+import com.example.demo.models.*;
 import com.example.demo.services.AdminService;
 import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.RoleService;
@@ -139,10 +136,23 @@ public class AdminController {
     }
 
     @GetMapping("/getSup")
-    public ResponseEntity<List<Supervisor>> getSupervisors(@RequestParam String district)
+    public ResponseEntity<Supervisor> getSupervisors(@RequestParam String district)
     {
-        List<Supervisor> supervisors = adminService.getSupervisors(district);
+        Supervisor supervisors = adminService.getSupervisors(district);
         return ResponseEntity.ok().body(supervisors);
+    }
+
+//  Transfer Supervisor API
+    @PostMapping("/transSup")
+    public ResponseEntity<String> transferSupervisor(@RequestBody SupervisorTransferRequest request)
+    {
+        int sup_id = request.getSup_id();
+        String district = request.getDistrict();
+        boolean response = adminService.transferSupervisor(sup_id, district);
+        if(response)
+            return ResponseEntity.ok("Supervisor transferred successfully");
+        else
+            return ResponseEntity.ok("Could not transfer supervisor");
     }
 
     @PostMapping("/upload")
