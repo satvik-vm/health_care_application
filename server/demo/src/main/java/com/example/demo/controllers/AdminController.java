@@ -1,10 +1,7 @@
 package com.example.demo.controllers;
 import com.example.demo.Entity.*;
 import com.example.demo.models.*;
-import com.example.demo.services.AdminService;
-import com.example.demo.services.EmailSenderService;
-import com.example.demo.services.RoleService;
-import com.example.demo.services.UserService;
+import com.example.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +29,9 @@ public class AdminController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private DistrictService districtService;
 
     @Autowired
     private EmailSenderService emailSenderService;
@@ -63,20 +63,19 @@ public class AdminController {
             System.out.println(password);
             String roleName = request.getUser().getRole().getName();
             System.out.println(roleName);
-            String district = request.getDistrict();
-            System.out.println(district);
-
             Role role = roleService.getOrCreateRole(roleName);
             User user = userService.createUser(email, password, role);
 
             // Create a new Supervisor object
             Supervisor supervisor = new Supervisor();
             supervisor.setUser(user);
+
+            District district = districtService.getOrCreateDistrict(request.getDistrict().getName());
             supervisor.setDistrict(district);
 
             // Save the Supervisor object
             Supervisor createdSupervisor = adminService.createSupervisor(supervisor);
-            adminService.sendSupervisorCredentials(email, password, district);
+            adminService.sendSupervisorCredentials(email, password, district.getName());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(createdSupervisor);
         }

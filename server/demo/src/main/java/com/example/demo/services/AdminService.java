@@ -39,6 +39,9 @@ public class AdminService {
     @Autowired
     private QuestionnaireRepository questionnaireRepository;
 
+    @Autowired
+    private DistrictService districtService;
+
     public List<Admin> getAdmin()
     {
         return adminRepository.findAll();
@@ -129,10 +132,10 @@ public class AdminService {
 
             Supervisor supervisor = supervisorOptional.get();
             // Save the current district
-            String currentDistrict = supervisor.getDistrict();
+            District currentDistrict = supervisor.getDistrict();
 
             // Update the district of the supervisor with the given ID to the new district
-            supervisor.setDistrict(district);
+            supervisor.setDistrict(districtService.getOrCreateDistrict(district));
             supervisorRepository.save(supervisor);
 
             // Update the district of the supervisor with the specified district to the current district

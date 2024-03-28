@@ -53,7 +53,7 @@ public class FwService {
             user.setEmail(email);
             String subject = "Added as a member of Medimate India";
 
-            String body = "Dear "+ firstName + " "+lastName+",\n\n" +
+            String body = "Dear "+ firstName + " " + lastName+",\n\n" +
                     "You have been officially registered in the medimate India.\n\n" +
                     "Your credentials:\n" +
                     "Email: "+email+"\n" +

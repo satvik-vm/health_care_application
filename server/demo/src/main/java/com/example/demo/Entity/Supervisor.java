@@ -18,8 +18,9 @@ public class Supervisor{
     @Column(name = "sup_id")
     private int id;
 
-    @Column(name = "district", nullable = false)
-    private String district;
+    @OneToOne
+    @JoinColumn(name = "district_id", nullable = false)
+    private District district;
 
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)

@@ -6,6 +6,6 @@ import lombok.Data;
 
 @Data
 public class SupervisorCreationRequest {
-    private String district;
+    private DistrictRequest district;
     private UserRequest user;
 }

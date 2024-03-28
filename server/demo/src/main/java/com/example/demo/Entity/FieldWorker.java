@@ -19,10 +19,9 @@ public class FieldWorker {
     @Column(name = "area", nullable = false)
     private String area;
 
-
     @ManyToOne
-    @JoinColumn(name = "supervisor_id", nullable = false)
-    private Supervisor supervisor;
+    @JoinColumn(name = "district_id", nullable = false)
+    private District district;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="user_id", nullable = false)
