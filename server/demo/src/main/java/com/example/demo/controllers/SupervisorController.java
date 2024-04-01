@@ -124,15 +124,17 @@ public class SupervisorController {
     }
 
     @PostMapping("/regFW")
-    public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request)
+    public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request, Principal principal)
     {
         try{
             // Extract user information from the request
+            String supEmail = principal.getName();
+            Supervisor supervisor = supervisorRepository.findByUser_Email(supEmail);
             String email = request.getUser().getEmail();
             String password = userService.generatePassword();
             String roleName = request.getUser().getRole().getName();
             String area = request.getArea();
-            District district = districtRepository.findByName(request.getDistrict().getName()).get();
+            District district = supervisor.getDistrict();
 
             Role role = roleService.getOrCreateRole(roleName);
             User user = userService.createUser(email, password, role);
