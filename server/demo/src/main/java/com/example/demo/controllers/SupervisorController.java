@@ -166,6 +166,17 @@ public class SupervisorController {
             return ResponseEntity.ok("Can Not delete Field Worker");
     }
 
+    @PostMapping("/transFW")
+    public ResponseEntity<String> transferFW(@RequestBody FWTransferRequest request)
+    {
+        int fw_id = request.getFw_id();
+        String area = request.getArea();
+        if(supervisorService.transferFieldWorker(fw_id, area))
+            return ResponseEntity.ok("Field Worker transferred successfully");
+        else
+            return ResponseEntity.ok("Could not transfer field worker");
+    }
+
     @GetMapping("/supId")
     public int getSupervisorId(Principal principal) {
         String loggedInUserEmail = principal.getName();
@@ -181,14 +192,4 @@ public class SupervisorController {
         return true;
     }
 
-    @PostMapping("/transFW")
-    public ResponseEntity<String> transferFW(@RequestBody FWTransferRequest request)
-    {
-        int fw_id = request.getFw_id();
-        String area = request.getArea();
-        if(supervisorService.transferFieldWorker(fw_id, area))
-            return ResponseEntity.ok("Field Worker transferred successfully");
-        else
-            return ResponseEntity.ok("Could not transfer field worker");
-    }
 }

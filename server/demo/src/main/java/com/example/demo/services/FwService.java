@@ -37,6 +37,7 @@ public class FwService {
         user.setFirstName(firstName);
         user.setAddress(request.getAddress());
         user.setGender(request.getGender());
+        user.setRole(role);
         if(!request.getPhone().isEmpty())
         {
             user.setPhone(request.getPhone());
