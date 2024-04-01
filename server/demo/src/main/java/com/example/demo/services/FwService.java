@@ -1,9 +1,7 @@
 package com.example.demo.services;
 
-import com.example.demo.Entity.Answer;
-import com.example.demo.Entity.Patient;
-import com.example.demo.Entity.Role;
-import com.example.demo.Entity.User;
+import com.example.demo.Entity.*;
+import com.example.demo.Repository.FieldWorkerRepository;
 import com.example.demo.Repository.PatientRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.models.PatientCreationRequest;
@@ -12,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FwService {

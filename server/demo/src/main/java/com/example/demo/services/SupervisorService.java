@@ -7,6 +7,7 @@ import com.example.demo.Repository.SupervisorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 
@@ -20,6 +21,11 @@ public class SupervisorService {
 
     @Autowired
     private EmailSenderService emailSenderService;
+
+    @Autowired
+    private DistrictService districtService;
+
+
     public Supervisor getDetails(int id){
         Optional<Supervisor> supervisorOptional = supervisorRepository.findById(id);
         return supervisorOptional.orElse(null);
@@ -56,6 +62,21 @@ public class SupervisorService {
         }
         else
             return false;
+    }
+
+    public boolean transferFieldWorker(int fw_id, String area)
+    {
+        Optional<FieldWorker> fieldWorkerOptional = fieldWorkerRepository.findById(fw_id);
+        if(fieldWorkerOptional.isPresent())
+        {
+            FieldWorker fieldWorker = fieldWorkerOptional.get();
+            fieldWorker.setArea(area);
+            fieldWorkerRepository.save(fieldWorker);
+            return true;
+        }
+        else
+            return false;
+
     }
 
 

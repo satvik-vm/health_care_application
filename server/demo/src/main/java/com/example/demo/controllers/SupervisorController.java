@@ -4,10 +4,7 @@ import com.example.demo.Entity.*;
 import com.example.demo.Repository.DistrictRepository;
 import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
-import com.example.demo.models.FWCreationRequest;
-import com.example.demo.models.ModifyUserRequest;
-import com.example.demo.models.SendOtpRequest;
-import com.example.demo.models.VerifyOtpRequest;
+import com.example.demo.models.*;
 import com.example.demo.services.EmailSenderService;
 import com.example.demo.services.RoleService;
 import com.example.demo.services.SupervisorService;
@@ -182,5 +179,16 @@ public class SupervisorController {
             return false;
         }
         return true;
+    }
+
+    @PostMapping("/transFW")
+    public ResponseEntity<String> transferFW(@RequestBody FWTransferRequest request)
+    {
+        int fw_id = request.getFw_id();
+        String area = request.getArea();
+        if(supervisorService.transferFieldWorker(fw_id, area))
+            return ResponseEntity.ok("Field Worker transferred successfully");
+        else
+            return ResponseEntity.ok("Could not transfer field worker");
     }
 }

@@ -85,6 +85,40 @@ public class AdminController {
     }
 
 
+    @PostMapping("/remSup")
+    public ResponseEntity<String> removeSupervisor(@RequestBody SupervisorRemovalRequest request)
+    {
+        int sup_id = request.getSup_id();
+        boolean response = adminService.removeSupervisor(sup_id);
+        if(response)
+        {
+            return ResponseEntity.ok("Supervisor removed successfully");
+        }
+        else {
+            return ResponseEntity.ok("Can Not delete supervisor");
+        }
+    }
+
+    @GetMapping("/getSup")
+    public ResponseEntity<Supervisor> getSupervisors(@RequestParam String district)
+    {
+        Supervisor supervisors = adminService.getSupervisors(district);
+        return ResponseEntity.ok().body(supervisors);
+    }
+
+//  Transfer Supervisor API
+    @PostMapping("/transSup")
+    public ResponseEntity<String> transferSupervisor(@RequestBody SupervisorTransferRequest request)
+    {
+        int sup_id = request.getSup_id();
+        String district = request.getDistrict();
+        boolean response = adminService.transferSupervisor(sup_id, district);
+        if(response)
+            return ResponseEntity.ok("Supervisor transferred successfully");
+        else
+            return ResponseEntity.ok("Could not transfer supervisor");
+    }
+
     @PostMapping("/regHospital")
     public ResponseEntity<Hospital> registerHospital(@RequestBody HospitalCreationRequest request)
     {
@@ -120,40 +154,6 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/remSup")
-    public ResponseEntity<String> removeSupervisor(@RequestBody SupervisorRemovalRequest request)
-    {
-        int sup_id = request.getSup_id();
-        boolean response = adminService.removeSupervisor(sup_id);
-        if(response)
-        {
-            return ResponseEntity.ok("Supervisor removed successfully");
-        }
-        else {
-            return ResponseEntity.ok("Can Not delete supervisor");
-        }
-    }
-
-    @GetMapping("/getSup")
-    public ResponseEntity<Supervisor> getSupervisors(@RequestParam String district)
-    {
-        Supervisor supervisors = adminService.getSupervisors(district);
-        return ResponseEntity.ok().body(supervisors);
-    }
-
-//  Transfer Supervisor API
-    @PostMapping("/transSup")
-    public ResponseEntity<String> transferSupervisor(@RequestBody SupervisorTransferRequest request)
-    {
-        int sup_id = request.getSup_id();
-        String district = request.getDistrict();
-        boolean response = adminService.transferSupervisor(sup_id, district);
-        if(response)
-            return ResponseEntity.ok("Supervisor transferred successfully");
-        else
-            return ResponseEntity.ok("Could not transfer supervisor");
-    }
-
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file) {
         // Implement file upload logic here
@@ -173,16 +173,16 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/setQ")
-    public boolean setQuestion(@RequestBody QuestionRequest request)
-    {
-        return adminService.createQuestion(request);
-    }
-
     @PostMapping("/setQn")
     public Questionnaire setQuestionnaire(@RequestParam String name)
     {
         return adminService.createQuestionnaire(name);
+    }
+
+    @PostMapping("/setQ")
+    public boolean setQuestion(@RequestBody QuestionRequest request)
+    {
+        return adminService.createQuestion(request);
     }
 
     @GetMapping("/getQn")

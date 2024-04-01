@@ -19,6 +19,6 @@ public class Questionnaire {
     @Column(name="qn_Name", unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "qn", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Question> questions;
+//    @OneToMany(mappedBy = "qn", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Question> questions;
 }
