@@ -1,5 +1,5 @@
 # Introduction
-This is the official repo for team 6 with track 6 for health care application development course for team 2 of acadmeic year 2023 - 2024.
+This is the official repo for team 6 with track 6 for health care application development course for term 2 of acadmeic year 2023 - 2024.
 
 ## Collaborators
 The following are the collaborators for this project: -
