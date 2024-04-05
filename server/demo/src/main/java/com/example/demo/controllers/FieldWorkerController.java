@@ -68,7 +68,9 @@ public class FieldWorkerController {
 
     @PostMapping("/sendOtp")
     public boolean sendOtp(@RequestBody SendOtpRequest request) {
+        System.out.println("Hello World");
         String otp = userService.generateOTP();
+        System.out.println(otp);
         String subject = "OTP Verification";
         String body = "Dear Field Worker,\n\n"
                 + "Thank you for using our service. To complete your registration/authentication process, please use the following OTP (One-Time Password):\n\n"

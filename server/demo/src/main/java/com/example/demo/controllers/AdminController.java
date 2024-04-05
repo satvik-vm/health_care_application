@@ -174,7 +174,7 @@ public class AdminController {
     }
 
     @PostMapping("/setQn")
-    public Questionnaire setQuestionnaire(@RequestParam String name)
+    public Questionnaire setQuestionnaire(@RequestBody String name)
     {
         return adminService.createQuestionnaire(name);
     }
@@ -185,10 +185,13 @@ public class AdminController {
         return adminService.createQuestion(request);
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/getQn")
-    public int getQuestionnaire(@RequestParam String name)
+    public int getQuestionnaire(@RequestParam("name") String name)
     {
+        System.out.println(name);
         return adminService.getQuestionnaireByName(name);
+
     }
 
     @GetMapping("/getAllQ")
