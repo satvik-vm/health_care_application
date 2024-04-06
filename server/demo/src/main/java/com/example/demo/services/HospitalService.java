@@ -3,10 +3,12 @@ package com.example.demo.services;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.DoctorRepository;
 import com.example.demo.Repository.HospitalRepository;
+import com.example.demo.Repository.PatientRepository;
 import com.example.demo.models.DoctorCreationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,6 +24,9 @@ public class HospitalService {
 
     @Autowired
     DoctorRepository doctorRepository;
+
+    @Autowired
+    PatientRepository patientRepository;
 
     public Doctor createDoctor(DoctorCreationRequest request, String hospitalEmail)
     {
@@ -63,5 +68,31 @@ public class HospitalService {
         }
         else
             return false;
+    }
+
+    public Hospital allocateHospital(String subDivision, String district) {
+        List<Hospital> hospitalList = hospitalRepository.findBySubDivision(subDivision);
+        if(hospitalList.isEmpty())
+        {
+            hospitalList = hospitalRepository.findByDistrict(district);
+        }
+        Hospital allocatedHospital = null;
+        int mini = Integer.MAX_VALUE;
+        for(Hospital hospital : hospitalList)
+        {
+            int doctorCount = doctorRepository.countByHospitalId(hospital.getId());
+            int patientCount = patientRepository.countByHospitalId(hospital.getId());
+            if(doctorCount == 0)
+                continue;
+            else
+            {
+                if(mini > patientCount/doctorCount)
+                {
+                    mini = patientCount/doctorCount;
+                    allocatedHospital = hospital;
+                }
+            }
+        }
+        return allocatedHospital;
     }
 }

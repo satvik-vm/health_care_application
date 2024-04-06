@@ -13,5 +13,7 @@ public class PatientCreationRequest {
     private boolean assist;
     private String email;
     private String phone;
+    private String subDivision;
+    private String district;
     private RoleRequest role;
 }

@@ -123,7 +123,6 @@ public class AdminService {
     @Transactional
     public boolean transferSupervisor(int sup_id, String district)
     {
-
         // Get the current district of the supervisor with the given ID
         Optional<Supervisor> supervisorOptional = supervisorRepository.findById(sup_id);
         Supervisor otherSupervisor = supervisorRepository.findByDistrict_Name(district);

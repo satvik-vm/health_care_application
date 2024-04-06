@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.Entity.*;
+import com.example.demo.Repository.AnswerRepository;
 import com.example.demo.Repository.FieldWorkerRepository;
 import com.example.demo.Repository.PatientRepository;
 import com.example.demo.Repository.UserRepository;
@@ -26,6 +27,8 @@ public class FwService {
     EmailSenderService emailSenderService;
     @Autowired
     PatientRepository patientRepository;
+    @Autowired
+    AnswerRepository answerRepository;
     public Patient createPatient(PatientCreationRequest request) {
         String roleName = request.getRole().getName();
         Role role = roleService.getOrCreateRole(roleName);
@@ -77,6 +80,7 @@ public class FwService {
         int score = 0;
         for(Answer answer : answers)
         {
+            answerRepository.save(answer);
             if(answer.getQuestion().getType().equals("mcq"))
             {
                 if(answer.getMcqAns().equals("A"))
