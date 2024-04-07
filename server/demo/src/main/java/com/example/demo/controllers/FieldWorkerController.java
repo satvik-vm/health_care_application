@@ -135,20 +135,22 @@ public class FieldWorkerController {
         return fwService.createPatient(request);
     }
 
-    @GetMapping("/qLogic")
-    public String getCategorization(@RequestBody List<Answer> answers)
-    {
-        return fwService.getCategorizedClass(answers);
+    @PostMapping("/qLogic")
+    public String getCategorization(@RequestBody QuestionnaireResponseRequest request) throws GeneralSecurityException, IOException {
+        return fwService.getCategorizedClass(request);
     }
 
     @PostMapping("/uploadDescMsg")
-    public Object handleFileUpload(@RequestParam("audio") MultipartFile file) throws IOException, GeneralSecurityException {
-        if (file.isEmpty()) {
+    public Object handleFileUpload(@RequestParam("audio") MultipartFile audio,
+                                   @RequestParam("qid") int qid,
+                                   @RequestParam("pid") int pid) throws IOException, GeneralSecurityException {
+        if (audio.isEmpty()) {
             return "File is empty";
         }
         File tempFile = File.createTempFile("temp", null);
-        file.transferTo(tempFile);
-        DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
+        audio.transferTo(tempFile);
+
+        DriveResponse res = fwService.uploadDescriptiveMsg(tempFile, qid, pid);
         System.out.println(res);
         return res;
     }

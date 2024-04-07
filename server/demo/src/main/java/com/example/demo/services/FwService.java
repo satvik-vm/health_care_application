@@ -1,15 +1,19 @@
 package com.example.demo.services;
 
 import com.example.demo.Entity.*;
-import com.example.demo.Repository.AnswerRepository;
-import com.example.demo.Repository.FieldWorkerRepository;
-import com.example.demo.Repository.PatientRepository;
-import com.example.demo.Repository.UserRepository;
+import com.example.demo.Repository.*;
+import com.example.demo.models.AnswerResponse;
+import com.example.demo.models.DriveResponse;
 import com.example.demo.models.PatientCreationRequest;
+import com.example.demo.models.QuestionnaireResponseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +33,13 @@ public class FwService {
     PatientRepository patientRepository;
     @Autowired
     AnswerRepository answerRepository;
+
+    @Autowired
+    GoogleDriveService googleDriveService;
+
+    @Autowired
+    QuestionRepository questionRepository;
+
     public Patient createPatient(PatientCreationRequest request) {
         String roleName = request.getRole().getName();
         Role role = roleService.getOrCreateRole(roleName);
@@ -74,36 +85,89 @@ public class FwService {
         return patientRepository.save(patient);
     }
 
-    public String getCategorizedClass(List<Answer> answers) {
+    public String getCategorizedClass(QuestionnaireResponseRequest request) throws IOException, GeneralSecurityException {
         int n1 = 0;
         int n2 = 0;
         int score = 0;
-        for(Answer answer : answers)
+        int pid = request.getPid();
+        Optional<Patient> patient = patientRepository.findById(pid);
+        List<AnswerResponse> answers = request.getAnswers();
+        for(AnswerResponse answer : answers)
         {
-            answerRepository.save(answer);
-            if(answer.getQuestion().getType().equals("mcq"))
+            Optional<Question> question =  questionRepository.findById(answer.getQid());
+            Answer ans = new Answer();
+            if(patient.isPresent())
             {
-                if(answer.getMcqAns().equals("A"))
-                    score+=0;
-                else if(answer.getMcqAns().equals("B"))
-                    score+=10;
-                else if(answer.getMcqAns().equals("C"))
-                    score+=50;
-                else if(answer.getMcqAns().equals("D"))
-                    score+=100;
-                n1++;
+                ans.setPatient(patient.get());
             }
-            else if(answer.getQuestion().getType().equals("range"))
+            if(question.isPresent())
             {
-                score+= (10- answer.getRangeAns())*10;
-                n2++;
+                ans.setQuestion(question.get());
+                if(question.get().getType().equals("mcq"))
+                {
+                    ans.setMcqAns(answer.getMcqAns());
+                    if(answer.getMcqAns().equals("A"))
+                        score+=0;
+                    else if(answer.getMcqAns().equals("B"))
+                        score+=10;
+                    else if(answer.getMcqAns().equals("C"))
+                        score+=50;
+                    else if(answer.getMcqAns().equals("D"))
+                        score+=100;
+                    n1++;
+                }
+                else if(question.get().getType().equals("range"))
+                {
+                    ans.setRangeAns(answer.getRangeAns());
+                    score+= (10- answer.getRangeAns())*10;
+                    n2++;
+                }
+                answerRepository.save(ans);
             }
         }
         if(score > n1*80 || score > n2*70)
+        {
+            if(patient.isPresent())
+            {
+                patient.get().setHealthStatus("RED");
+                patientRepository.save(patient.get());
+            }
             return "RED";
+        }
         else if(score > n1*31 && score > n2*31)
+        {
+            if(patient.isPresent())
+            {
+                patient.get().setHealthStatus("YELLOW");
+                patientRepository.save(patient.get());
+            }
             return "YELLOW";
+        }
         else
+        {
+            if(patient.isPresent())
+            {
+                patient.get().setHealthStatus("GREEN");
+                patientRepository.save(patient.get());
+            }
             return "GREEN";
+        }
+    }
+
+    public DriveResponse uploadDescriptiveMsg(File tempFile, int qid, int pid) throws GeneralSecurityException, IOException {
+        Answer answer = new Answer();
+        Optional<Patient> patient = patientRepository.findById(pid);
+        Optional<Question> question = questionRepository.findById(qid);
+        if(question.isPresent())
+        {
+            DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
+            answer.setQuestion(question.get());
+            answer.setSubjAns(res.getUrl());
+            if(patient.isPresent())
+                answer.setPatient(patient.get());
+            answerRepository.save(answer);
+            return res;
+        }
+        return null;
     }
 }

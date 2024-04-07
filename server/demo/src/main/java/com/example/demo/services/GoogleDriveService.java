@@ -42,12 +42,12 @@ public class GoogleDriveService {
             FileContent mediaContent = new FileContent("audio/wav", file);
             com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
                     .setFields("id").execute();
-            String imageUrl = "https://drive.google.com/uc?export=view&id="+uploadedFile.getId();
-            System.out.println("IMAGE URL: " + imageUrl);
+            String audioUrl = "https://drive.google.com/file/d/"+uploadedFile.getId();
+            System.out.println("Audio URL: " + audioUrl);
             file.delete();
             res.setStatus(200);
             res.setMsg("Audio Successfully Uploaded To Drive");
-            res.setUrl(imageUrl);
+            res.setUrl(audioUrl);
 
         }catch(Exception e)
         {

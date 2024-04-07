@@ -35,6 +35,9 @@ public class Patient {
     @Column(name="district")
     private String district;
 
+    @Column(name="status")
+    private String healthStatus;
+
     @ManyToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="doctor_id")
     private Doctor doctor;
