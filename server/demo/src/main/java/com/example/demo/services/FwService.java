@@ -39,6 +39,10 @@ public class FwService {
 
     @Autowired
     QuestionRepository questionRepository;
+    @Autowired
+    HospitalService hospitalService;
+    @Autowired
+    DoctorService doctorService;
 
     public Patient createPatient(PatientCreationRequest request) {
         String roleName = request.getRole().getName();
@@ -82,6 +86,8 @@ public class FwService {
         patient.setUser(user);
         patient.setAabhaId(request.getAabha());
         patient.setFwAssistance(request.isAssist());
+        patient.setDistrict(request.getDistrict());
+        patient.setSubDivision(request.getSubDivision());
         return patientRepository.save(patient);
     }
 
@@ -130,6 +136,10 @@ public class FwService {
             if(patient.isPresent())
             {
                 patient.get().setHealthStatus("RED");
+                Hospital hospital = hospitalService.allocateHospital(patient.get().getSubDivision(), patient.get().getDistrict());
+                Doctor doctor = doctorService.allocateDoctor(hospital);
+                patient.get().setHospital(hospital);
+                patient.get().setDoctor(doctor);
                 patientRepository.save(patient.get());
             }
             return "RED";
@@ -139,6 +149,10 @@ public class FwService {
             if(patient.isPresent())
             {
                 patient.get().setHealthStatus("YELLOW");
+                Hospital hospital = hospitalService.allocateHospital(patient.get().getSubDivision(), patient.get().getDistrict());
+                Doctor doctor = doctorService.allocateDoctor(hospital);
+                patient.get().setHospital(hospital);
+                patient.get().setDoctor(doctor);
                 patientRepository.save(patient.get());
             }
             return "YELLOW";
