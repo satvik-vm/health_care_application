@@ -143,14 +143,16 @@ public class FieldWorkerController {
     @PostMapping("/uploadDescMsg")
     public Object handleFileUpload(@RequestParam("audio") MultipartFile audio,
                                    @RequestParam("qid") int qid,
-                                   @RequestParam("pid") int pid) throws IOException, GeneralSecurityException {
+                                   @RequestParam("pid") int pid,
+                                   @RequestParam("doctorEmail") String doctorEmail) throws IOException, GeneralSecurityException {
         if (audio.isEmpty()) {
             return "File is empty";
         }
         File tempFile = File.createTempFile("temp", null);
         audio.transferTo(tempFile);
+        System.out.println(doctorEmail);
 
-        DriveResponse res = fwService.uploadDescriptiveMsg(tempFile, qid, pid);
+        DriveResponse res = fwService.uploadDescriptiveMsg(tempFile, qid, pid, doctorEmail);
         System.out.println(res);
         return res;
     }

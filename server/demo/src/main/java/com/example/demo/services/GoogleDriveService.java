@@ -10,6 +10,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import org.springframework.stereotype.Service;
+import com.google.api.services.drive.model.Permission;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +32,7 @@ public class GoogleDriveService {
         return filePath.toString();
     }
 
-    public DriveResponse uploadDescriptiveMsgToDrive(File file) throws GeneralSecurityException, IOException{
+    public DriveResponse uploadDescriptiveMsgToDrive(File file, String doctorEmail) throws GeneralSecurityException, IOException{
         DriveResponse res = new DriveResponse();
         try{
             String folderId = "10uKgB16jBi93yxlyU1OOK8qj7vV4MvUn";
@@ -42,6 +43,11 @@ public class GoogleDriveService {
             FileContent mediaContent = new FileContent("audio/wav", file);
             com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
                     .setFields("id").execute();
+            drive.permissions().create(uploadedFile.getId(), new Permission()
+                            .setType("user")
+                            .setRole("reader")
+                            .setEmailAddress(doctorEmail))
+                    .execute();
             String audioUrl = "https://drive.google.com/file/d/"+uploadedFile.getId();
             System.out.println("Audio URL: " + audioUrl);
             file.delete();

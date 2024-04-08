@@ -154,13 +154,13 @@ public class FwService {
         }
     }
 
-    public DriveResponse uploadDescriptiveMsg(File tempFile, int qid, int pid) throws GeneralSecurityException, IOException {
+    public DriveResponse uploadDescriptiveMsg(File tempFile, int qid, int pid, String doctorEmail) throws GeneralSecurityException, IOException {
         Answer answer = new Answer();
         Optional<Patient> patient = patientRepository.findById(pid);
         Optional<Question> question = questionRepository.findById(qid);
         if(question.isPresent())
         {
-            DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
+            DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile, doctorEmail);
             answer.setQuestion(question.get());
             answer.setSubjAns(res.getUrl());
             if(patient.isPresent())
