@@ -3,13 +3,11 @@ package com.example.demo.controllers;
 
 import com.example.demo.Entity.Answer;
 import com.example.demo.Entity.Patient;
+import com.example.demo.Entity.Question;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.models.*;
-import com.example.demo.services.EmailSenderService;
-import com.example.demo.services.FwService;
-import com.example.demo.services.GoogleDriveService;
-import com.example.demo.services.UserService;
+import com.example.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +40,8 @@ public class FieldWorkerController {
 
     @Autowired
     FwService fwService;
+    @Autowired
+    AdminService adminService;
 
     @Autowired
     GoogleDriveService googleDriveService;
@@ -155,5 +155,10 @@ public class FieldWorkerController {
         DriveResponse res = fwService.uploadDescriptiveMsg(tempFile, qid, pid, doctorEmail);
         System.out.println(res);
         return res;
+    }
+    @GetMapping("/getAllQ")
+    public List<Question> getAllQuestions(@RequestParam String name)
+    {
+        return adminService.getAllQuestionByQnName(name);
     }
 }
