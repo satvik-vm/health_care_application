@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 import com.example.demo.Entity.*;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -218,4 +219,17 @@ public class AdminController {
                                         @RequestParam("district") String district) throws IOException {
         return generalService.getSubdistrictsByStateAndDistrict(state, district);
     }
+
+    @GetMapping("/getLoc")
+    public JsonNode getLocation() throws IOException {
+        return generalService.getLocation();
+    }
+
+    @GetMapping("/getHospitals")
+    public List<JsonNode> getHospitals(@RequestParam("state") String state,
+                                       @RequestParam("district") String district,
+                                       @RequestParam("subDistrict") String subDistrict) throws IOException {
+        return generalService.getHospitals(state, district, subDistrict);
+    }
+
 }
