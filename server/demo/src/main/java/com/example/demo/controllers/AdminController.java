@@ -191,7 +191,6 @@ public class AdminController {
     {
         System.out.println(name);
         return adminService.getQuestionnaireByName(name);
-
     }
 
     @GetMapping("/getAllQ")
