@@ -17,11 +17,17 @@ public class Hospital {
     @Column(name = "hospital_id")
     private int id;
 
+    @Column(name = "state", nullable = false)
+    private String state;
+
     @Column(name = "district", nullable = false)
     private String district;
 
     @Column(name = "subDivision", nullable = false)
     private String subDivision;
+
+    @Column(name="HospitalName")
+    private String name;
 
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)

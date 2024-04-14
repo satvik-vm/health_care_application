@@ -5,16 +5,15 @@ import com.example.demo.Repository.DistrictRepository;
 import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.models.*;
-import com.example.demo.services.EmailSenderService;
-import com.example.demo.services.RoleService;
-import com.example.demo.services.SupervisorService;
-import com.example.demo.services.UserService;
+import com.example.demo.services.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Date;
 
@@ -43,6 +42,9 @@ public class SupervisorController {
 
     @Autowired
     private SupervisorService supervisorService;
+
+    @Autowired
+    private GeneralService generalService;
 
     @Autowired
     private DistrictRepository districtRepository;
@@ -192,6 +194,11 @@ public class SupervisorController {
             return false;
         }
         return true;
+    }
+
+    @GetMapping("/getLoc")
+    public JsonNode getLocation() throws IOException {
+        return generalService.getLocation();
     }
 
 }
