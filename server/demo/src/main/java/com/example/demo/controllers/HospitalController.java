@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/hospital")
@@ -34,5 +35,17 @@ public class HospitalController {
         return hospitalService.deleteDoctor(id);
     }
 
+    @GetMapping("/details")
+    public JsonNode getHospitalDetails(Principal principal)
+    {
+        String email = principal.getName();
+        return hospitalService.getDetails(email);
+    }
 
+    @GetMapping("/doctors")
+    public List<Doctor> getDoctors(Principal principal)
+    {
+        String email = principal.getName();
+        return hospitalService.getDoctors(email);
+    }
 }

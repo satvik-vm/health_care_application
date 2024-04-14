@@ -17,6 +17,9 @@ public class Doctor {
     @Column(name = "doctor_id")
     private int id;
 
+    @Column(name="registerId", unique = true)
+    private int regId;
+
     @Column(name = "speciality")
     private String speciality;
 

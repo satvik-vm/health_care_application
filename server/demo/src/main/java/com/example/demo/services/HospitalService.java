@@ -5,6 +5,9 @@ import com.example.demo.Repository.DoctorRepository;
 import com.example.demo.Repository.HospitalRepository;
 import com.example.demo.Repository.PatientRepository;
 import com.example.demo.models.DoctorCreationRequest;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -94,5 +97,32 @@ public class HospitalService {
             }
         }
         return allocatedHospital;
+    }
+
+    public JsonNode getDetails(String email) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+
+        Hospital hospital = hospitalRepository.findByUser_Email(email);
+
+        if (hospital != null) {
+            ObjectNode hospitalNode = mapper.createObjectNode();
+            hospitalNode.put("name", hospital.getName());
+            hospitalNode.put("state", hospital.getState());
+            hospitalNode.put("district", hospital.getDistrict());
+            hospitalNode.put("subdivision", hospital.getSubDivision());
+            hospitalNode.put("email", email); // Add email to the details
+
+            result.set(hospital.getName(), hospitalNode);
+        } else {
+            result.put("error", "Hospital not found with email: " + email);
+        }
+
+        return result;
+    }
+
+    public List<Doctor> getDoctors(String email)
+    {
+        return doctorRepository.findByHospital_User_Email(email);
     }
 }

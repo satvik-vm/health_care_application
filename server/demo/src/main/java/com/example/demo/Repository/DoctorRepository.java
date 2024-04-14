@@ -11,4 +11,5 @@ import java.util.List;
 public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
     int countByHospitalId(int hospitalId);
     List<Doctor> findByHospitalId(int id);
+    List<Doctor> findByHospital_User_Email(String email);
 }
