@@ -7,4 +7,6 @@ public class HospitalCreationRequest {
     private String district;
     private String subDivision;
     private UserRequest user;
+    private String state;
+    private String name;
 }
