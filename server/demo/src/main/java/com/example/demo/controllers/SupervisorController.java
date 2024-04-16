@@ -218,4 +218,16 @@ public class SupervisorController {
         return generalService.getSubdistrictsByStateAndDistrict(state, district);
     }
 
+    @GetMapping("/getSupState")
+    public String getSupState(Principal principal) {
+        String email = principal.getName();
+        return supervisorService.getSupState(email);
+    }
+
+    @GetMapping("/getSupDistrict")
+    public String getSupDistrict(Principal principal) {
+        String email = principal.getName();
+        return supervisorService.getSupDistrict(email);
+    }
+
 }
