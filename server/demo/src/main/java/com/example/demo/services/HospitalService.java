@@ -8,7 +8,9 @@ import com.example.demo.models.DoctorCreationRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,34 +32,34 @@ public class HospitalService {
 
     @Autowired
     PatientRepository patientRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
-    public Doctor createDoctor(DoctorCreationRequest request, String hospitalEmail)
+    @Transactional
+    public String createDoctors(List<DoctorCreationRequest> requests, String hospitalEmail)
     {
         try{
-            String email = request.getUser().getEmail();
-//            Removing this for testing purposes
-//            String password = userService.generatePassword();
-            String password = "1234";
-            String roleName = request.getUser().getRole().getName();
-            String speciality = request.getSpeciality();
-            String status = request.getStatus();
-            Role role = roleService.getOrCreateRole(roleName);
-            User user = userService.createUserForDoctor(email, password, role, request.getFirstName(), request.getLastName());
-            Hospital hospital = hospitalRepository.findByUser_Email(hospitalEmail);
-            Doctor doctor = new Doctor();
-            doctor.setUser(user);
-            doctor.setHospital(hospital);
-            doctor.setStatus(status);
-            doctor.setSpeciality(speciality);
-//            For testing purposes I am removing the email system
-//            sendDoctorCredentials(email, password);
-            return doctorRepository.save(doctor);
+            for(DoctorCreationRequest request : requests)
+            {
+                User user = new User();
+                user.setEmail(request.getUser().getEmail());
+                user.setPassword(passwordEncoder.encode("1234"));
+                user.setFirstName(request.getFullName());
+                Role role = roleService.getOrCreateRole("DOCTOR");
+                user.setRole(role);
+                Doctor doctor = new Doctor();
+                doctor.setUser(user);
+                doctor.setRegId(request.getRegNo());
+                doctor.setHospital(hospitalRepository.findByUser_Email(hospitalEmail));
+                doctorRepository.save(doctor);
+            }
+            return "Doctors Successfully added to the hospital";
         }
         catch (Exception e)
         {
             e.printStackTrace();
             System.out.println("Error Occurring");
-            return null;
+            return "Doctors not added to the hospital";
         }
     }
 

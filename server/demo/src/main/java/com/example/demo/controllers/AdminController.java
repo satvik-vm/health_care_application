@@ -76,6 +76,7 @@ public class AdminController {
 
             District district = districtService.getOrCreateDistrict(request.getDistrict().getName());
             supervisor.setDistrict(district);
+            supervisor.setState(request.getState());
 
             // Save the Supervisor object
             Supervisor createdSupervisor = adminService.createSupervisor(supervisor);

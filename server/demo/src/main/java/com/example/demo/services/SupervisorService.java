@@ -9,6 +9,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -88,5 +89,23 @@ public class SupervisorService {
             return -1;
         }
 
+    }
+
+    public String getSupState(String email) {
+        Supervisor supervisor = supervisorRepository.findByUser_Email(email);
+        if (supervisor != null) {
+            return supervisor.getState();
+        } else {
+            return null;
+        }
+    }
+
+    public String getSupDistrict(String email) {
+        Supervisor supervisor = supervisorRepository.findByUser_Email(email);
+        if (supervisor != null) {
+            return supervisor.getDistrict().getName();
+        } else {
+            return null;
+        }
     }
 }

@@ -18,6 +18,9 @@ public class Supervisor{
     @Column(name = "sup_id")
     private int id;
 
+    @Column(name = "state")
+    private String state;
+
     @ManyToOne
     @JoinColumn(name = "district_id")
     private District district;
