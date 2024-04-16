@@ -149,16 +149,14 @@ public class FieldWorkerController {
     @PostMapping("/uploadDescMsg")
     public Object handleFileUpload(@RequestParam("audio") MultipartFile audio,
                                    @RequestParam("qid") int qid,
-                                   @RequestParam("pid") int pid,
-                                   @RequestParam("doctorEmail") String doctorEmail) throws IOException, GeneralSecurityException {
+                                   @RequestParam("pid") int pid) throws IOException, GeneralSecurityException {
         if (audio.isEmpty()) {
             return "File is empty";
         }
         File tempFile = File.createTempFile("temp", null);
         audio.transferTo(tempFile);
-        System.out.println(doctorEmail);
 
-        DriveResponse res = fwService.uploadDescriptiveMsg(tempFile, qid, pid, doctorEmail);
+        DriveResponse res = fwService.uploadDescriptiveMsg(tempFile, qid, pid);
         System.out.println(res);
         return res;
     }
@@ -168,10 +166,11 @@ public class FieldWorkerController {
         return adminService.getAllQuestionByQnName(name);
     }
 
-//    @GetMapping("/submitFile")
-//    public ResponseEntity<String> submitFile(@RequestParam String questionnaireName,
-//                                             @RequestParam int patientId) throws IOException {
-//
-//        return fwService.submitFile(questionnaireName, patientId);
-//    }
+    @GetMapping("/submitFile")
+    public String submitFile(@RequestParam("qnName") String questionnaireName,
+                             @RequestParam("patientId") int patientId,
+                             @RequestParam("doctorId") int doctorId) throws IOException, GeneralSecurityException {
+
+        return fwService.submitFile(questionnaireName, patientId, doctorId);
+    }
 }
