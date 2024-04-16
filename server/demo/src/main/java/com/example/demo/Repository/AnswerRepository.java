@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
+    Answer findByQuestionIdAndPatientId(int questionId, int patientId);
 }

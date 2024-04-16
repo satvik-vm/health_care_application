@@ -144,6 +144,8 @@ public class AdminController {
             hospital.setUser(user);
             hospital.setDistrict(district);
             hospital.setSubDivision(subDivision);
+            hospital.setName(request.getName());
+            hospital.setState(request.getState());
             System.out.println(hospital.getSubDivision());
             // Save the hospital object
             Hospital createdHospital = adminService.createHospital(hospital);
