@@ -25,6 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtHelper jwtHelper;
 
+    @Autowired
+    private TokenBlacklist tokenBlacklist;
+
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -38,6 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            throw new RuntimeException(e);
 //        }
         //Authorization
+
+
 
         String requestHeader = request.getHeader("Authorization");
         //Bearer 2352345235sdfrsfgsdfsdf
@@ -61,10 +66,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (MalformedJwtException e) {
                 logger.info("Some changed has done in token !! Invalid Token");
                 e.printStackTrace();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
 
             }
+
 
 
         } else {
@@ -72,7 +79,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
 
-        //
+        if (tokenBlacklist.isBlacklisted(token)) {
+            // Token is blacklisted or expired, deny access
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("You have logged out. Please login again !");
+            return;
+        }
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
 
@@ -93,6 +106,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         }
+
+
 
         filterChain.doFilter(request, response);
 
