@@ -7,10 +7,12 @@ import com.example.demo.models.AdminCreationRequest;
 import com.example.demo.models.JwtRequest;
 import com.example.demo.models.JwtResponse;
 import com.example.demo.security.JwtHelper;
+import com.example.demo.security.TokenBlacklist;
 import com.example.demo.services.AdminService;
 import com.example.demo.services.CustomUserDetailsService;
 import com.example.demo.services.RoleService;
 import com.example.demo.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 @RestController
@@ -46,6 +47,9 @@ public class AuthController {
 
     @Autowired
     RoleService roleService;
+
+    @Autowired
+    TokenBlacklist tokenBlacklist;
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -117,6 +121,30 @@ public class AuthController {
             adminService.createAdmin(admin);
 
             return ResponseEntity.ok("Admin created successfully");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = extractTokenFromRequest(request);
+        tokenBlacklist.addToBlacklist(token);
+
+        // Clear any session-related data if necessary
+
+        return ResponseEntity.ok("Logged out successfully");
+    }
+
+    public String extractTokenFromRequest(HttpServletRequest request) {
+        // Get the Authorization header from the request
+        String requestHeader = request.getHeader("Authorization");
+
+        // Check if the Authorization header is not null and starts with "Bearer "
+        if (requestHeader != null && requestHeader.startsWith("Bearer ")) {
+            // Extract the JWT token (remove "Bearer " prefix)
+            return requestHeader.substring(7);
+        }
+
+        // If the Authorization header is not valid, return null
+        return null;
     }
 
 }
