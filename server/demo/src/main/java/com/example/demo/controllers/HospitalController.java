@@ -22,11 +22,11 @@ public class HospitalController {
     GeneralService generalService;
 
     @PostMapping("/regDoctor")
-    public Doctor registerDoctor(@RequestBody DoctorCreationRequest request, Principal principal)
+    public String registerDoctor(@RequestBody List<DoctorCreationRequest> request, Principal principal)
     {
         String hospitalEmail = principal.getName();
         System.out.println(hospitalEmail);
-        return hospitalService.createDoctor(request, hospitalEmail);
+        return hospitalService.createDoctors(request, hospitalEmail);
     }
 
     @DeleteMapping("remDoctor")
