@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 
 
 @RestController
@@ -199,6 +200,22 @@ public class SupervisorController {
     @GetMapping("/getLoc")
     public JsonNode getLocation() throws IOException {
         return generalService.getLocation();
+    }
+
+    @GetMapping("/getState")
+    public List<String> getStates() throws IOException {
+        return generalService.getStates();
+    }
+
+    @GetMapping("/getDistrict")
+    public List<String> getDistrictByState(@RequestParam("state") String state) throws IOException {
+        return generalService.getDistrictsByState(state);
+    }
+
+    @GetMapping("/getSubDistrict")
+    public List<String> getSubDistricts(@RequestParam("state") String state,
+                                        @RequestParam("district") String district) throws IOException {
+        return generalService.getSubdistrictsByStateAndDistrict(state, district);
     }
 
 }
