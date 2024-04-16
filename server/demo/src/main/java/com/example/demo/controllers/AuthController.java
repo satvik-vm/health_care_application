@@ -8,10 +8,10 @@ import com.example.demo.models.JwtRequest;
 import com.example.demo.models.JwtResponse;
 import com.example.demo.security.JwtHelper;
 import com.example.demo.security.TokenBlacklist;
-import com.example.demo.services.AdminService;
-import com.example.demo.services.CustomUserDetailsService;
-import com.example.demo.services.RoleService;
-import com.example.demo.services.UserService;
+import com.example.demo.services.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -147,4 +148,23 @@ public class AuthController {
         return null;
     }
 
+//    @PostMapping("/logout")
+//    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+//        // Invalidate current session
+//        HttpSession session = request.getSession(false);
+//        if (session != null) {
+//            session.invalidate();
+//        }
+//
+//        // Clear authentication
+//        SecurityContextHolder.clearContext();
+//
+//        // Add the token to the blacklist
+//        String token = request.getHeader("Authorization");
+//        tokenBlacklistService.addToken(token);
+//        tokenBlacklistService.printBlacklist();
+//
+//        // Return response
+//        return ResponseEntity.ok("Logged out successfully");
+//    }
 }

@@ -29,6 +29,9 @@ public class Patient {
     @Column(name = "fwAssistance")
     private boolean fwAssistance;
 
+    @Column(name="state")
+    private String state;
+
     @Column(name="subDivision")
     private String subDivision;
 
@@ -37,6 +40,12 @@ public class Patient {
 
     @Column(name="status")
     private String healthStatus;
+
+    @Column(name="dateOfRegistration")
+    private Date dateOfRegistration;
+
+    @Column(name="mostRecentVisit")
+    private Date mostRecentVisit;
 
     @ManyToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="doctor_id")

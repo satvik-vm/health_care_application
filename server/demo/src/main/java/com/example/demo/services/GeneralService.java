@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
 @Service
 public class GeneralService {
 
@@ -151,6 +151,42 @@ public class GeneralService {
     private JsonNode createHospitalObject(String hospitalName, JsonNode hospitalDetails) {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.createObjectNode().set(hospitalName, hospitalDetails);
+    }
+
+    public String encryptUrl(String url) {
+        try {
+            String key = "1MvOeTDF4wsWFRwbL8EKxw=="; // Replace this with your actual key
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+            byte[] encryptedBytes = cipher.doFinal(url.getBytes(StandardCharsets.UTF_8));
+            String encryptedUrl = Base64.getEncoder().encodeToString(encryptedBytes);
+
+            return encryptedUrl;
+        } catch (Exception e) {
+            // Handle exceptions properly in your application
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String decryptUrl(String encryptedUrl) {
+        try {
+            String key = "1MvOeTDF4wsWFRwbL8EKxw=="; // Replace this with your actual key
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+            byte[] decodedBase64 = Base64.getDecoder().decode(encryptedUrl);
+            byte[] decryptedBytes = cipher.doFinal(decodedBase64);
+
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            // Handle exceptions properly in your application
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

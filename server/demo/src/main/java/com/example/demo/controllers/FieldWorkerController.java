@@ -8,6 +8,7 @@ import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/fw")
@@ -161,4 +167,11 @@ public class FieldWorkerController {
     {
         return adminService.getAllQuestionByQnName(name);
     }
+
+//    @GetMapping("/submitFile")
+//    public ResponseEntity<String> submitFile(@RequestParam String questionnaireName,
+//                                             @RequestParam int patientId) throws IOException {
+//
+//        return fwService.submitFile(questionnaireName, patientId);
+//    }
 }

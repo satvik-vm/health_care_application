@@ -101,12 +101,12 @@ public class AdminService {
         emailSenderService.sendEmail(email, subject, body);
     }
 
-    public void sendHospitalCredentials(String email, String password, String district, String subDivision)
+    public void sendHospitalCredentials(String email, String password, String district, String subDivision, String state)
     {
         String subject = "Appointment as Hospital";
 
         String body = "Dear Hospital admin,\n\n" +
-                "Congratulations! You have been officially registered in the medimate India for district " + district+ ", for subDivision"+ subDivision + ".\n\n" +
+                "Congratulations! You have been officially registered in the medimate India for district " + district+ ", for subDivision"+ subDivision + ".\n\n" + state+ ", for State" +
                 "Your credentials:\n" +
                 "Email: "+email+"\n" +
                 "Password: "+password+"\n\n" +

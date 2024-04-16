@@ -6,15 +6,22 @@ import com.example.demo.models.AnswerResponse;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.PatientCreationRequest;
 import com.example.demo.models.QuestionnaireResponseRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -43,6 +50,8 @@ public class FwService {
     HospitalService hospitalService;
     @Autowired
     DoctorService doctorService;
+    @Autowired
+    AdminService adminService;
 
     public Patient createPatient(PatientCreationRequest request) {
         String roleName = request.getRole().getName();
@@ -184,4 +193,55 @@ public class FwService {
         }
         return null;
     }
+
+
+//    public ResponseEntity<String> submitFile(String questionnaireName, int patientId) {
+//        // Fetch the questions related to the questionnaire
+//        List<Question> questions = adminService.getAllQuestionByQnName(questionnaireName);
+//
+//        // Create a map to hold the question-answer pairs
+//        Map<String, String> questionAnswers = new HashMap<>();
+//
+//        // For each question, fetch the corresponding answer given by the patient
+//        for (Question question : questions) {
+//            Answer answer = answerRepository.findByQuestionIdAndPatientId(question.getId(), patientId);
+//            if(answer.getMcqAns() != null)
+//                questionAnswers.put(question.getQuestion(), answer.getMcqAns());
+//            else if(answer.getRangeAns() != 0)
+//            {
+//                int rangeAns = answer.getRangeAns();
+//                String rangeAnsAsString = String.valueOf(rangeAns);
+//                questionAnswers.put(question.getQuestion(), rangeAnsAsString);
+//            }
+//            else if(answer.getSubjAns() != null)
+//                questionAnswers.put(question.getQuestion(), answer.getSubjAns());
+//        }
+//
+//        // Continue with the existing logic...
+//        // Create a new map to hold the final JSON structure
+//        Map<String, Object> finalJsonMap = new HashMap<>();
+//
+//        // Add timestamp, type, and questionnaire name to the map
+//        finalJsonMap.put("timestamp", LocalDateTime.now().toString());
+//        finalJsonMap.put("type", "Questionnaire");
+//        finalJsonMap.put(questionnaireName, questionAnswers);
+//
+//        // Convert the map to a JSON string
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        String json = objectMapper.writeValueAsString(finalJsonMap);
+//
+//        // Write this JSON object to a file
+//        Path tempFile = Files.createTempFile("questions", ".json");
+//        Files.write(tempFile, json.getBytes());
+//
+//        // Upload the file to Google Drive
+//        GoogleDriveService googleDriveService = new GoogleDriveService();
+//        DriveResponse driveResponse = googleDriveService.uploadDescriptiveMsgToDrive(tempFile.toFile(), "doctorEmail@example.com");
+//
+//        // Delete the temporary file
+//        Files.delete(tempFile);
+//
+//        return ResponseEntity.ok("File uploaded successfully. File ID: " + driveResponse.getId());
+//
+//    }
 }
