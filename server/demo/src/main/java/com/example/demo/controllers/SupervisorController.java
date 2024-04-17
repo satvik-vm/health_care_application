@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.DistrictRepository;
+import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.models.*;
@@ -15,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -49,6 +49,8 @@ public class SupervisorController {
 
     @Autowired
     private DistrictRepository districtRepository;
+    @Autowired
+    private IdMappingRepository idMappingRepository;
 
     @GetMapping("/hello")
     public String helloWorld()
@@ -144,6 +146,12 @@ public class SupervisorController {
 
             // Create a new FW object
             FieldWorker fieldWorker = new FieldWorker();
+            // Create a new IdMapping object and set its privateId to the Supervisor's UUID
+            IdMapping idMapping = new IdMapping();
+            idMapping.setPrivateId(UUID.fromString(fieldWorker.getId()));
+
+            // Save the IdMapping object to the database
+            idMappingRepository.save(idMapping);
             fieldWorker.setUser(user);
             fieldWorker.setArea(area);
             fieldWorker.setDistrict(district);
@@ -219,15 +227,19 @@ public class SupervisorController {
     }
 
     @GetMapping("/getSupState")
-    public String getSupState(Principal principal) {
+    public ResponseEntity<Object> getSupState(Principal principal) {
         String email = principal.getName();
-        return supervisorService.getSupState(email);
+        Map<String, String> data = new HashMap<>();
+        data.put("state", supervisorService.getSupState(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     @GetMapping("/getSupDistrict")
-    public String getSupDistrict(Principal principal) {
+    public ResponseEntity<Object> getSupDistrict(Principal principal) {
         String email = principal.getName();
-        return supervisorService.getSupDistrict(email);
+        Map<String, String> data = new HashMap<>();
+        data.put("state", supervisorService.getSupDistrict(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
 }

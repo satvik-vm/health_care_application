@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 import com.example.demo.Entity.*;
+import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,10 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -39,6 +37,9 @@ public class AdminController {
 
     @Autowired
     private GeneralService generalService;
+
+    @Autowired
+    private IdMappingRepository idMappingRepository;
 
     @GetMapping("/get-admins")
     public List<Admin> getAdmin()
@@ -72,7 +73,12 @@ public class AdminController {
 
             // Create a new Supervisor object
             Supervisor supervisor = new Supervisor();
-            supervisor.setUser(user);
+            // Create a new IdMapping object and set its privateId to the Supervisor's UUID
+            IdMapping idMapping = new IdMapping();
+            idMapping.setPrivateId(UUID.fromString(supervisor.getId()));
+
+            // Save the IdMapping object to the database
+            idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
 
             District district = districtService.getOrCreateDistrict(request.getDistrict().getName());
             supervisor.setDistrict(district);

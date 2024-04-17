@@ -32,7 +32,7 @@ public class GoogleDriveService {
         return filePath.toString();
     }
 
-    public DriveResponse uploadDescriptiveMsgToDrive(File file, String doctorEmail) throws GeneralSecurityException, IOException{
+    public DriveResponse uploadDescriptiveMsgToDrive(File file) throws GeneralSecurityException, IOException{
         DriveResponse res = new DriveResponse();
         try{
             String folderId = "10uKgB16jBi93yxlyU1OOK8qj7vV4MvUn";
@@ -43,11 +43,11 @@ public class GoogleDriveService {
             FileContent mediaContent = new FileContent("audio/wav", file);
             com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
                     .setFields("id").execute();
-            drive.permissions().create(uploadedFile.getId(), new Permission()
-                            .setType("user")
-                            .setRole("reader")
-                            .setEmailAddress(doctorEmail))
-                    .execute();
+//            drive.permissions().create(uploadedFile.getId(), new Permission()
+//                            .setType("user")
+//                            .setRole("reader")
+//                            .setEmailAddress(doctorEmail))
+//                    .execute();
             String audioUrl = "https://drive.google.com/file/d/"+uploadedFile.getId();
             System.out.println("Audio URL: " + audioUrl);
             file.delete();
@@ -57,6 +57,36 @@ public class GoogleDriveService {
 
         }catch(Exception e)
         {
+            System.out.println(e.getMessage());
+            res.setStatus(500);
+            res.setMsg(e.getMessage());
+        }
+        return res;
+    }
+
+    public DriveResponse uploadMedicalFileToDrive(File file) throws GeneralSecurityException, IOException {
+        DriveResponse res = new DriveResponse();
+        try {
+            String folderId = "16YCVu3wZpNhJVoH5Gaub1QpESbRs4CAx"; // Replace with your folder ID
+            Drive drive = createDriveService();
+            com.google.api.services.drive.model.File fileMetaData = new com.google.api.services.drive.model.File();
+            fileMetaData.setName(file.getName());
+            fileMetaData.setParents(Collections.singletonList(folderId));
+            FileContent mediaContent = new FileContent("application/json", file); // Assuming medical files are PDFs
+            com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
+                    .setFields("id").execute();
+//            drive.permissions().create(uploadedFile.getId(), new Permission()
+//                            .setType("user")
+//                            .setRole("reader")
+//                            .setEmailAddress(doctorEmail))
+//                    .execute();
+            String fileUrl = "https://drive.google.com/file/d/" + uploadedFile.getId();
+            System.out.println("File URL: " + fileUrl);
+            file.delete();
+            res.setStatus(200);
+            res.setMsg("Medical File Successfully Uploaded To Drive");
+            res.setUrl(fileUrl);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             res.setStatus(500);
             res.setMsg(e.getMessage());

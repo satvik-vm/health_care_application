@@ -6,6 +6,7 @@ import com.example.demo.models.AnswerResponse;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.PatientCreationRequest;
 import com.example.demo.models.QuestionnaireResponseRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +52,11 @@ public class FwService {
     @Autowired
     DoctorService doctorService;
     @Autowired
+    DoctorRepository doctorRepository;
+    @Autowired
     AdminService adminService;
+    @Autowired
+    GeneralService generalService;
 
     public Patient createPatient(PatientCreationRequest request) {
         String roleName = request.getRole().getName();
@@ -177,15 +182,15 @@ public class FwService {
         }
     }
 
-    public DriveResponse uploadDescriptiveMsg(File tempFile, int qid, int pid, String doctorEmail) throws GeneralSecurityException, IOException {
+    public DriveResponse uploadDescriptiveMsg(File tempFile, int qid, int pid) throws GeneralSecurityException, IOException {
         Answer answer = new Answer();
         Optional<Patient> patient = patientRepository.findById(pid);
         Optional<Question> question = questionRepository.findById(qid);
         if(question.isPresent())
         {
-            DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile, doctorEmail);
+            DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
             answer.setQuestion(question.get());
-            answer.setSubjAns(res.getUrl());
+            answer.setSubjAns(generalService.encrypt(res.getUrl()));
             if(patient.isPresent())
                 answer.setPatient(patient.get());
             answerRepository.save(answer);
@@ -195,53 +200,60 @@ public class FwService {
     }
 
 
-//    public ResponseEntity<String> submitFile(String questionnaireName, int patientId) {
-//        // Fetch the questions related to the questionnaire
-//        List<Question> questions = adminService.getAllQuestionByQnName(questionnaireName);
-//
-//        // Create a map to hold the question-answer pairs
-//        Map<String, String> questionAnswers = new HashMap<>();
-//
-//        // For each question, fetch the corresponding answer given by the patient
-//        for (Question question : questions) {
-//            Answer answer = answerRepository.findByQuestionIdAndPatientId(question.getId(), patientId);
-//            if(answer.getMcqAns() != null)
-//                questionAnswers.put(question.getQuestion(), answer.getMcqAns());
-//            else if(answer.getRangeAns() != 0)
-//            {
-//                int rangeAns = answer.getRangeAns();
-//                String rangeAnsAsString = String.valueOf(rangeAns);
-//                questionAnswers.put(question.getQuestion(), rangeAnsAsString);
-//            }
-//            else if(answer.getSubjAns() != null)
-//                questionAnswers.put(question.getQuestion(), answer.getSubjAns());
-//        }
-//
-//        // Continue with the existing logic...
-//        // Create a new map to hold the final JSON structure
-//        Map<String, Object> finalJsonMap = new HashMap<>();
-//
-//        // Add timestamp, type, and questionnaire name to the map
-//        finalJsonMap.put("timestamp", LocalDateTime.now().toString());
-//        finalJsonMap.put("type", "Questionnaire");
-//        finalJsonMap.put(questionnaireName, questionAnswers);
-//
-//        // Convert the map to a JSON string
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        String json = objectMapper.writeValueAsString(finalJsonMap);
-//
-//        // Write this JSON object to a file
-//        Path tempFile = Files.createTempFile("questions", ".json");
-//        Files.write(tempFile, json.getBytes());
-//
-//        // Upload the file to Google Drive
-//        GoogleDriveService googleDriveService = new GoogleDriveService();
-//        DriveResponse driveResponse = googleDriveService.uploadDescriptiveMsgToDrive(tempFile.toFile(), "doctorEmail@example.com");
-//
-//        // Delete the temporary file
-//        Files.delete(tempFile);
-//
-//        return ResponseEntity.ok("File uploaded successfully. File ID: " + driveResponse.getId());
-//
-//    }
+    public String submitFile(String questionnaireName, int patientId, int doctorId) throws IOException, GeneralSecurityException {
+        // Fetch the questions related to the questionnaire
+        List<Question> questions = adminService.getAllQuestionByQnName(questionnaireName);
+        Patient patient = patientRepository.findById(patientId).orElseThrow(()->new RuntimeException("Patient not found"));
+        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(()->new RuntimeException("Doctor not found"));
+
+        // Create a map to hold the question-answer pairs
+        Map<String, String> questionAnswers = new HashMap<>();
+
+        // For each question, fetch the corresponding answer given by the patient
+        for (Question question : questions) {
+            Answer answer = answerRepository.findByQuestionIdAndPatientId(question.getId(), patientId);
+            if(answer.getMcqAns() != null)
+                questionAnswers.put(question.getQuestion(), answer.getMcqAns());
+            else if(answer.getRangeAns() != 0)
+            {
+                int rangeAns = answer.getRangeAns();
+                String rangeAnsAsString = String.valueOf(rangeAns);
+                questionAnswers.put(question.getQuestion(), rangeAnsAsString);
+            }
+            else if(answer.getSubjAns() != null)
+                questionAnswers.put(question.getQuestion(), answer.getSubjAns());
+        }
+
+        // Continue with the existing logic...
+        // Create a new map to hold the final JSON structure
+        Map<String, Object> finalJsonMap = new HashMap<>();
+
+        // Add timestamp, type, and questionnaire name to the map
+        finalJsonMap.put("timestamp", LocalDateTime.now().toString());
+        finalJsonMap.put("type", "Questionnaire");
+        finalJsonMap.put(questionnaireName, questionAnswers);
+
+        // Convert the map to a JSON string
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(finalJsonMap);
+
+        // Write this JSON object to a file
+        Path tempFile = Files.createTempFile(generalService.encrypt(patient.getUser().getEmail()), ".json");
+        Files.write(tempFile, json.getBytes());
+
+        // Upload the file to Google Drive
+        GoogleDriveService googleDriveService = new GoogleDriveService();
+        DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile.toFile());
+
+        // Delete the temporary file
+        Files.delete(tempFile);
+
+        String url = generalService.encrypt(driveResponse.getUrl());
+        MedicalRecord mr = new MedicalRecord();
+        mr.setPatient(patient);
+        mr.setDoctor(doctor);
+        mr.setRecord(url);
+        return "File uploaded successfully";
+
+    }
 }

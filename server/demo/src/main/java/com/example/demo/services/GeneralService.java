@@ -153,7 +153,7 @@ public class GeneralService {
         return mapper.createObjectNode().set(hospitalName, hospitalDetails);
     }
 
-    public String encryptUrl(String url) {
+    public String encrypt(String url) {
         try {
             String key = "1MvOeTDF4wsWFRwbL8EKxw=="; // Replace this with your actual key
             SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
@@ -171,7 +171,7 @@ public class GeneralService {
         }
     }
 
-    public String decryptUrl(String encryptedUrl) {
+    public String decrypt(String encryptedUrl) {
         try {
             String key = "1MvOeTDF4wsWFRwbL8EKxw=="; // Replace this with your actual key
             SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
