@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -12,9 +14,8 @@ import lombok.Setter;
 public class FieldWorker {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "field_worker_id")
-    private int id;
+    private String id;
 
     @Column(name = "area", nullable = false)
     private String area;
@@ -26,4 +27,8 @@ public class FieldWorker {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="user_id", nullable = false)
     private User user;
+
+    public FieldWorker() {
+        this.id = UUID.randomUUID().toString();
+    }
 }

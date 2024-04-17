@@ -7,6 +7,7 @@ import lombok.Setter;
 
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name="supervisor")
@@ -14,9 +15,8 @@ import java.util.List;
 @Setter
 public class Supervisor{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sup_id")
-    private int id;
+    private String id;
 
     @Column(name = "state")
     private String state;
@@ -28,4 +28,8 @@ public class Supervisor{
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)
     private User user;
+
+    public Supervisor() {
+        this.id = UUID.randomUUID().toString();
+    }
 }
