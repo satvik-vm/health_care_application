@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class SupervisorRemovalRequest {
-    int sup_id;
+    String sup_id;
 }

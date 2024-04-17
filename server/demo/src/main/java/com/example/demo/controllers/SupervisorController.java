@@ -172,7 +172,7 @@ public class SupervisorController {
     }
 
     @PostMapping("/remFW")
-    public ResponseEntity<String> removeFieldWorker(@RequestParam int id)
+    public ResponseEntity<String> removeFieldWorker(@RequestParam String id)
     {
         boolean response = supervisorService.removeFieldWorker(id);
         if(response)
@@ -184,7 +184,7 @@ public class SupervisorController {
     @PostMapping("/transFW")
     public ResponseEntity<String> transferFW(@RequestBody FWTransferRequest request)
     {
-        int fw_id = request.getFw_id();
+        String fw_id = request.getFw_id();
         String area = request.getArea();
         if(supervisorService.transferFieldWorker(fw_id, area))
             return ResponseEntity.ok("Field Worker transferred successfully");
@@ -193,7 +193,7 @@ public class SupervisorController {
     }
 
     @GetMapping("/supId")
-    public int getSupervisorId(Principal principal) {
+    public String getSupervisorId(Principal principal) {
         String loggedInUserEmail = principal.getName();
         return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
     }

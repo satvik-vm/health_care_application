@@ -99,7 +99,7 @@ public class AdminController {
     @PostMapping("/remSup")
     public ResponseEntity<String> removeSupervisor(@RequestBody SupervisorRemovalRequest request)
     {
-        int sup_id = request.getSup_id();
+        String sup_id = request.getSup_id();
         boolean response = adminService.removeSupervisor(sup_id);
         if(response)
         {
@@ -121,7 +121,7 @@ public class AdminController {
     @PostMapping("/transSup")
     public ResponseEntity<String> transferSupervisor(@RequestBody SupervisorTransferRequest request)
     {
-        int sup_id = request.getSup_id();
+        String sup_id = request.getSup_id();
         String district = request.getDistrict();
         boolean response = adminService.transferSupervisor(sup_id, district);
         if(response)
@@ -148,6 +148,14 @@ public class AdminController {
 
             // Create a new Hospital object
             Hospital hospital = new Hospital();
+
+            // Create a new IdMapping object and set its privateId to the Hospital's UUID
+            IdMapping idMapping = new IdMapping();
+            idMapping.setPrivateId(UUID.fromString(hospital.getId()));
+
+            // Save the IdMapping object to the database
+            idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
             hospital.setUser(user);
             hospital.setDistrict(district);
             hospital.setSubDivision(subDivision);
@@ -200,7 +208,7 @@ public class AdminController {
 
     @CrossOrigin(origins = "*")
     @GetMapping("/getQn")
-    public int getQuestionnaire(@RequestParam("name") String name)
+    public String getQuestionnaire(@RequestParam("name") String name)
     {
         System.out.println(name);
         return adminService.getQuestionnaireByName(name);

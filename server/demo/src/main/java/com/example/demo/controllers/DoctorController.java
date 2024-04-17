@@ -15,7 +15,7 @@ public class DoctorController {
     @Autowired
     private DoctorService doctorService;
     @GetMapping("/viewPatients")
-    public List<Patient> viewPatients(@RequestParam("id") int id)
+    public List<Patient> viewPatients(@RequestParam("id") String id)
     {
         return doctorService.viewPatients(id);
     }

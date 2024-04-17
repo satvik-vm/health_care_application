@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class QuestionnaireResponseRequest {
-    private int pid;
+    private String pid;
     private List<AnswerResponse> answers;
 }

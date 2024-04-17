@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class DescriptiveAnswerRequest {
-    private int qid;
-    private int pid;
+    private String qid;
+    private String pid;
     private MultipartFile audio;
 }

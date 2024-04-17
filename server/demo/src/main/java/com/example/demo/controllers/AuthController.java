@@ -1,8 +1,10 @@
 package com.example.demo.controllers;
 
 import com.example.demo.Entity.Admin;
+import com.example.demo.Entity.IdMapping;
 import com.example.demo.Entity.Role;
 import com.example.demo.Entity.User;
+import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.models.AdminCreationRequest;
 import com.example.demo.models.JwtRequest;
 import com.example.demo.models.JwtResponse;
@@ -25,6 +27,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
+
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
@@ -51,6 +56,9 @@ public class AuthController {
 
     @Autowired
     TokenBlacklist tokenBlacklist;
+
+    @Autowired
+    private IdMappingRepository idMappingRepository;
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -115,8 +123,15 @@ public class AuthController {
 
             // Create a new Admin object
             Admin admin = new Admin();
-            admin.setUser(user);
 
+            // Create a new IdMapping object and set its privateId to the Admin's UUID
+            IdMapping idMapping = new IdMapping();
+            idMapping.setPrivateId(UUID.fromString(admin.getUniqueId()));
+
+            // Save the IdMapping object to the database
+            idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
+            admin.setUser(user);
 
             // Save the Admin object
             adminService.createAdmin(admin);
@@ -148,23 +163,4 @@ public class AuthController {
         return null;
     }
 
-//    @PostMapping("/logout")
-//    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-//        // Invalidate current session
-//        HttpSession session = request.getSession(false);
-//        if (session != null) {
-//            session.invalidate();
-//        }
-//
-//        // Clear authentication
-//        SecurityContextHolder.clearContext();
-//
-//        // Add the token to the blacklist
-//        String token = request.getHeader("Authorization");
-//        tokenBlacklistService.addToken(token);
-//        tokenBlacklistService.printBlacklist();
-//
-//        // Return response
-//        return ResponseEntity.ok("Logged out successfully");
-//    }
 }

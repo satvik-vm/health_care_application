@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AdminService {
@@ -42,6 +43,9 @@ public class AdminService {
     @Autowired
     private DistrictService districtService;
 
+    @Autowired
+    private IdMappingRepository idMappingRepository;
+
     public List<Admin> getAdmin()
     {
         return adminRepository.findAll();
@@ -69,7 +73,7 @@ public class AdminService {
         }
     }
     @Transactional
-    public boolean removeSupervisor(int id) {
+    public boolean removeSupervisor(String id) {
         System.out.println(id);
         Optional<Supervisor> supervisorOptional = supervisorRepository.findById(id);
         System.out.println(supervisorOptional);
@@ -121,7 +125,7 @@ public class AdminService {
     }
 
     @Transactional
-    public boolean transferSupervisor(int sup_id, String district)
+    public boolean transferSupervisor(String sup_id, String district)
     {
         // Get the current district of the supervisor with the given ID
         Optional<Supervisor> supervisorOptional = supervisorRepository.findById(sup_id);
@@ -153,6 +157,13 @@ public class AdminService {
         String type = req.getType();
         Question qs = new Question();
 
+        // Create a new IdMapping object and set its privateId to the Question's UUID
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(qs.getQuestion()));
+
+        // Save the IdMapping object to the database
+        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
         qs.setQuestion(req.getQuestion());
         qs.setType(req.getType());
         Questionnaire qn = questionnaireRepository.findById(req.getQnId()).get();
@@ -175,7 +186,7 @@ public class AdminService {
         }
     }
 
-    public Optional<Question> getQuestionById(int id) {
+    public Optional<Question> getQuestionById(String id) {
         return questionRepository.findById(id);
     }
 
@@ -185,6 +196,14 @@ public class AdminService {
 
     public Questionnaire createQuestionnaire(String name) {
         Questionnaire qn = new Questionnaire();
+
+        // Create a new IdMapping object and set its privateId to the Answer's UUID
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(qn.getId()));
+
+        // Save the IdMapping object to the database
+        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
         qn.setName(name);
         try {
             return questionnaireRepository.save(qn);
@@ -196,12 +215,12 @@ public class AdminService {
         }
     }
 
-    public int getQuestionnaireByName(String name) {
+    public String getQuestionnaireByName(String name) {
         Optional<Questionnaire> questionnaire = questionnaireRepository.findByName(name);
         if(questionnaire.isPresent())
             return questionnaire.get().getId();
         else
-            return -1;
+            return "-1";
 
 
     }

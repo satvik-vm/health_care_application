@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
+public interface HospitalRepository extends JpaRepository<Hospital, String> {
     Hospital findByUser_Email(String email);
     List<Hospital> findBySubDivision(String subDivision);
 

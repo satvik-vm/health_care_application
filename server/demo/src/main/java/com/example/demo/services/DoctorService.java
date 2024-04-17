@@ -38,7 +38,7 @@ public class DoctorService {
         return allocatedDoctor;
     }
 
-    public List<Patient> viewPatients(int id) {
+    public List<Patient> viewPatients(String id) {
         List<Patient> patients = patientRepository.findByDoctorId(id);
 
         Collections.sort(patients, new Comparator<Patient>() {

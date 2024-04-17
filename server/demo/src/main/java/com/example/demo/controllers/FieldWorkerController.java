@@ -148,8 +148,8 @@ public class FieldWorkerController {
 
     @PostMapping("/uploadDescMsg")
     public Object handleFileUpload(@RequestParam("audio") MultipartFile audio,
-                                   @RequestParam("qid") int qid,
-                                   @RequestParam("pid") int pid) throws IOException, GeneralSecurityException {
+                                   @RequestParam("qid") String qid,
+                                   @RequestParam("pid") String pid) throws IOException, GeneralSecurityException {
         if (audio.isEmpty()) {
             return "File is empty";
         }
@@ -168,8 +168,8 @@ public class FieldWorkerController {
 
     @GetMapping("/submitFile")
     public String submitFile(@RequestParam("qnName") String questionnaireName,
-                             @RequestParam("patientId") int patientId,
-                             @RequestParam("doctorId") int doctorId) throws IOException, GeneralSecurityException {
+                             @RequestParam("patientId") String patientId,
+                             @RequestParam("doctorId") String doctorId) throws IOException, GeneralSecurityException {
 
         return fwService.submitFile(questionnaireName, patientId, doctorId);
     }

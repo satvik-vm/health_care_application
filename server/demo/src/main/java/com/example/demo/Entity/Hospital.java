@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,9 +14,8 @@ import java.util.List;
 @Table(name = "hospital")
 public class Hospital {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "hospital_id")
-    private int id;
+    private String id;
 
     @Column(name = "state", nullable = false)
     private String state;
@@ -32,4 +32,8 @@ public class Hospital {
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)
     private User user;
+
+    public Hospital(){
+        this.id = UUID.randomUUID().toString();
+    }
 }

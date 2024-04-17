@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -12,13 +13,16 @@ import java.util.List;
 @Table(name = "questionnaireSet")
 public class Questionnaire {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "qid")
-    private int id;
+    private String id;
 
     @Column(name="qn_Name", unique = true)
     private String name;
 
 //    @OneToMany(mappedBy = "qn", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Question> questions;
+
+    public Questionnaire(){
+        this.id = UUID.randomUUID().toString();
+    }
 }

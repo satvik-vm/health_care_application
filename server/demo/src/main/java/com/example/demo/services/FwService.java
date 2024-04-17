@@ -20,10 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class FwService {
@@ -57,6 +54,8 @@ public class FwService {
     AdminService adminService;
     @Autowired
     GeneralService generalService;
+    @Autowired
+    IdMappingRepository idMappingRepository;
 
     public Patient createPatient(PatientCreationRequest request) {
         String roleName = request.getRole().getName();
@@ -97,6 +96,14 @@ public class FwService {
         }
         User createdUser = userRepository.save(user);
         Patient patient = new Patient();
+
+        // Create a new IdMapping object and set its privateId to the Patient's UUID
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(patient.getId()));
+
+        // Save the IdMapping object to the database
+        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
         patient.setUser(user);
         patient.setAabhaId(request.getAabha());
         patient.setFwAssistance(request.isAssist());
@@ -109,13 +116,21 @@ public class FwService {
         int n1 = 0;
         int n2 = 0;
         int score = 0;
-        int pid = request.getPid();
+        String pid = request.getPid();
         Optional<Patient> patient = patientRepository.findById(pid);
         List<AnswerResponse> answers = request.getAnswers();
         for(AnswerResponse answer : answers)
         {
             Optional<Question> question =  questionRepository.findById(answer.getQid());
             Answer ans = new Answer();
+
+            // Create a new IdMapping object and set its privateId to the Answer's UUID
+            IdMapping idMapping = new IdMapping();
+            idMapping.setPrivateId(UUID.fromString(ans.getAnsId()));
+
+            // Save the IdMapping object to the database
+            idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
             if(patient.isPresent())
             {
                 ans.setPatient(patient.get());
@@ -182,8 +197,16 @@ public class FwService {
         }
     }
 
-    public DriveResponse uploadDescriptiveMsg(File tempFile, int qid, int pid) throws GeneralSecurityException, IOException {
+    public DriveResponse uploadDescriptiveMsg(File tempFile, String qid, String pid) throws GeneralSecurityException, IOException {
         Answer answer = new Answer();
+
+        // Create a new IdMapping object and set its privateId to the Answer's UUID
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(answer.getAnsId()));
+
+        // Save the IdMapping object to the database
+        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
         Optional<Patient> patient = patientRepository.findById(pid);
         Optional<Question> question = questionRepository.findById(qid);
         if(question.isPresent())
@@ -200,7 +223,7 @@ public class FwService {
     }
 
 
-    public String submitFile(String questionnaireName, int patientId, int doctorId) throws IOException, GeneralSecurityException {
+    public String submitFile(String questionnaireName, String patientId, String doctorId) throws IOException, GeneralSecurityException {
         // Fetch the questions related to the questionnaire
         List<Question> questions = adminService.getAllQuestionByQnName(questionnaireName);
         Patient patient = patientRepository.findById(patientId).orElseThrow(()->new RuntimeException("Patient not found"));
@@ -250,6 +273,14 @@ public class FwService {
 
         String url = generalService.encrypt(driveResponse.getUrl());
         MedicalRecord mr = new MedicalRecord();
+
+        // Create a new IdMapping object and set its privateId to the MedicalRecord's UUID
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(mr.getUniqueId()));
+
+        // Save the IdMapping object to the database
+        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
         mr.setPatient(patient);
         mr.setDoctor(doctor);
         mr.setRecord(url);

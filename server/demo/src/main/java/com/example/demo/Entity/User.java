@@ -8,10 +8,8 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+
+import java.util.*;
 
 @Getter
 @Setter
@@ -21,9 +19,8 @@ import java.util.List;
 @Table(name = "App_User")
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
-    private int uniqueId;
+    private String uniqueId;
 
     @Column(name="email", unique = true, nullable = false)
     private String email;
@@ -63,6 +60,10 @@ public class User implements UserDetails {
     @JoinColumn(name = "otp_id")
     private Otp otp;
 
+    public User(){
+        this.uniqueId = UUID.randomUUID().toString();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -100,4 +101,6 @@ public class User implements UserDetails {
     protected void onCreate() {
         this.dateOfJoining = new Date(); // Set current date on creation
     }
+
+
 }

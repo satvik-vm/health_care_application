@@ -10,5 +10,5 @@ public class QuestionRequest {
     String optB;
     String optC;
     String optD;
-    int qnId;
+    String qnId;
 }

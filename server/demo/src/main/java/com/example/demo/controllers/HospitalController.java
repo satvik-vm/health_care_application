@@ -30,7 +30,7 @@ public class HospitalController {
     }
 
     @DeleteMapping("remDoctor")
-    public boolean removeDoctor(@RequestParam int id)
+    public boolean removeDoctor(@RequestParam String id)
     {
         return hospitalService.deleteDoctor(id);
     }

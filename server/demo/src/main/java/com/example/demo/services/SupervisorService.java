@@ -27,7 +27,7 @@ public class SupervisorService {
     private DistrictService districtService;
 
 
-    public Supervisor getDetails(int id){
+    public Supervisor getDetails(String id){
         Optional<Supervisor> supervisorOptional = supervisorRepository.findById(id);
         return supervisorOptional.orElse(null);
     }
@@ -52,7 +52,7 @@ public class SupervisorService {
     }
 
 
-    public boolean removeFieldWorker(int id)
+    public boolean removeFieldWorker(String id)
     {
         Optional<FieldWorker> fieldWorkerOptional = fieldWorkerRepository.findById(id);
 
@@ -65,7 +65,7 @@ public class SupervisorService {
             return false;
     }
 
-    public boolean transferFieldWorker(int fw_id, String area)
+    public boolean transferFieldWorker(String fw_id, String area)
     {
         Optional<FieldWorker> fieldWorkerOptional = fieldWorkerRepository.findById(fw_id);
         if(fieldWorkerOptional.isPresent())
@@ -81,12 +81,12 @@ public class SupervisorService {
     }
 
 
-    public int getSupervisorIdByEmail(String email) {
+    public String getSupervisorIdByEmail(String email) {
         Supervisor supervisor = supervisorRepository.findByUser_Email(email);
         if (supervisor != null) {
             return supervisor.getId(); // Assuming getId() returns the supervisor ID
         } else {
-            return -1;
+            return "-1";
         }
 
     }

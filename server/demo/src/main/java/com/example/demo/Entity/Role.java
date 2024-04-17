@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Data
@@ -13,9 +15,12 @@ import lombok.Setter;
 public class Role {
     @Id
     @Column(name = "role_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private String id;
 
     @Column(name = "role_name", nullable = false)
     private String name;
+
+    public Role(){
+        this.id = UUID.randomUUID().toString();
+    }
 }

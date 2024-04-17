@@ -63,7 +63,7 @@ public class HospitalService {
         }
     }
 
-    public boolean deleteDoctor(int id) {
+    public boolean deleteDoctor(String id) {
         Optional<Doctor> doctorOptional = doctorRepository.findById(id);
 
         // Delete the doctor
