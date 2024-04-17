@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @RestController
@@ -229,15 +227,19 @@ public class SupervisorController {
     }
 
     @GetMapping("/getSupState")
-    public String getSupState(Principal principal) {
+    public ResponseEntity<Object> getSupState(Principal principal) {
         String email = principal.getName();
-        return supervisorService.getSupState(email);
+        Map<String, String> data = new HashMap<>();
+        data.put("state", supervisorService.getSupState(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     @GetMapping("/getSupDistrict")
-    public String getSupDistrict(Principal principal) {
+    public ResponseEntity<Object> getSupDistrict(Principal principal) {
         String email = principal.getName();
-        return supervisorService.getSupDistrict(email);
+        Map<String, String> data = new HashMap<>();
+        data.put("state", supervisorService.getSupDistrict(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
 }
