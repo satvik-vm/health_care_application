@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.DoctorRepository;
 import com.example.demo.Repository.HospitalRepository;
+import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.PatientRepository;
 import com.example.demo.models.DoctorCreationRequest;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class HospitalService {
@@ -35,6 +37,9 @@ public class HospitalService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private IdMappingRepository idMappingRepository;
+
     @Transactional
     public String createDoctors(List<DoctorCreationRequest> requests, String hospitalEmail)
     {
@@ -48,6 +53,14 @@ public class HospitalService {
                 Role role = roleService.getOrCreateRole("DOCTOR");
                 user.setRole(role);
                 Doctor doctor = new Doctor();
+
+                // Create a new IdMapping object and set its privateId to the Doctor's UUID
+                IdMapping idMapping = new IdMapping();
+                idMapping.setPrivateId(UUID.fromString(doctor.getId()));
+
+                // Save the IdMapping object to the database
+                idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
                 doctor.setUser(user);
                 doctor.setRegId(request.getRegNo());
                 doctor.setHospital(hospitalRepository.findByUser_Email(hospitalEmail));
