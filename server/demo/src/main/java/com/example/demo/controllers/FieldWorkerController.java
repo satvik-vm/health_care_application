@@ -161,7 +161,7 @@ public class FieldWorkerController {
         return res;
     }
     @GetMapping("/getAllQ")
-    public List<Question> getAllQuestions(@RequestParam String name)
+    public List<Question> getAllQuestions(@RequestParam("name") String name)
     {
         return adminService.getAllQuestionByQnName(name);
     }

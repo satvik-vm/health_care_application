@@ -142,6 +142,7 @@ public class AdminController {
             String roleName = request.getUser().getRole().getName();
             String district = request.getDistrict();
             String subDivision = request.getSubDivision();
+            String state= request.getState();
 
             Role role = roleService.getOrCreateRole(roleName);
             User user = userService.createUser(email, password, role);
@@ -165,8 +166,9 @@ public class AdminController {
             // Save the hospital object
             Hospital createdHospital = adminService.createHospital(hospital);
             System.out.println("Hewooo");
+            System.out.println(password);
 //            For testing purposes I am removing the email system
-//            adminService.sendHospitalCredentials(email, password, district, subDivision);
+            adminService.sendHospitalCredentials(email, password, district, subDivision, state);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(createdHospital);
         }
@@ -212,7 +214,6 @@ public class AdminController {
     {
         System.out.println(name);
         return adminService.getQuestionnaireByName(name);
-
     }
 
     @GetMapping("/getAllQ")
