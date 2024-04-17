@@ -115,7 +115,7 @@ public class HospitalService {
             hospitalNode.put("subdivision", hospital.getSubDivision());
             hospitalNode.put("email", email); // Add email to the details
 
-            result.set(hospital.getName(), hospitalNode);
+            result.set("hospital", hospitalNode);
         } else {
             result.put("error", "Hospital not found with email: " + email);
         }
