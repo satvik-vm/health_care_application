@@ -4,6 +4,7 @@ import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin")
@@ -57,7 +59,7 @@ public class AdminController {
     }
 
     @PostMapping("/regSup")
-    public ResponseEntity<Supervisor> registerSupervisor(@RequestBody SupervisorCreationRequest request)
+    public boolean registerSupervisor(@RequestBody SupervisorCreationRequest request)
     {
         try {
             System.out.println("mukul......");
@@ -83,51 +85,41 @@ public class AdminController {
             District district = districtService.getOrCreateDistrict(request.getDistrict().getName());
             supervisor.setDistrict(district);
             supervisor.setState(request.getState());
+            supervisor.setUser(user);
 
             // Save the Supervisor object
             Supervisor createdSupervisor = adminService.createSupervisor(supervisor);
             adminService.sendSupervisorCredentials(email, password, district.getName());
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdSupervisor);
+            return true;
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            e.printStackTrace();
+            return false;
         }
     }
 
 
-    @PostMapping("/remSup")
-    public ResponseEntity<String> removeSupervisor(@RequestBody SupervisorRemovalRequest request)
+    @DeleteMapping("/remSup")
+    public boolean removeSupervisor(@RequestParam("sup_id") int sup_id)
     {
-        String sup_id = request.getSup_id();
-        boolean response = adminService.removeSupervisor(sup_id);
-        if(response)
-        {
-            return ResponseEntity.ok("Supervisor removed successfully");
-        }
-        else {
-            return ResponseEntity.ok("Can Not delete supervisor");
-        }
+
+        return adminService.removeSupervisor(sup_id);
+
     }
 
     @GetMapping("/getSup")
-    public ResponseEntity<Supervisor> getSupervisors(@RequestParam String district)
+    public int getSupervisor(@RequestParam String district)
     {
-        Supervisor supervisors = adminService.getSupervisors(district);
-        return ResponseEntity.ok().body(supervisors);
+        return adminService.getSupervisor(district);
     }
 
 //  Transfer Supervisor API
     @PostMapping("/transSup")
-    public ResponseEntity<String> transferSupervisor(@RequestBody SupervisorTransferRequest request)
+    public boolean transferSupervisor(@RequestBody SupervisorTransferRequest request)
     {
-        String sup_id = request.getSup_id();
+        int id = request.getSup_id();
         String district = request.getDistrict();
-        boolean response = adminService.transferSupervisor(sup_id, district);
-        if(response)
-            return ResponseEntity.ok("Supervisor transferred successfully");
-        else
-            return ResponseEntity.ok("Could not transfer supervisor");
+        return adminService.transferSupervisor(id, district);
     }
 
     @PostMapping("/regHospital")
@@ -177,27 +169,8 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file) {
-        // Implement file upload logic here
-        if (!file.isEmpty()) {
-            try {
-                String fileName = file.getOriginalFilename();
-                String filePath = "/path/to/save/" + fileName; // Change this to your desired file path
-                File dest = new File(filePath);
-                file.transferTo(dest);
-                return "File uploaded successfully!";
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "Failed to upload file!";
-            }
-        } else {
-            return "File is empty!";
-        }
-    }
-
     @PostMapping("/setQn")
-    public Questionnaire setQuestionnaire(@RequestBody String name)
+    public boolean setQuestionnaire(@RequestParam String name)
     {
         return adminService.createQuestionnaire(name);
     }
@@ -205,21 +178,22 @@ public class AdminController {
     @PostMapping("/setQ")
     public boolean setQuestion(@RequestBody QuestionRequest request)
     {
+        System.out.println("mukul");
         return adminService.createQuestion(request);
     }
 
     @CrossOrigin(origins = "*")
     @GetMapping("/getQn")
-    public String getQuestionnaire(@RequestParam("name") String name)
+    public int getQuestionnaire(@RequestParam("name") String name)
     {
         System.out.println(name);
         return adminService.getQuestionnaireByName(name);
     }
 
     @GetMapping("/getAllQ")
-    public List<Question> getAllQuestions(@RequestParam String name)
-    {
-        return adminService.getAllQuestionByQnName(name);
+    public List<String> getAllQuestions(@RequestParam String name) {
+        List<Question> questions = adminService.getAllQuestionByQnName(name);
+        return questions.stream().map(Question::getQuestion).collect(Collectors.toList());
     }
 
     @GetMapping("/getState")

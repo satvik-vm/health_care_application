@@ -20,6 +20,9 @@ public class FieldWorker {
     @Column(name = "area", nullable = false)
     private String area;
 
+    @Column(name = "state", nullable = false)
+    private String state;
+
     @ManyToOne
     @JoinColumn(name = "district_id", nullable = false)
     private District district;

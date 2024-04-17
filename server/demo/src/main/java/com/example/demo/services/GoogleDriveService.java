@@ -94,6 +94,27 @@ public class GoogleDriveService {
         return res;
     }
 
+    public String replaceFile(String fileId, Path filePath, String mimeType) throws IOException, GeneralSecurityException {
+        // Initialize Google Drive service
+        Drive driveService = createDriveService();
+
+        // Delete the old file from Google Drive
+        driveService.files().delete(fileId).execute();
+
+        // Upload the updated file to Google Drive with the same name
+        com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
+        fileMetadata.setName(fileId); // use the old file ID as the name of the new file
+        java.io.File filePathJava = filePath.toFile();
+        FileContent mediaContent = new FileContent(mimeType, filePathJava);
+        com.google.api.services.drive.model.File uploadedFile = driveService.files().create(fileMetadata, mediaContent).setFields("id").execute();
+
+        // Get the URL of the uploaded file
+        String uploadedFileId = uploadedFile.getId();
+        String uploadedFileUrl = "https://drive.google.com/uc?export=download&id=" + uploadedFileId;
+
+        return uploadedFileUrl;
+    }
+
     private Drive createDriveService() throws GeneralSecurityException, IOException {
         GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACCOUNT_KEY_PATH))
                 .createScoped(Collections.singleton(DriveScopes.DRIVE));
