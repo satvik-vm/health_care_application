@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/fw")
@@ -161,9 +162,10 @@ public class FieldWorkerController {
         return res;
     }
     @GetMapping("/getAllQ")
-    public List<Question> getAllQuestions(@RequestParam("name") String name)
+    public List<String> getAllQuestions(@RequestParam("name") String name)
     {
-        return adminService.getAllQuestionByQnName(name);
+        List<Question> questions = adminService.getAllQuestionByQnName(name);
+        return questions.stream().map(Question::getQuestion).collect(Collectors.toList());
     }
 
     @GetMapping("/submitFile")

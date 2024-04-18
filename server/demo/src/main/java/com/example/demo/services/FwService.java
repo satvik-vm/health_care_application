@@ -116,7 +116,8 @@ public class FwService {
         int n1 = 0;
         int n2 = 0;
         int score = 0;
-        String pid = request.getPid();
+        int id = request.getPid();
+        String pid = idMappingRepository.findById(id).get().getPrivateId().toString();
         Optional<Patient> patient = patientRepository.findById(pid);
         List<AnswerResponse> answers = request.getAnswers();
         for(AnswerResponse answer : answers)

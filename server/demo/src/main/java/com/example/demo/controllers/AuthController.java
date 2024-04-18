@@ -8,6 +8,7 @@ import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.models.AdminCreationRequest;
 import com.example.demo.models.JwtRequest;
 import com.example.demo.models.JwtResponse;
+import com.example.demo.models.LogoutRequest;
 import com.example.demo.security.JwtHelper;
 import com.example.demo.security.TokenBlacklist;
 import com.example.demo.services.*;
@@ -140,7 +141,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(@RequestBody LogoutRequest request) {
         String token = extractTokenFromRequest(request);
         tokenBlacklist.addToBlacklist(token);
 
@@ -149,9 +150,10 @@ public class AuthController {
         return ResponseEntity.ok("Logged out successfully");
     }
 
-    public String extractTokenFromRequest(HttpServletRequest request) {
+    public String extractTokenFromRequest(LogoutRequest request) {
         // Get the Authorization header from the request
-        String requestHeader = request.getHeader("Authorization");
+//        String requestHeader = request.getHeader("Authorization");
+        String requestHeader = request.getToken();
 
         // Check if the Authorization header is not null and starts with "Bearer "
         if (requestHeader != null && requestHeader.startsWith("Bearer ")) {
