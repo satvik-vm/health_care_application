@@ -175,4 +175,28 @@ public class FieldWorkerController {
 
         return fwService.submitFile(questionnaireName, patientId, doctorId);
     }
+
+    @GetMapping("/getFwState")
+    public ResponseEntity<Object> getSupState(Principal principal) {
+        String email = principal.getName();
+        Map<String, String> data = new HashMap<>();
+        data.put("state", fwService.getFwState(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    @GetMapping("/getFwDistrict")
+    public ResponseEntity<Object> getFwDistrict(Principal principal) {
+        String email = principal.getName();
+        Map<String, String> data = new HashMap<>();
+        data.put("state", fwService.getFwDistrict(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    @GetMapping("/getFwSubDistrict")
+    public ResponseEntity<Object> getFwSubDistrict(Principal principal) {
+        String email = principal.getName();
+        Map<String, String> data = new HashMap<>();
+        data.put("state", fwService.getSubDistrict(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
 }
