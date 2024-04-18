@@ -6,6 +6,7 @@ import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.Question;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.dto.QuestionDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -162,10 +163,14 @@ public class FieldWorkerController {
         return res;
     }
     @GetMapping("/getAllQ")
-    public List<String> getAllQuestions(@RequestParam("name") String name)
+    public List<QuestionDTO> getAllQuestions(@RequestParam("name") String name)
     {
         List<Question> questions = adminService.getAllQuestionByQnName(name);
-        return questions.stream().map(Question::getQuestion).collect(Collectors.toList());
+        return questions.stream().map(question -> {
+            QuestionDTO dto = new QuestionDTO();
+            dto.setQuestion(question.getQuestion());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @GetMapping("/submitFile")

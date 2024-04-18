@@ -14,7 +14,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Iterator;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -154,5 +156,38 @@ public class HospitalService {
         }
 
         return arrayNode;
+    }
+
+    public JsonNode getAllDoctors(String email) {
+        String currentDirectory = System.getProperty("user.dir");
+        System.setProperty("user.dir", currentDirectory + "/../Json");
+        String relativePath = "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
+        String jsonFilePath = new File(relativePath).getAbsolutePath();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode rootNode = mapper.readTree(new File(jsonFilePath));
+            Iterator<JsonNode> states = rootNode.elements();
+            while (states.hasNext()) {
+                JsonNode state = states.next();
+                Iterator<JsonNode> districts = state.elements();
+                while (districts.hasNext()) {
+                    JsonNode district = districts.next();
+                    Iterator<JsonNode> subDistricts = district.elements();
+                    while (subDistricts.hasNext()) {
+                        JsonNode subDistrict = subDistricts.next();
+                        Iterator<JsonNode> hospitals = subDistrict.elements();
+                        while (hospitals.hasNext()) {
+                            JsonNode hospital = hospitals.next();
+                            if (hospital.get("email").asText().equals(email)) {
+                                return hospital.get("doctors");
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

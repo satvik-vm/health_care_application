@@ -48,4 +48,10 @@ public class HospitalController {
         String email = principal.getName();
         return hospitalService.getDoctors(email);
     }
+
+    @GetMapping("/allDoctors")
+    public JsonNode getAllDoctors(Principal principal)
+    {
+        return hospitalService.getAllDoctors(principal.getName());
+    }
 }
