@@ -20,7 +20,7 @@ public class GeneralService {
         // Path to your JSON file
         String currentDirectory = System.getProperty("user.dir");
         System.setProperty("user.dir", currentDirectory + "/../Json");
-        String relativePath = "demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+        String relativePath = "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
         String jsonFilePath = new File(relativePath).getAbsolutePath();
         // Create ObjectMapper instance
         ObjectMapper mapper = new ObjectMapper();
@@ -43,7 +43,7 @@ public class GeneralService {
             // Path to your JSON file
             String currentDirectory = System.getProperty("user.dir");
             System.setProperty("user.dir", currentDirectory + "/../Json");
-            String relativePath = "demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+            String relativePath = "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
             String jsonFilePath = new File(relativePath).getAbsolutePath();
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(new File(jsonFilePath));
@@ -71,7 +71,7 @@ public class GeneralService {
         try {
             String currentDirectory = System.getProperty("user.dir");
             System.setProperty("user.dir", currentDirectory + "/../Json");
-            String relativePath = "demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+            String relativePath = "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
             String jsonFilePath = new File(relativePath).getAbsolutePath();
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(new File(jsonFilePath));
@@ -102,7 +102,7 @@ public class GeneralService {
         try {
             String currentDirectory = System.getProperty("user.dir");
             System.setProperty("user.dir", currentDirectory + "/../Json");
-            String relativePath = "demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+            String relativePath = "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
             String jsonFilePath = new File(relativePath).getAbsolutePath();
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readTree(new File(jsonFilePath));
@@ -118,7 +118,7 @@ public class GeneralService {
         // Load the JSON file
         String currentDirectory = System.getProperty("user.dir");
         System.setProperty("user.dir", currentDirectory + "/../Json");
-        String relativePath = "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
+        String relativePath = "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
         String jsonFilePath = new File(relativePath).getAbsolutePath();
         ObjectMapper mapper = new ObjectMapper();
         try {

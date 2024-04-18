@@ -190,11 +190,11 @@ public class SupervisorController {
             return ResponseEntity.ok("Could not transfer field worker");
     }
 
-    @GetMapping("/supId")
-    public int getSupervisorId(Principal principal) {
-        String loggedInUserEmail = principal.getName();
-        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
-    }
+//    @GetMapping("/supId")
+////    public int getSupervisorId(Principal principal) {
+////        String loggedInUserEmail = principal.getName();
+////        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
+//    }
 
     @GetMapping("/dob")
     public Boolean getDob(Principal principal){
