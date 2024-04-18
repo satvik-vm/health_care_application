@@ -43,7 +43,7 @@ public class HospitalController {
     }
 
     @GetMapping("/doctors")
-    public List<Doctor> getDoctors(Principal principal)
+    public JsonNode getDoctors(Principal principal)
     {
         String email = principal.getName();
         return hospitalService.getDoctors(email);

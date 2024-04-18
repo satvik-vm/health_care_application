@@ -8,6 +8,7 @@ import com.example.demo.Repository.PatientRepository;
 import com.example.demo.models.DoctorCreationRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,8 +137,22 @@ public class HospitalService {
         return result;
     }
 
-    public List<Doctor> getDoctors(String email)
+    public JsonNode getDoctors(String email)
     {
-        return doctorRepository.findByHospital_User_Email(email);
+        List<Doctor> doctors = doctorRepository.findByHospital_User_Email(email);
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode arrayNode = mapper.createArrayNode();
+
+        for (Doctor doctor : doctors) {
+            int id = idMappingRepository.findByPrivateId(UUID.fromString(doctor.getId())).getPublicId();
+            ObjectNode doctorNode = mapper.createObjectNode();
+            doctorNode.put("publicId", String.valueOf(id));
+            doctorNode.put("name", doctor.getUser().getFirstName());
+            doctorNode.put("email", doctor.getUser().getEmail());
+            doctorNode.put("regNo", doctor.getRegId());
+            arrayNode.add(doctorNode);
+        }
+
+        return arrayNode;
     }
 }
