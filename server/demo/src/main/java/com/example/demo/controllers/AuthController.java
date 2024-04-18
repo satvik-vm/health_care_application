@@ -141,13 +141,12 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestBody LogoutRequest request) {
+    public boolean logout(@RequestBody LogoutRequest request) {
         String token = extractTokenFromRequest(request);
+        if(token == null)
+            return false;
         tokenBlacklist.addToBlacklist(token);
-
-        // Clear any session-related data if necessary
-
-        return ResponseEntity.ok("Logged out successfully");
+        return true;
     }
 
     public String extractTokenFromRequest(LogoutRequest request) {
