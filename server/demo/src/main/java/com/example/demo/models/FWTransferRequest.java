@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class FWTransferRequest {
-    private String fw_id;
+    private int fw_id;
     private String area;
 }

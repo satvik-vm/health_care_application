@@ -190,7 +190,7 @@ public class SupervisorController {
     @PostMapping("/transFW")
     public ResponseEntity<String> transferFW(@RequestBody FWTransferRequest request)
     {
-        String fw_id = request.getFw_id();
+        int fw_id = request.getFw_id();
         String area = request.getArea();
         if(supervisorService.transferFieldWorker(fw_id, area))
             return ResponseEntity.ok("Field Worker transferred successfully");
