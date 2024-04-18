@@ -90,8 +90,13 @@ public class UserService {
 
     public void createOTP(String email, String otp_num)
     {
-        User user = userRepository.getUserByUsername(email);
-        otpService.setOrCreateOtp(user, otp_num);
+        try{
+            User user = userRepository.getUserByUsername(email);
+            otpService.setOrCreateOtp(user, otp_num);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String getDobByEmail(String email) {
