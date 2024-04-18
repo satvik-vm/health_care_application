@@ -165,7 +165,19 @@ public class FieldWorkerController {
     @GetMapping("/getAllQ")
     public List<QuestionDTO> getAllQuestions(@RequestParam("name") String name) {
         List<Question> questions = adminService.getAllQuestionByQnName(name);
-        return questions.stream().map(question -> {
+        return questions.stream().sorted((q1, q2) -> {
+            if (q1.getType().equals("mcq") && !q2.getType().equals("mcq")) {
+                return -1;
+            } else if (!q1.getType().equals("mcq") && q2.getType().equals("mcq")) {
+                return 1;
+            } else if (q1.getType().equals("range") && q2.getType().equals("descriptive")) {
+                return -1;
+            } else if (q1.getType().equals("descriptive") && q2.getType().equals("range")) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }).map(question -> {
             QuestionDTO dto = new QuestionDTO();
             dto.setQuestion(question.getQuestion());
             dto.setType(question.getType());
