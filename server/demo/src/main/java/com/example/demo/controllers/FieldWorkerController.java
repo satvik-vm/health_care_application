@@ -53,7 +53,7 @@ public class FieldWorkerController {
     GoogleDriveService googleDriveService;
 
     @PostMapping("/modifyDetails")
-    public ResponseEntity<User> modifyDetails(@RequestBody ModifyUserRequest request)
+    public Boolean modifyDetails(@RequestBody ModifyUserRequest request)
     {
         try
         {
@@ -65,10 +65,10 @@ public class FieldWorkerController {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             System.out.println(request.getPassword());
             userRepository.save(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+            return true;
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return false;
         }
     }
 
@@ -136,9 +136,9 @@ public class FieldWorkerController {
     }
 
     @PostMapping("/regPatient")
-    public Patient regPatient(@RequestBody PatientCreationRequest request)
+    public Boolean regPatient(@RequestBody PatientCreationRequest request)
     {
-        return fwService.createPatient(request);
+        return true;
     }
 
     @PostMapping("/qLogic")

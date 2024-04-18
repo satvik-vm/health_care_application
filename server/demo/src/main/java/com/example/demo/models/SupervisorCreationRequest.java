@@ -1,7 +1,5 @@
 package com.example.demo.models;
 
-
-import com.example.demo.Entity.User;
 import lombok.Data;
 
 @Data
