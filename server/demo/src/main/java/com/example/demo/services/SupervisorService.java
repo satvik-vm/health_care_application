@@ -71,8 +71,9 @@ public class SupervisorService {
             return false;
     }
 
-    public boolean transferFieldWorker(String fw_id, String area)
+    public boolean transferFieldWorker(int id, String area)
     {
+        String fw_id = idMappingRepository.findById(id).get().getPrivateId().toString();
         Optional<FieldWorker> fieldWorkerOptional = fieldWorkerRepository.findById(fw_id);
         if(fieldWorkerOptional.isPresent())
         {
