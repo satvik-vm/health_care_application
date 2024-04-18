@@ -163,12 +163,16 @@ public class FieldWorkerController {
         return res;
     }
     @GetMapping("/getAllQ")
-    public List<QuestionDTO> getAllQuestions(@RequestParam("name") String name)
-    {
+    public List<QuestionDTO> getAllQuestions(@RequestParam("name") String name) {
         List<Question> questions = adminService.getAllQuestionByQnName(name);
         return questions.stream().map(question -> {
             QuestionDTO dto = new QuestionDTO();
             dto.setQuestion(question.getQuestion());
+            dto.setType(question.getType());
+            dto.setOption1(question.getOptionA());
+            dto.setOption2(question.getOptionB());
+            dto.setOption3(question.getOptionC());
+            dto.setOption4(question.getOptionD());
             return dto;
         }).collect(Collectors.toList());
     }
