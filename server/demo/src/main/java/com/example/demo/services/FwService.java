@@ -56,6 +56,8 @@ public class FwService {
     GeneralService generalService;
     @Autowired
     IdMappingRepository idMappingRepository;
+    @Autowired
+    FieldWorkerRepository fieldWorkerRepository;
 
     public Patient createPatient(PatientCreationRequest request) {
         String roleName = request.getRole().getName();
@@ -287,5 +289,22 @@ public class FwService {
         mr.setRecord(url);
         return "File uploaded successfully";
 
+    }
+
+    public String getFwState(String email) {
+        FieldWorker fw = fieldWorkerRepository.findByUser_Email(email);
+        return fw.getState();
+
+    }
+
+    public String getFwDistrict(String email) {
+        FieldWorker fw = fieldWorkerRepository.findByUser_Email(email);
+        return fw.getDistrict().getName();
+    }
+
+
+    public String getSubDistrict(String email) {
+        FieldWorker fw = fieldWorkerRepository.findByUser_Email(email);
+        return fw.getArea();
     }
 }

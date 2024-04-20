@@ -6,6 +6,7 @@ import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.Question;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.dto.QuestionDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -162,10 +163,30 @@ public class FieldWorkerController {
         return res;
     }
     @GetMapping("/getAllQ")
-    public List<String> getAllQuestions(@RequestParam("name") String name)
-    {
+    public List<QuestionDTO> getAllQuestions(@RequestParam("name") String name) {
         List<Question> questions = adminService.getAllQuestionByQnName(name);
-        return questions.stream().map(Question::getQuestion).collect(Collectors.toList());
+        return questions.stream().sorted((q1, q2) -> {
+            if (q1.getType().equals("mcq") && !q2.getType().equals("mcq")) {
+                return -1;
+            } else if (!q1.getType().equals("mcq") && q2.getType().equals("mcq")) {
+                return 1;
+            } else if (q1.getType().equals("range") && q2.getType().equals("descriptive")) {
+                return -1;
+            } else if (q1.getType().equals("descriptive") && q2.getType().equals("range")) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }).map(question -> {
+            QuestionDTO dto = new QuestionDTO();
+            dto.setQuestion(question.getQuestion());
+            dto.setType(question.getType());
+            dto.setOption1(question.getOptionA());
+            dto.setOption2(question.getOptionB());
+            dto.setOption3(question.getOptionC());
+            dto.setOption4(question.getOptionD());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @GetMapping("/submitFile")
@@ -174,5 +195,29 @@ public class FieldWorkerController {
                              @RequestParam("doctorId") String doctorId) throws IOException, GeneralSecurityException {
 
         return fwService.submitFile(questionnaireName, patientId, doctorId);
+    }
+
+    @GetMapping("/getFwState")
+    public ResponseEntity<Object> getSupState(Principal principal) {
+        String email = principal.getName();
+        Map<String, String> data = new HashMap<>();
+        data.put("state", fwService.getFwState(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    @GetMapping("/getFwDistrict")
+    public ResponseEntity<Object> getFwDistrict(Principal principal) {
+        String email = principal.getName();
+        Map<String, String> data = new HashMap<>();
+        data.put("state", fwService.getFwDistrict(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    @GetMapping("/getFwSubDistrict")
+    public ResponseEntity<Object> getFwSubDistrict(Principal principal) {
+        String email = principal.getName();
+        Map<String, String> data = new HashMap<>();
+        data.put("state", fwService.getSubDistrict(email));
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

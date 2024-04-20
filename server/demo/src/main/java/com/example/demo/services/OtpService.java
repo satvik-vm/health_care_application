@@ -25,34 +25,39 @@ public class OtpService {
 
     @Autowired
     private IdMappingRepository idMappingRepository;
-
-    @Transactional
     public void setOrCreateOtp(User user, String otp_num) {
-        Otp otp;
-        if(user.getOtp() != null)
-        {
-            otp = user.getOtp();
+        try{
+            Otp otp;
+            if(user.getOtp() != null)
+            {
+                otp = user.getOtp();
 
+            }
+            else
+            {
+                otp = new Otp();
+
+                // Create a new IdMapping object and set its privateId to the Otp's UUID
+                IdMapping idMapping = new IdMapping();
+                idMapping.setPrivateId(UUID.fromString(otp.getId()));
+
+                // Save the IdMapping object to the database
+                idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
+            }
+            otp.setOtp_num(otp_num);
+            long currentTimeMillis = System.currentTimeMillis();
+            long expiryTimeMillis = currentTimeMillis + (15 * 60 * 1000); // 15 minutes in milliseconds
+            Date expDate = new Date(expiryTimeMillis);
+            otp.setExpDate(expDate);
+            otpRepository.save(otp);
+            user.setOtp(otp);
+            userRepository.save(user);
         }
-        else
+        catch (Exception e)
         {
-            otp = new Otp();
-
-            // Create a new IdMapping object and set its privateId to the Otp's UUID
-            IdMapping idMapping = new IdMapping();
-            idMapping.setPrivateId(UUID.fromString(otp.getId()));
-
-            // Save the IdMapping object to the database
-            idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
-
+            e.printStackTrace();
         }
-        otp.setOtp_num(otp_num);
-        long currentTimeMillis = System.currentTimeMillis();
-        long expiryTimeMillis = currentTimeMillis + (15 * 60 * 1000); // 15 minutes in milliseconds
-        Date expDate = new Date(expiryTimeMillis);
-        otp.setExpDate(expDate);
-        otpRepository.save(otp);
-        user.setOtp(otp);
-        userRepository.save(user);
+
     }
 }

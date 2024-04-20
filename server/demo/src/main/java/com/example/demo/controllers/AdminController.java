@@ -123,7 +123,7 @@ public class AdminController {
     }
 
     @PostMapping("/regHospital")
-    public ResponseEntity<Hospital> registerHospital(@RequestBody HospitalCreationRequest request)
+    public boolean registerHospital(@RequestBody HospitalCreationRequest request)
     {
         try {
             String email = request.getUser().getEmail();
@@ -160,12 +160,12 @@ public class AdminController {
             System.out.println("Hewooo");
             System.out.println(password);
 //            For testing purposes I am removing the email system
-            adminService.sendHospitalCredentials(email, password, district, subDivision, state);
+//            adminService.sendHospitalCredentials(email, password, district, subDivision, state);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdHospital);
+            return true;
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return false;
         }
     }
 
