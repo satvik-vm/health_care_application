@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,9 +14,8 @@ import java.util.Date;
 public class Patient {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "patient_id")
-    private Long id;
+    private String id;
 
     @Column(name = "aabhaId", unique = true, nullable = false)
     private String aabhaId;
@@ -62,5 +62,9 @@ public class Patient {
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)
     private User user;
+
+    public Patient(){
+        this.id = UUID.randomUUID().toString();
+    }
 }
 

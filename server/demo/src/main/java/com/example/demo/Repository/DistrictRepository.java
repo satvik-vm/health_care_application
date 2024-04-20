@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface DistrictRepository extends JpaRepository<District, Integer> {
+public interface DistrictRepository extends JpaRepository<District, String> {
     Optional<District> findByName(String name);
 }

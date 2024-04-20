@@ -1,9 +1,7 @@
 package com.example.demo.services;
 
-import com.example.demo.Entity.Admin;
-import com.example.demo.Entity.Otp;
-import com.example.demo.Entity.Role;
-import com.example.demo.Entity.User;
+import com.example.demo.Entity.*;
+import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.OtpRepository;
 import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -27,11 +26,22 @@ public class UserService {
     @Autowired
     OtpService otpService;
 
+    @Autowired
+    private IdMappingRepository idMappingRepository;
+
 
 
     public User createUser(String email, String password, Role role)
     {
         User user = new User();
+
+        // Create a new IdMapping object and set its privateId to the User's UUID
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(user.getUniqueId()));
+
+        // Save the IdMapping object to the database
+        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
         user.setEmail(email);
         user.setPassword(password);
         user.setRole(role);

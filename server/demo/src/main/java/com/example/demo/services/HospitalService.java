@@ -3,10 +3,12 @@ package com.example.demo.services;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.DoctorRepository;
 import com.example.demo.Repository.HospitalRepository;
+import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.PatientRepository;
 import com.example.demo.models.DoctorCreationRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class HospitalService {
@@ -35,6 +38,9 @@ public class HospitalService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private IdMappingRepository idMappingRepository;
+
     @Transactional
     public String createDoctors(List<DoctorCreationRequest> requests, String hospitalEmail)
     {
@@ -48,6 +54,14 @@ public class HospitalService {
                 Role role = roleService.getOrCreateRole("DOCTOR");
                 user.setRole(role);
                 Doctor doctor = new Doctor();
+
+                // Create a new IdMapping object and set its privateId to the Doctor's UUID
+                IdMapping idMapping = new IdMapping();
+                idMapping.setPrivateId(UUID.fromString(doctor.getId()));
+
+                // Save the IdMapping object to the database
+                idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
                 doctor.setUser(user);
                 doctor.setRegId(request.getRegNo());
                 doctor.setHospital(hospitalRepository.findByUser_Email(hospitalEmail));
@@ -63,7 +77,7 @@ public class HospitalService {
         }
     }
 
-    public boolean deleteDoctor(int id) {
+    public boolean deleteDoctor(String id) {
         Optional<Doctor> doctorOptional = doctorRepository.findById(id);
 
         // Delete the doctor
@@ -123,8 +137,22 @@ public class HospitalService {
         return result;
     }
 
-    public List<Doctor> getDoctors(String email)
+    public JsonNode getDoctors(String email)
     {
-        return doctorRepository.findByHospital_User_Email(email);
+        List<Doctor> doctors = doctorRepository.findByHospital_User_Email(email);
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode arrayNode = mapper.createArrayNode();
+
+        for (Doctor doctor : doctors) {
+            int id = idMappingRepository.findByPrivateId(UUID.fromString(doctor.getId())).getPublicId();
+            ObjectNode doctorNode = mapper.createObjectNode();
+            doctorNode.put("publicId", String.valueOf(id));
+            doctorNode.put("name", doctor.getUser().getFirstName());
+            doctorNode.put("email", doctor.getUser().getEmail());
+            doctorNode.put("regNo", doctor.getRegId());
+            arrayNode.add(doctorNode);
+        }
+
+        return arrayNode;
     }
 }

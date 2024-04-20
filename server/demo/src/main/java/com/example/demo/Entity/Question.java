@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -11,9 +13,8 @@ import lombok.Setter;
 public class Question {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "qid")
-    private int id;
+    private String id;
 
     @Column(name = "type", nullable = false)
     private String type;
@@ -36,4 +37,8 @@ public class Question {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "qn_id", nullable = false)
     private Questionnaire qn;
+
+    public Question(){
+        this.id = UUID.randomUUID().toString();
+    }
 }

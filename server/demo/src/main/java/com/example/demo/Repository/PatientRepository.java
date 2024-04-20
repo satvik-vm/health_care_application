@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PatientRepository extends JpaRepository<Patient, Integer> {
-    int countByHospitalId(int hospitalId);
-    int countByDoctorId(int doctorId);
+public interface PatientRepository extends JpaRepository<Patient, String> {
+    int countByHospitalId(String hospitalId);
+    int countByDoctorId(String doctorId);
 
-    List<Patient> findByDoctorId(int doctorId);
+    List<Patient> findByDoctorId(String doctorId);
 }

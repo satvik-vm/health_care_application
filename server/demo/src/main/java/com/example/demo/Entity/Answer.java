@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -14,8 +15,7 @@ import java.util.Date;
 public class Answer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int ansId;
+    private String ansId;
 
     private String mcqAns;
 
@@ -30,4 +30,8 @@ public class Answer {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "pid", nullable = false)
     private Patient patient;
+
+    public Answer(){
+        this.ansId = UUID.randomUUID().toString();
+    }
 }

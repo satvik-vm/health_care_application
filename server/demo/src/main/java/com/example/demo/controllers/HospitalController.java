@@ -29,8 +29,8 @@ public class HospitalController {
         return hospitalService.createDoctors(request, hospitalEmail);
     }
 
-    @DeleteMapping("remDoctor")
-    public boolean removeDoctor(@RequestParam int id)
+    @DeleteMapping("/remDoctor")
+    public boolean removeDoctor(@RequestParam String id)
     {
         return hospitalService.deleteDoctor(id);
     }
@@ -43,7 +43,7 @@ public class HospitalController {
     }
 
     @GetMapping("/doctors")
-    public List<Doctor> getDoctors(Principal principal)
+    public JsonNode getDoctors(Principal principal)
     {
         String email = principal.getName();
         return hospitalService.getDoctors(email);

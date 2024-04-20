@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,12 +14,15 @@ import java.util.Date;
 public class Otp {
     @Id
     @Column(name = "otp_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private String id;
 
     @Column(name = "otp_num", nullable = false)
     private String otp_num;
 
     @Column(name = "expDate", nullable = false)
     private Date expDate;
+
+    public Otp(){
+        this.id = UUID.randomUUID().toString();
+    }
 }

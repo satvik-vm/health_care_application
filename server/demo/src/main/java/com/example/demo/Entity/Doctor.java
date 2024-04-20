@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.print.Doc;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,9 +15,8 @@ import java.util.List;
 @Table(name = "doctor")
 public class Doctor {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "doctor_id")
-    private int id;
+    private String id;
 
     @Column(name="registerId")
     private String regId;
@@ -33,4 +34,8 @@ public class Doctor {
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)
     private User user;
+
+    public Doctor(){
+        this.id = UUID.randomUUID().toString();
+    }
 }

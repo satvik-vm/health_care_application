@@ -59,7 +59,7 @@ public class SupervisorController {
     }
 
     @PostMapping("/modifyDetails")
-    public ResponseEntity<User> modifyDetails(@RequestBody ModifyUserRequest request)
+    public boolean modifyDetails(@RequestBody ModifyUserRequest request)
     {
         try
         {
@@ -70,10 +70,10 @@ public class SupervisorController {
             user.setPhone(request.getPhone());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+            return true;
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return false;
         }
     }
 
@@ -129,7 +129,7 @@ public class SupervisorController {
     }
 
     @PostMapping("/regFW")
-    public ResponseEntity<FieldWorker> registerFieldWorker(@RequestBody FWCreationRequest request, Principal principal)
+    public boolean registerFieldWorker(@RequestBody FWCreationRequest request, Principal principal)
     {
         try{
             // Extract user information from the request
@@ -140,6 +140,7 @@ public class SupervisorController {
             String roleName = request.getUser().getRole().getName();
             String area = request.getArea();
             District district = supervisor.getDistrict();
+            String state = request.getState();
 
             Role role = roleService.getOrCreateRole(roleName);
             User user = userService.createUser(email, password, role);
@@ -155,28 +156,35 @@ public class SupervisorController {
             fieldWorker.setUser(user);
             fieldWorker.setArea(area);
             fieldWorker.setDistrict(district);
+            fieldWorker.setState(state);
 
             // Save the Field Worker object
             FieldWorker createdFieldWorker = supervisorService.createFieldWorker(fieldWorker);
             supervisorService.sendFieldWorkerCredentials(email, password, area);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdFieldWorker);
+            return true;
         }
 
         catch (Exception e) {
             System.out.println("Error Occurring");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            e.printStackTrace();
+            return false;
         }
     }
 
-    @PostMapping("/remFW")
-    public ResponseEntity<String> removeFieldWorker(@RequestParam int id)
+    @DeleteMapping("/remFW")
+    public boolean removeFieldWorker(@RequestParam int id)
     {
         boolean response = supervisorService.removeFieldWorker(id);
         if(response)
-            return ResponseEntity.ok("Field Worker removed successfully");
+            return true;
         else
-            return ResponseEntity.ok("Can Not delete Field Worker");
+            return false;
+    }
+
+    @GetMapping("/viewFw")
+    public ResponseEntity<List<Map<String, String>>> getFieldWorkersInArea(@RequestParam String area) {
+        return supervisorService.findfwByArea(area);
     }
 
     @PostMapping("/transFW")
@@ -190,11 +198,11 @@ public class SupervisorController {
             return ResponseEntity.ok("Could not transfer field worker");
     }
 
-//    @GetMapping("/supId")
-////    public int getSupervisorId(Principal principal) {
-////        String loggedInUserEmail = principal.getName();
-////        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
-//    }
+    @GetMapping("/supId")
+    public String getSupervisorId(Principal principal) {
+        String loggedInUserEmail = principal.getName();
+        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
+    }
 
     @GetMapping("/dob")
     public Boolean getDob(Principal principal){
