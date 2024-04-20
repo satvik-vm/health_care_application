@@ -77,8 +77,10 @@ public class GeneralService {
             JsonNode rootNode = objectMapper.readTree(new File(jsonFilePath));
 
             JsonNode stateNode = rootNode.get(stateName);
+//            System.out.println(districtName);
             if (stateNode != null) {
                 JsonNode districtNode = stateNode.get(districtName);
+//                System.out.println(districtNode);
                 if (districtNode != null) {
                     Iterator<Map.Entry<String, JsonNode>> fieldsIterator = districtNode.fields();
                     while (fieldsIterator.hasNext()) {
