@@ -253,7 +253,8 @@ public class SupervisorController {
     public ResponseEntity<Object> getSupDistrict(Principal principal) {
         String email = principal.getName();
         Map<String, String> data = new HashMap<>();
-        data.put("state", supervisorService.getSupDistrict(email));
+        data.put("district", supervisorService.getSupDistrict(email));
+        System.out.println(data);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 

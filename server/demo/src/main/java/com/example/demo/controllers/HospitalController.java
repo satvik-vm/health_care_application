@@ -29,7 +29,7 @@ public class HospitalController {
         return hospitalService.createDoctors(request, hospitalEmail);
     }
 
-    @DeleteMapping("remDoctor")
+    @DeleteMapping("/remDoctor")
     public boolean removeDoctor(@RequestParam String id)
     {
         return hospitalService.deleteDoctor(id);

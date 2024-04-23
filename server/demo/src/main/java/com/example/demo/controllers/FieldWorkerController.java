@@ -209,7 +209,7 @@ public class FieldWorkerController {
     public ResponseEntity<Object> getFwDistrict(Principal principal) {
         String email = principal.getName();
         Map<String, String> data = new HashMap<>();
-        data.put("state", fwService.getFwDistrict(email));
+        data.put("district", fwService.getFwDistrict(email));
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
@@ -217,7 +217,7 @@ public class FieldWorkerController {
     public ResponseEntity<Object> getFwSubDistrict(Principal principal) {
         String email = principal.getName();
         Map<String, String> data = new HashMap<>();
-        data.put("state", fwService.getSubDistrict(email));
+        data.put("subdist", fwService.getSubDistrict(email));
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }
