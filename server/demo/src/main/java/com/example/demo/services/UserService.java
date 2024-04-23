@@ -103,4 +103,9 @@ public class UserService {
         User user = userRepository.getUserByUsername(email);
         return user.getDob();
     }
+
+    public boolean isFieldWorker(String email) {
+        User user = userRepository.getUserByUsername(email);
+        return user != null && user.getRole().getName().equals("FIELDWORKER");
+    }
 }

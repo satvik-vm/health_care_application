@@ -5,12 +5,17 @@ import com.example.demo.Repository.DistrictRepository;
 import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.dto.NotificationDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +56,8 @@ public class SupervisorController {
     private DistrictRepository districtRepository;
     @Autowired
     private IdMappingRepository idMappingRepository;
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/hello")
     public String helloWorld()
@@ -249,5 +256,28 @@ public class SupervisorController {
         data.put("state", supervisorService.getSupDistrict(email));
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+
+    @MessageMapping("/")
+    @SendTo("/all/messages")
+    public Notification send(final Notification notification) throws Exception{
+        return notification;
+    }
+
+//    @MessageMapping("/private")
+//    @SendTo("/specific")
+//    public NotificationDTO sendToSpecificUser(@Payload NotificationDTO notificationDTO) {
+//        if (userService.isFieldWorker(notificationDTO.getTo())) {
+//            simpMessagingTemplate.convertAndSendToUser(notificationDTO.getTo(), "/specific", notificationDTO.getText());
+//            return notificationDTO;
+//        } else {
+//            // return an error response
+//            return null;
+//        }
+//    }
+
+//    @MessageMapping("/private")
+//    public void sendToSpecificUser(@Payload Notification notification) {
+//        simpMessagingTemplate.convertAndSendToUser(notification.getTo(), "/queue/messages", notification);
+//    }
 
 }
