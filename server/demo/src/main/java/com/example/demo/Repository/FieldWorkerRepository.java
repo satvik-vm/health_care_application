@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface FieldWorkerRepository extends JpaRepository<FieldWorker, String> {
     List<FieldWorker> findByArea(String area);
-
     FieldWorker findByUser_Email(String email);
+    List<FieldWorker> findByTeam_Id(String teamId);
+
 }

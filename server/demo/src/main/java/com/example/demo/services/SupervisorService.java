@@ -1,11 +1,11 @@
 package com.example.demo.services;
 
-import com.example.demo.Entity.FieldWorker;
-import com.example.demo.Entity.Supervisor;
-import com.example.demo.Entity.User;
+import com.example.demo.Entity.*;
 import com.example.demo.Repository.FieldWorkerRepository;
+import com.example.demo.Repository.FwTeamRepository;
 import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.SupervisorRepository;
+import com.example.demo.models.AssignGuidelinesRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -31,6 +31,9 @@ public class SupervisorService {
 
     @Autowired
     private IdMappingRepository idMappingRepository;
+
+    @Autowired
+    private FwTeamRepository fwTeamRepository;
 
 
     public Supervisor getDetails(String id){
@@ -132,5 +135,50 @@ public class SupervisorService {
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public String assignGuidelines(AssignGuidelinesRequest request) {
+        int id = request.getId();
+        String team_id = idMappingRepository.findById(id).get().getPrivateId().toString();
+        Optional<FwTeam> fwTeam = fwTeamRepository.findById(team_id);
+        if(fwTeam.isPresent())
+        {
+            FwTeam team = fwTeam.get();
+            team.setGuidelines(request.getGuideline());
+            fwTeamRepository.save(team);
+            return "Guidelines assigned successfully";
+        }
+        else
+            return "Error assigning guidelines";
+
+    }
+
+    public boolean assignTeam(List<Integer> list) {
+        try{
+            for(int id : list)
+            {
+                String fw_id = idMappingRepository.findById(id).get().getPrivateId().toString();
+                Optional<FieldWorker> fieldWorkerOptional = fieldWorkerRepository.findById(fw_id);
+                FwTeam team = createTeam();
+                if(fieldWorkerOptional.isPresent())
+                {
+                    FieldWorker fieldWorker = fieldWorkerOptional.get();
+                    fieldWorker.setTeam(team);
+                    fieldWorkerRepository.save(fieldWorker);
+                }
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    private FwTeam createTeam() {
+        FwTeam team = new FwTeam();
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(team.getId()));
+        return fwTeamRepository.save(team);
     }
 }

@@ -20,6 +20,12 @@ public class FwTeam {
     @Column(name = "guidelines")
     private String guidelines;
 
+    @Column(name = "teamName")
+    private String teamName;
+
+    @Column(name = "teamRepresentative")
+    private String teamRepresentative;
+
     public FwTeam() {
         this.id = UUID.randomUUID().toString();
     }

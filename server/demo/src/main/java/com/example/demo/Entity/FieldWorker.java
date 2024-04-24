@@ -27,6 +27,10 @@ public class FieldWorker {
     @JoinColumn(name = "district_id", nullable = false)
     private District district;
 
+    @ManyToOne
+    @JoinColumn(name = "team")
+    private FwTeam team;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="user_id", nullable = false)
     private User user;

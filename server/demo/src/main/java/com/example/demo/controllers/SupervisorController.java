@@ -264,21 +264,14 @@ public class SupervisorController {
         return notification;
     }
 
-//    @MessageMapping("/private")
-//    @SendTo("/specific")
-//    public NotificationDTO sendToSpecificUser(@Payload NotificationDTO notificationDTO) {
-//        if (userService.isFieldWorker(notificationDTO.getTo())) {
-//            simpMessagingTemplate.convertAndSendToUser(notificationDTO.getTo(), "/specific", notificationDTO.getText());
-//            return notificationDTO;
-//        } else {
-//            // return an error response
-//            return null;
-//        }
-//    }
+    @PostMapping("/assignGuidelines")
+    public String assignGuidelines(@RequestBody AssignGuidelinesRequest request) {
+        return supervisorService.assignGuidelines(request);
+    }
 
-//    @MessageMapping("/private")
-//    public void sendToSpecificUser(@Payload Notification notification) {
-//        simpMessagingTemplate.convertAndSendToUser(notification.getTo(), "/queue/messages", notification);
-//    }
+    @PostMapping("/assignTeam")
+    public boolean assignTeam(@RequestBody List<Integer> list) {
+        return supervisorService.assignTeam(list);
+    }
 
 }
