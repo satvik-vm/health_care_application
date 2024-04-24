@@ -181,4 +181,24 @@ public class SupervisorService {
         idMapping.setPrivateId(UUID.fromString(team.getId()));
         return fwTeamRepository.save(team);
     }
+
+    public List<Map<String, String>> viewTeams() {
+        List<FwTeam> teams = fwTeamRepository.findAll();
+        List<Map<String, String>> response = new ArrayList<>();
+
+        for (FwTeam team : teams) {
+            int publicId = idMappingRepository.findByPrivateId(UUID.fromString(team.getId())).getPublicId();
+            String representative = team.getTeamRepresentative(); // Assuming getRepresentative() returns the representative of the team
+            String guidelines = team.getGuidelines(); // Assuming getGuidelines() returns the guidelines of the team
+
+            Map<String, String> teamDetails = new HashMap<>();
+            teamDetails.put("publicId", String.valueOf(publicId));
+            teamDetails.put("representative", representative);
+            teamDetails.put("guidelines", guidelines);
+
+            response.add(teamDetails);
+        }
+
+        return response;
+    }
 }

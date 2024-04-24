@@ -263,15 +263,16 @@ public class SupervisorController {
     public Notification send(final Notification notification) throws Exception{
         return notification;
     }
-
     @PostMapping("/assignGuidelines")
     public String assignGuidelines(@RequestBody AssignGuidelinesRequest request) {
         return supervisorService.assignGuidelines(request);
     }
-
     @PostMapping("/assignTeam")
     public boolean assignTeam(@RequestBody List<Integer> list) {
         return supervisorService.assignTeam(list);
     }
-
+    @GetMapping("/viewTeams")
+    public List<Map<String, String>> viewTeams() {
+        return supervisorService.viewTeams();
+    }
 }
