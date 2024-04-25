@@ -59,59 +59,62 @@ public class FwService {
     @Autowired
     FieldWorkerRepository fieldWorkerRepository;
 
-    public Patient createPatient(PatientCreationRequest request) {
-        String roleName = request.getRole().getName();
-        Role role = roleService.getOrCreateRole(roleName);
-        User user = new User();
-        String firstName = request.getFirstName();
-        String lastName = request.getLastName();
-        user.setDob(request.getDob());
-        user.setLastName(lastName);
-        user.setFirstName(firstName);
-        user.setAddress(request.getAddress());
-        user.setGender(request.getGender());
-        user.setRole(role);
-        if(!request.getPhone().isEmpty())
-        {
-            user.setPhone(request.getPhone());
+    public Boolean createPatient(PatientCreationRequest request) {
+        try {
+            String roleName = request.getRole().getName();
+            Role role = roleService.getOrCreateRole(roleName);
+            User user = new User();
+            String firstName = request.getFirstName();
+            String lastName = request.getLastName();
+            user.setDob(request.getDob());
+            user.setLastName(lastName);
+            user.setFirstName(firstName);
+            user.setAddress(request.getAddress());
+            user.setGender(request.getGender());
+            user.setRole(role);
+            if (!request.getPhone().isEmpty()) {
+                user.setPhone(request.getPhone());
+            }
+            if (request.isAssist()) {
+                user.setEmail(request.getAabha());
+                user.setPassword(passwordEncoder.encode("1234"));
+            } else {
+                String email = request.getEmail();
+                String password = userService.generatePassword();
+                user.setEmail(email);
+                String subject = "Added as a member of Medimate India";
+
+                String body = "Dear " + firstName + " " + lastName + ",\n\n" +
+                        "You have been officially registered in the medimate India.\n\n" +
+                        "Your credentials:\n" +
+                        "Email: " + email + "\n" +
+                        "Password: " + password + "\n\n" +
+                        "Best regards,\n" +
+                        "Medimate India";
+                emailSenderService.sendEmail(email, subject, body);
+                user.setPassword(passwordEncoder.encode(password));
+            }
+            User createdUser = userRepository.save(user);
+            Patient patient = new Patient();
+
+            // Create a new IdMapping object and set its privateId to the Patient's UUID
+            IdMapping idMapping = new IdMapping();
+            idMapping.setPrivateId(UUID.fromString(patient.getId()));
+
+            // Save the IdMapping object to the database
+            idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
+
+            patient.setUser(user);
+            patient.setAabhaId(request.getAabha());
+            patient.setFwAssistance(request.isAssist());
+            patient.setDistrict(request.getDistrict());
+            patient.setSubDivision(request.getSubDivision());
+            patientRepository.save(patient);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        if(request.isAssist())
-        {
-            user.setEmail(request.getAabha());
-            user.setPassword(passwordEncoder.encode("1234"));
-        }
-        else {
-            String email = request.getEmail();
-            String password = userService.generatePassword();
-            user.setEmail(email);
-            String subject = "Added as a member of Medimate India";
-
-            String body = "Dear "+ firstName + " " + lastName+",\n\n" +
-                    "You have been officially registered in the medimate India.\n\n" +
-                    "Your credentials:\n" +
-                    "Email: "+email+"\n" +
-                    "Password: "+password+"\n\n" +
-                    "Best regards,\n" +
-                    "Medimate India";
-            emailSenderService.sendEmail(email, subject, body);
-            user.setPassword(passwordEncoder.encode(password));
-        }
-        User createdUser = userRepository.save(user);
-        Patient patient = new Patient();
-
-        // Create a new IdMapping object and set its privateId to the Patient's UUID
-        IdMapping idMapping = new IdMapping();
-        idMapping.setPrivateId(UUID.fromString(patient.getId()));
-
-        // Save the IdMapping object to the database
-        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
-
-        patient.setUser(user);
-        patient.setAabhaId(request.getAabha());
-        patient.setFwAssistance(request.isAssist());
-        patient.setDistrict(request.getDistrict());
-        patient.setSubDivision(request.getSubDivision());
-        return patientRepository.save(patient);
     }
 
     public String getCategorizedClass(QuestionnaireResponseRequest request) throws IOException, GeneralSecurityException {

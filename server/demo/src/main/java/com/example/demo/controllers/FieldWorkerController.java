@@ -140,7 +140,7 @@ public class FieldWorkerController {
     @PostMapping("/regPatient")
     public Boolean regPatient(@RequestBody PatientCreationRequest request)
     {
-        return true;
+        return fwService.createPatient(request);
     }
 
     @PostMapping("/qLogic")
