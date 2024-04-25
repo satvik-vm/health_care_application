@@ -7,5 +7,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class AnswerResponse {
     private String mcqAns;
     private int rangeAns;
-    private String qid;
+    private int qid;
 }

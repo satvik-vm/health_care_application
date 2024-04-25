@@ -127,7 +127,8 @@ public class FwService {
         List<AnswerResponse> answers = request.getAnswers();
         for(AnswerResponse answer : answers)
         {
-            Optional<Question> question =  questionRepository.findById(answer.getQid());
+//            System.out.println("mukul");
+            Optional<Question> question =  questionRepository.findById(idMappingRepository.findById(answer.getQid()).get().getPrivateId().toString());
             Answer ans = new Answer();
 
             // Create a new IdMapping object and set its privateId to the Answer's UUID
@@ -166,6 +167,7 @@ public class FwService {
                 answerRepository.save(ans);
             }
         }
+        System.out.println(score);
         if(score > n1*80 || score > n2*70)
         {
             if(patient.isPresent())
@@ -179,7 +181,7 @@ public class FwService {
             }
             return "RED";
         }
-        else if(score > n1*31 && score > n2*31)
+        else if(score > n1*31 || score > n2*31)
         {
             if(patient.isPresent())
             {
@@ -309,5 +311,10 @@ public class FwService {
     public String getSubDistrict(String email) {
         FieldWorker fw = fieldWorkerRepository.findByUser_Email(email);
         return fw.getArea();
+    }
+
+    public int getPatientPublicKey(String aabha) {
+        Patient patient = patientRepository.findByAabhaId(aabha);
+        return idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId();
     }
 }

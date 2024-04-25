@@ -5,6 +5,7 @@ import com.example.demo.Entity.Answer;
 import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.Question;
 import com.example.demo.Entity.User;
+import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.dto.QuestionDTO;
 import com.example.demo.models.*;
@@ -24,10 +25,7 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -53,6 +51,8 @@ public class FieldWorkerController {
 
     @Autowired
     GoogleDriveService googleDriveService;
+    @Autowired
+    IdMappingRepository idmappingRepository;
 
     @PostMapping("/modifyDetails")
     public Boolean modifyDetails(@RequestBody ModifyUserRequest request)
@@ -143,6 +143,12 @@ public class FieldWorkerController {
         return fwService.createPatient(request);
     }
 
+    @GetMapping("/getPatient")
+    public int getPatient(@RequestParam("aabha") String aabha)
+    {
+        return fwService.getPatientPublicKey(aabha);
+    }
+
     @PostMapping("/qLogic")
     public String getCategorization(@RequestBody QuestionnaireResponseRequest request) throws GeneralSecurityException, IOException {
         return fwService.getCategorizedClass(request);
@@ -179,6 +185,7 @@ public class FieldWorkerController {
             }
         }).map(question -> {
             QuestionDTO dto = new QuestionDTO();
+            dto.setPublicId(idmappingRepository.findByPrivateId(UUID.fromString(question.getId())).getPublicId());
             dto.setQuestion(question.getQuestion());
             dto.setType(question.getType());
             dto.setOption1(question.getOptionA());
