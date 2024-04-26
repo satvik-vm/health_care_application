@@ -12,9 +12,10 @@ import com.google.api.services.drive.DriveScopes;
 import org.springframework.stereotype.Service;
 import com.google.api.services.drive.model.Permission;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -72,7 +73,7 @@ public class GoogleDriveService {
             com.google.api.services.drive.model.File fileMetaData = new com.google.api.services.drive.model.File();
             fileMetaData.setName(file.getName());
             fileMetaData.setParents(Collections.singletonList(folderId));
-            FileContent mediaContent = new FileContent("application/json", file); // Assuming medical files are PDFs
+            FileContent mediaContent = new FileContent("application/json", file);
             com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
                     .setFields("id").execute();
 //            drive.permissions().create(uploadedFile.getId(), new Permission()
@@ -82,7 +83,6 @@ public class GoogleDriveService {
 //                    .execute();
             String fileUrl = "https://drive.google.com/file/d/" + uploadedFile.getId();
             System.out.println("File URL: " + fileUrl);
-            file.delete();
             res.setStatus(200);
             res.setMsg("Medical File Successfully Uploaded To Drive");
             res.setUrl(fileUrl);
@@ -92,6 +92,41 @@ public class GoogleDriveService {
             res.setMsg(e.getMessage());
         }
         return res;
+    }
+
+    public String readJsonFromUrl(String url) throws IOException {
+        // Convert the Google Drive sharing URL to a direct download URL
+        String fileId = url.substring(url.lastIndexOf('/') + 1);
+        String directDownloadUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
+
+        // Open a connection to the URL
+        HttpURLConnection conn = (HttpURLConnection) new URL(directDownloadUrl).openConnection();
+        conn.setRequestMethod("GET");
+
+        // Create a temporary file
+        Path tempFile = Files.createTempFile("temp", ".json");
+
+        // Write the content of the URL to the temporary file
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+             BufferedWriter out = Files.newBufferedWriter(tempFile)) {
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                out.write(inputLine);
+                out.newLine();
+            }
+        }
+
+        // Disconnect the connection
+        conn.disconnect();
+
+        // Read the JSON data from the temporary file
+        String jsonContent = new String(Files.readAllBytes(tempFile));
+
+        // Delete the temporary file
+        Files.delete(tempFile);
+
+        // Return the JSON data
+        return jsonContent;
     }
 
     public String replaceFile(String fileId, Path filePath, String mimeType) throws IOException, GeneralSecurityException {
@@ -110,7 +145,7 @@ public class GoogleDriveService {
 
         // Get the URL of the uploaded file
         String uploadedFileId = uploadedFile.getId();
-        String uploadedFileUrl = "https://drive.google.com/uc?export=download&id=" + uploadedFileId;
+        String uploadedFileUrl = "https://drive.google.com/file/d/" + uploadedFileId;
 
         return uploadedFileUrl;
     }

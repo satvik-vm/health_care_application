@@ -58,6 +58,8 @@ public class FwService {
     IdMappingRepository idMappingRepository;
     @Autowired
     FieldWorkerRepository fieldWorkerRepository;
+    @Autowired
+    MedicalRecordRepository medicalRecordRepository;
 
     public Boolean createPatient(PatientCreationRequest request) {
         try {
@@ -231,10 +233,12 @@ public class FwService {
     }
 
 
-    public String submitFile(String questionnaireName, String patientId, String doctorId) throws IOException, GeneralSecurityException {
+    public String submitFile(String questionnaireName, int id) throws IOException, GeneralSecurityException {
+        String patientId = idMappingRepository.findById(id).get().getPrivateId().toString();
         // Fetch the questions related to the questionnaire
         List<Question> questions = adminService.getAllQuestionByQnName(questionnaireName);
         Patient patient = patientRepository.findById(patientId).orElseThrow(()->new RuntimeException("Patient not found"));
+        String doctorId = patient.getDoctor().getId();
         Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(()->new RuntimeException("Doctor not found"));
 
         // Create a map to hold the question-answer pairs
@@ -272,12 +276,17 @@ public class FwService {
         Path tempFile = Files.createTempFile(generalService.encrypt(patient.getUser().getEmail()), ".json");
         Files.write(tempFile, json.getBytes());
 
-        // Upload the file to Google Drive
-        GoogleDriveService googleDriveService = new GoogleDriveService();
         DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile.toFile());
 
-        // Delete the temporary file
-        Files.delete(tempFile);
+        if (Files.exists(tempFile)) {
+            // Delete the temporary file
+            Files.delete(tempFile);
+            System.out.println("File deleted successfully: " + tempFile.toAbsolutePath());
+        } else {
+            System.out.println("File does not exist: " + tempFile.toAbsolutePath());
+        }
+
+        System.out.println(driveResponse.getUrl());
 
         String url = generalService.encrypt(driveResponse.getUrl());
         MedicalRecord mr = new MedicalRecord();
@@ -292,6 +301,8 @@ public class FwService {
         mr.setPatient(patient);
         mr.setDoctor(doctor);
         mr.setRecord(url);
+        medicalRecordRepository.save(mr);
+
         return "File uploaded successfully";
 
     }

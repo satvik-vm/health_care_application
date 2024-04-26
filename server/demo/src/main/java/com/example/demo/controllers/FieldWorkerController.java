@@ -197,11 +197,10 @@ public class FieldWorkerController {
     }
 
     @GetMapping("/submitFile")
-    public String submitFile(@RequestParam("qnName") String questionnaireName,
-                             @RequestParam("patientId") String patientId,
-                             @RequestParam("doctorId") String doctorId) throws IOException, GeneralSecurityException {
+    public String submitFile(@RequestParam("qnName") String qnName,
+                             @RequestParam("patientId") int patientId) throws IOException, GeneralSecurityException {
 
-        return fwService.submitFile(questionnaireName, patientId, doctorId);
+        return fwService.submitFile(qnName, patientId);
     }
 
     @GetMapping("/getFwState")

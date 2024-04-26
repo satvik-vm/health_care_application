@@ -1,16 +1,12 @@
 package com.example.demo.services;
 
-import com.example.demo.Entity.Doctor;
-import com.example.demo.Entity.Hospital;
-import com.example.demo.Entity.MedicalRecord;
-import com.example.demo.Entity.Patient;
-import com.example.demo.Repository.DoctorRepository;
-import com.example.demo.Repository.HospitalRepository;
-import com.example.demo.Repository.MedicalRecordRepository;
-import com.example.demo.Repository.PatientRepository;
+import com.example.demo.Entity.*;
+import com.example.demo.Repository.*;
+import com.example.demo.dto.PatientDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,6 +36,8 @@ public class DoctorService {
     GeneralService generalService;
     @Autowired
     GoogleDriveService googleDriveService;
+    @Autowired
+    IdMappingRepository idMappingRepository;
     public Doctor allocateDoctor(Hospital hospital)
     {
         List<Doctor> doctors = doctorRepository.findByHospitalId(hospital.getId());
@@ -57,8 +55,8 @@ public class DoctorService {
         return allocatedDoctor;
     }
 
-    public List<Patient> viewPatients(String id) {
-        List<Patient> patients = patientRepository.findByDoctorId(id);
+    public List<PatientDTO> viewPatients(String email) {
+        List<Patient> patients = patientRepository.findByDoctor_User_Email(email);
 
         Collections.sort(patients, new Comparator<Patient>() {
             @Override
@@ -73,43 +71,52 @@ public class DoctorService {
                 return p1.getMostRecentVisit().compareTo(p2.getMostRecentVisit());
             }
         });
+        List<PatientDTO> patientDTOs = new ArrayList<>();
+        for (Patient patient : patients) {
+            PatientDTO patientDTO = new PatientDTO();
+            patientDTO.setPublicId(idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId());
+            patientDTO.setAabhaId(patient.getAabhaId());
+            patientDTO.setFirstName(patient.getUser().getFirstName());
+            patientDTO.setLastName(patient.getUser().getLastName());
+            patientDTO.setStatus(patient.getHealthStatus());
+            patientDTOs.add(patientDTO);
+        }
 
-        return patients;
+        return patientDTOs;
     }
 
 
-    public String givePrescription(String pid, String prescription) throws IOException, GeneralSecurityException {
-        MedicalRecord mr = medicalRecordRepository.findById(pid).get();
+    public String givePrescription(int id, String prescription) throws IOException, GeneralSecurityException {
+        Optional<IdMapping> idMappingOptional = idMappingRepository.findById(id);
+        if (!idMappingOptional.isPresent()) {
+            throw new IllegalArgumentException("No IdMapping found with id: " + id);
+        }
+        String pid = idMappingOptional.get().getPrivateId().toString();
+
+        MedicalRecord mr = medicalRecordRepository.findByPatient_Id(pid);
         Doctor doctor = mr.getDoctor();
         Patient patient = mr.getPatient();
         String url = mr.getRecord();
         url = generalService.decrypt(url);
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
 
-        // Parse the JSON content into a Java object
+        // Read the existing JSON content from the Google Drive file
+        String existingJsonContent = googleDriveService.readJsonFromUrl(url);
+
+        // Parse the existing JSON content into a Java object
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> existingJson = mapper.readValue(response.toString(), Map.class);
+        List<Map<String, Object>> existingJson = mapper.readValue(existingJsonContent, new TypeReference<List<Map<String, Object>>>(){});
 
-        // Create a new JSON object to add
+        // Create a new JSON object for the prescription
         Map<String, Object> newJson = new HashMap<>();
         newJson.put("timestamp", LocalDateTime.now().toString());
         newJson.put("type", "Prescription");
         newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
         newJson.put("prescription", prescription);
 
-        // Add the new JSON object to the existing JSON
-        existingJson.putAll(newJson);
+        // Add the new JSON object to the list of existing JSON objects
+        existingJson.add(newJson);
 
-        // Convert the updated JSON back to a string
+        // Convert the updated list of JSON objects back to a JSON string
         String updatedJsonContent = mapper.writeValueAsString(existingJson);
 
         // Write the updated JSON content to a temporary file
@@ -128,5 +135,22 @@ public class DoctorService {
         Files.delete(tempFilePath);
 
         return "Prescription given successfully!";
+    }
+
+    public String seeReport(int id, String email) throws IOException {
+        String patientId = idMappingRepository.findById(id).get().getPrivateId().toString();
+        MedicalRecord mr = medicalRecordRepository.findByPatient_Id(patientId);
+        Patient patient = patientRepository.findById(patientId).get();
+
+        if(patient.getDoctor().getUser().getEmail().equals(email))
+        {
+            String url = generalService.decrypt(mr.getRecord());
+            System.out.println(url);
+            return googleDriveService.readJsonFromUrl(url);
+        }
+        else
+        {
+            return "You are not authorized to view this report";
+        }
     }
 }
