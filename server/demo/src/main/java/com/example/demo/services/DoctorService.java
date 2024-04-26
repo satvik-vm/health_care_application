@@ -159,8 +159,21 @@ public class DoctorService {
         return doctorRepository.findByUser_Email(email).getUser().getFirstName();
     }
 
-    public List<Patient> viewActivePatients(String email, List<String> statusList) {
-        return patientRepository.findByDoctor_User_EmailAndHealthStatusIn(email, statusList);
+    public List<PatientDTO> viewActivePatients(String email, List<String> statusList) {
+
+        List<Patient> patientList = patientRepository.findByDoctor_User_EmailAndHealthStatusIn(email, statusList);
+        List<PatientDTO> patientDTOs = new ArrayList<>();
+        for (Patient patient : patientList) {
+            PatientDTO patientDTO = new PatientDTO();
+            patientDTO.setPublicId(idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId());
+            patientDTO.setAabhaId(patient.getAabhaId());
+            patientDTO.setFirstName(patient.getUser().getFirstName());
+            patientDTO.setLastName(patient.getUser().getLastName());
+            patientDTO.setStatus(patient.getHealthStatus());
+            patientDTOs.add(patientDTO);
+        }
+
+        return patientDTOs;
     }
 
 

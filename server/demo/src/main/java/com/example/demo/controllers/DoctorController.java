@@ -46,8 +46,9 @@ public class DoctorController {
     }
 
     @GetMapping("/viewActivePatient")
-    public List<Patient> viewActivePatients(Principal principal){
+    public List<PatientDTO> viewActivePatients(Principal principal){
         List<String> statusList = Arrays.asList("YELLOW", "RED");
+
         return doctorService.viewActivePatients(principal.getName(), statusList);
     }
     @PutMapping("/patientDone")
