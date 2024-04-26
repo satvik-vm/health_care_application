@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import com.example.demo.dto.PatientDTO;
+import com.example.demo.models.DriveResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import javax.print.Doc;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -121,14 +123,20 @@ public class DoctorService {
         String updatedJsonContent = mapper.writeValueAsString(existingJson);
 
         // Write the updated JSON content to a temporary file
-        String fileId = url.substring(url.lastIndexOf('/') + 1);
-        Path tempFilePath = Paths.get("temp.json");
+        Path tempFilePath = Files.createTempFile(generalService.encrypt(patient.getUser().getEmail()), ".json");
         Files.write(tempFilePath, updatedJsonContent.getBytes());
 
-        // Replace the old file on Google Drive with the updated file
-        String uploadedFileUrl = googleDriveService.replaceFile(fileId, tempFilePath, "application/json");
+        // Remove the old file from Google Drive
+        String fileId = url.substring(url.lastIndexOf('/') + 1);
+        googleDriveService.removeFile(fileId);
+
+        // Upload the new file to Google Drive
+        File tempFile = tempFilePath.toFile();
+        DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile);
+        System.out.println(driveResponse.getUrl());
 
         // Update the record in the database
+        String uploadedFileUrl = driveResponse.getUrl();
         mr.setRecord(generalService.encrypt(uploadedFileUrl));
         medicalRecordRepository.save(mr);
 

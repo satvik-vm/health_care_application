@@ -133,9 +133,6 @@ public class GoogleDriveService {
         // Initialize Google Drive service
         Drive driveService = createDriveService();
 
-        // Delete the old file from Google Drive
-        driveService.files().delete(fileId).execute();
-
         // Upload the updated file to Google Drive with the same name
         com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
         fileMetadata.setName(fileId); // use the old file ID as the name of the new file
@@ -147,7 +144,18 @@ public class GoogleDriveService {
         String uploadedFileId = uploadedFile.getId();
         String uploadedFileUrl = "https://drive.google.com/file/d/" + uploadedFileId;
 
+        // Delete the old file from Google Drive
+        driveService.files().delete(fileId).execute();
+
         return uploadedFileUrl;
+    }
+
+    public void removeFile(String fileId) throws IOException, GeneralSecurityException {
+        // Initialize Google Drive service
+        Drive driveService = createDriveService();
+
+        // Delete the old file from Google Drive
+        driveService.files().delete(fileId).execute();
     }
 
     private Drive createDriveService() throws GeneralSecurityException, IOException {

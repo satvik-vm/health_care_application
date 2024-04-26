@@ -235,18 +235,16 @@ public class FwService {
 
     public String submitFile(String questionnaireName, int id) throws IOException, GeneralSecurityException {
         String patientId = idMappingRepository.findById(id).get().getPrivateId().toString();
-        // Fetch the questions related to the questionnaire
         List<Question> questions = adminService.getAllQuestionByQnName(questionnaireName);
         Patient patient = patientRepository.findById(patientId).orElseThrow(()->new RuntimeException("Patient not found"));
         String doctorId = patient.getDoctor().getId();
         Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(()->new RuntimeException("Doctor not found"));
 
-        // Create a map to hold the question-answer pairs
-        Map<String, String> questionAnswers = new HashMap<>();
+        List<Map<String, Object>> questionAnswersList = new ArrayList<>();
 
-        // For each question, fetch the corresponding answer given by the patient
         for (Question question : questions) {
             Answer answer = answerRepository.findByQuestionIdAndPatientId(question.getId(), patientId);
+            Map<String, Object> questionAnswers = new HashMap<>();
             if(answer.getMcqAns() != null)
                 questionAnswers.put(question.getQuestion(), answer.getMcqAns());
             else if(answer.getRangeAns() != 0)
@@ -257,29 +255,26 @@ public class FwService {
             }
             else if(answer.getSubjAns() != null)
                 questionAnswers.put(question.getQuestion(), answer.getSubjAns());
+            questionAnswersList.add(questionAnswers);
         }
 
-        // Continue with the existing logic...
-        // Create a new map to hold the final JSON structure
         Map<String, Object> finalJsonMap = new HashMap<>();
-
-        // Add timestamp, type, and questionnaire name to the map
         finalJsonMap.put("timestamp", LocalDateTime.now().toString());
         finalJsonMap.put("type", "Questionnaire");
-        finalJsonMap.put(questionnaireName, questionAnswers);
+        finalJsonMap.put(questionnaireName, questionAnswersList);
 
-        // Convert the map to a JSON string
+        List<Map<String, Object>> finalJsonList = new ArrayList<>();
+        finalJsonList.add(finalJsonMap);
+
         ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(finalJsonMap);
+        String json = objectMapper.writeValueAsString(finalJsonList);
 
-        // Write this JSON object to a file
         Path tempFile = Files.createTempFile(generalService.encrypt(patient.getUser().getEmail()), ".json");
         Files.write(tempFile, json.getBytes());
 
         DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile.toFile());
 
         if (Files.exists(tempFile)) {
-            // Delete the temporary file
             Files.delete(tempFile);
             System.out.println("File deleted successfully: " + tempFile.toAbsolutePath());
         } else {
@@ -290,21 +285,15 @@ public class FwService {
 
         String url = generalService.encrypt(driveResponse.getUrl());
         MedicalRecord mr = new MedicalRecord();
-
-        // Create a new IdMapping object and set its privateId to the MedicalRecord's UUID
         IdMapping idMapping = new IdMapping();
         idMapping.setPrivateId(UUID.fromString(mr.getUniqueId()));
-
-        // Save the IdMapping object to the database
-        idMappingRepository.save(idMapping);// Create a new IdMapping object and set its privateId to the generated UUID
-
+        idMappingRepository.save(idMapping);
         mr.setPatient(patient);
         mr.setDoctor(doctor);
         mr.setRecord(url);
         medicalRecordRepository.save(mr);
 
         return "File uploaded successfully";
-
     }
 
     public String getFwState(String email) {
