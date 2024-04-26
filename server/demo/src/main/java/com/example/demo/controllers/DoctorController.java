@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -39,6 +40,25 @@ public class DoctorController {
         return doctorService.givePrescription(request.getId(), request.getPrescription());
     }
 
+    @GetMapping("/getDocName")
+    public String getDocNameByEmail(Principal principal){
+        return doctorService.getDocNameByEmail(principal.getName());
+    }
+
+    @GetMapping("/viewActivePatient")
+    public List<Patient> viewActivePatients(Principal principal){
+        List<String> statusList = Arrays.asList("YELLOW", "RED");
+        return doctorService.viewActivePatients(principal.getName(), statusList);
+    }
+    @PutMapping("/patientDone")
+    public Boolean updatePatientStatus(@RequestParam("id") int publicId){
+        return doctorService.updatePatientStatus(publicId);
+    }
 
 
+//    @GetMapping("/viewHealthyPatient")
+//    public List<Patient> viewHealthyPatients(Principal principal){
+//        List<String> statusList = List.of("GREEN");
+//        return doctorService.viewActivePatients(principal.getName(), statusList);
+//    }
 }

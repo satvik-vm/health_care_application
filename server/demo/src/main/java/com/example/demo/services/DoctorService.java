@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import javax.print.Doc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -152,5 +153,39 @@ public class DoctorService {
         {
             return "You are not authorized to view this report";
         }
+    }
+
+    public String getDocNameByEmail(String email) {
+        return doctorRepository.findByUser_Email(email).getUser().getFirstName();
+    }
+
+    public List<Patient> viewActivePatients(String email, List<String> statusList) {
+        return patientRepository.findByDoctor_User_EmailAndHealthStatusIn(email, statusList);
+    }
+
+
+    public Boolean updatePatientStatus(int publicId) {
+
+        try{
+            // Map the public ID to the private ID
+            String privateId = idMappingRepository.findById(publicId).get().getPrivateId().toString();
+
+            // Retrieve the patient entity using the private ID
+            Patient patient = patientRepository.findById(privateId)
+                    .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+            // Update the status to "GREEN"
+            patient.setHealthStatus("GREEN");
+
+            // Save the updated patient entity
+            patientRepository.save(patient);
+
+            return true;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
     }
 }
