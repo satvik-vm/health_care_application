@@ -226,4 +226,9 @@ public class FieldWorkerController {
         data.put("subdist", fwService.getSubDistrict(email));
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+
+    @GetMapping("/isLoggedIn")
+    public boolean isLoggedIn(Principal principal) {
+        return principal != null;
+    }
 }
