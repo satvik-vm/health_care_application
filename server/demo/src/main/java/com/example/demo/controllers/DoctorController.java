@@ -37,8 +37,8 @@ public class DoctorController {
     }
 
     @PostMapping("/followup")
-    public String giveFollowup(@RequestBody FollowUpRequest request) throws IOException, GeneralSecurityException {
-        return doctorService.giveFollowUp(request);
+    public String giveFollowup(@RequestBody FollowUpRequest request, Principal principal) throws IOException, GeneralSecurityException {
+        return doctorService.giveFollowUp(request, principal.getName());
     }
 
     @GetMapping("/getDocName")

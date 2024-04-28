@@ -1,9 +1,9 @@
 package com.example.demo.models;
 
-import com.example.demo.Entity.Doctor;
+import com.example.demo.dto.DoctorQuestionDTO;
 import lombok.Data;
 
-import java.util.Date;
+import java.util.List;
 
 @Data
 public class FollowUpRequest {
@@ -11,6 +11,6 @@ public class FollowUpRequest {
     String type;
     String timestamp;
     PrescriptionRequest prescription;
-    DoctorQuestionnaireRequest doctorQuestionnaire;
-    AppointmentRequest appointment;
+    List<DoctorQuestionDTO> doctorQuestions;
+    String appointment;
 }

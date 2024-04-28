@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         String requestHeader = request.getHeader("Authorization");
-        System.out.println(requestHeader);
+//        System.out.println(requestHeader);
         //Bearer 2352345235sdfrsfgsdfsdf
         logger.info("Header: {}"+ request);
 

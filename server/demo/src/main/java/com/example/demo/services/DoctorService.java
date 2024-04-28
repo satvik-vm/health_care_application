@@ -2,28 +2,21 @@ package com.example.demo.services;
 
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
+import com.example.demo.dto.DoctorQuestionDTO;
 import com.example.demo.dto.PatientDTO;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.FollowUpRequest;
+import com.example.demo.models.PrescriptionRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import javax.print.Doc;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -90,9 +83,8 @@ public class DoctorService {
     }
 
 
-    public String giveFollowUp(FollowUpRequest request) throws IOException, GeneralSecurityException {
+    public String giveFollowUp(FollowUpRequest request, String doc_email) throws IOException, GeneralSecurityException {
         int id = request.getId();
-        String prescription = request.getPrescription().getMedicine();
         Optional<IdMapping> idMappingOptional = idMappingRepository.findById(id);
         if (!idMappingOptional.isPresent()) {
             throw new IllegalArgumentException("No IdMapping found with id: " + id);
@@ -103,7 +95,10 @@ public class DoctorService {
         Doctor doctor = mr.getDoctor();
         Patient patient = mr.getPatient();
         String url = mr.getRecord();
-        url = generalService.decrypt(url);
+        if(doctor.getUser().getEmail().equals(doc_email))
+            url = generalService.decrypt(url);
+        else
+            return "You are not authorized to give followUp to this patient";
 
         // Read the existing JSON content from the Google Drive file
         String existingJsonContent = googleDriveService.readJsonFromUrl(url);
@@ -112,15 +107,57 @@ public class DoctorService {
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> existingJson = mapper.readValue(existingJsonContent, new TypeReference<List<Map<String, Object>>>(){});
 
-        // Create a new JSON object for the prescription
-        Map<String, Object> newJson = new HashMap<>();
-        newJson.put("timestamp", LocalDateTime.now().toString());
-        newJson.put("type", "Prescription");
-        newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
-        newJson.put("prescription", prescription);
+        if(request.getType().equals("prescription"))
+        {
+            PrescriptionRequest prescriptionRequest = request.getPrescription();
 
-        // Add the new JSON object to the list of existing JSON objects
-        existingJson.add(newJson);
+            Map<String, Object> prescriptionMap = new HashMap<>();
+            prescriptionMap.put("medicine", prescriptionRequest.getMedicine());
+            prescriptionMap.put("test", prescriptionRequest.getTest());
+            prescriptionMap.put("precaution", prescriptionRequest.getPrecaution());
+
+            Map<String, Object> newJson = new HashMap<>();
+            newJson.put("timestamp", request.getTimestamp());
+            newJson.put("type", request.getType());
+            newJson.put("doctor", doctor.getUser().getFirstName());
+            newJson.put("prescription", prescriptionMap);
+
+            // Add the new JSON object to the list of existing JSON objects
+            existingJson.add(newJson);
+        }
+        else if(request.getType().equals("appointment"))
+        {
+            // Create a new JSON object for the follow-up
+            Map<String, Object> newJson = new HashMap<>();
+            newJson.put("timestamp", request.getTimestamp());
+            newJson.put("type", request.getType());
+            newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
+            newJson.put("appointment", request.getAppointment());
+
+            // Add the new JSON object to the list of existing JSON objects
+            existingJson.add(newJson);
+        }
+        else if(request.getType().equals("questionnaire"))
+        {
+            // Create a new JSON object for the follow-up
+            Map<String, Object> newJson = new HashMap<>();
+            newJson.put("timestamp", request.getTimestamp());
+            newJson.put("type", request.getType());
+            newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
+
+            // Convert each DoctorQuestionDTO object to a Map and add it to a list
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, Object>> doctorQuestionList = new ArrayList<>();
+            for (DoctorQuestionDTO doctorQuestion : request.getDoctorQuestions()) {
+                Map<String, Object> doctorQuestionMap = objectMapper.convertValue(doctorQuestion, new TypeReference<Map<String, Object>>() {});
+                doctorQuestionList.add(doctorQuestionMap);
+            }
+
+            newJson.put("doctorQuestionnaire", doctorQuestionList);
+
+            // Add the new JSON object to the list of existing JSON objects
+            existingJson.add(newJson);
+        }
 
         // Convert the updated list of JSON objects back to a JSON string
         String updatedJsonContent = mapper.writeValueAsString(existingJson);
@@ -200,10 +237,8 @@ public class DoctorService {
 
             // Update the status to "GREEN"
             patient.setHealthStatus("GREEN");
-
             // Save the updated patient entity
             patientRepository.save(patient);
-
             return true;
         }
         catch (Exception e){
