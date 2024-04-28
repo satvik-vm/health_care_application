@@ -8,6 +8,7 @@ import com.example.demo.Entity.User;
 import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.dto.PatientDTO;
+import com.example.demo.dto.ProfileDTO;
 import com.example.demo.dto.QuestionDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
@@ -197,12 +198,12 @@ public class FieldWorkerController {
         }).collect(Collectors.toList());
     }
 
-    @GetMapping("/submitFile")
-    public String submitFile(@RequestParam("qnName") String qnName,
-                             @RequestParam("patientId") int patientId) throws IOException, GeneralSecurityException {
-
-        return fwService.submitFile(qnName, patientId);
-    }
+//    @GetMapping("/submitFile")
+//    public String submitFile(@RequestParam("qnName") String qnName,
+//                             @RequestParam("patientId") int patientId) throws IOException, GeneralSecurityException {
+//
+//        return fwService.submitFile(qnName, patientId);
+//    }
 
     @GetMapping("/getFwState")
     public ResponseEntity<Object> getSupState(Principal principal) {
@@ -237,4 +238,9 @@ public class FieldWorkerController {
     public PatientDTO patientLogIn(@RequestBody String aabhaId, Principal principal) {
         return fwService.patientLogIn(aabhaId, principal.getName());
     }
+
+//    @GetMapping("/getProfiles")
+//    public List<ProfileDTO> getAllChats(Principal principal) {
+//        return fwService.getProfiles(principal.getName());
+//    }
 }

@@ -2,7 +2,9 @@ package com.example.demo.services;
 
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
+import com.example.demo.dto.ChatDTO;
 import com.example.demo.dto.PatientDTO;
+import com.example.demo.dto.ProfileDTO;
 import com.example.demo.models.AnswerResponse;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.PatientCreationRequest;
@@ -22,6 +24,7 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FwService {
@@ -61,6 +64,8 @@ public class FwService {
     FieldWorkerRepository fieldWorkerRepository;
     @Autowired
     MedicalRecordRepository medicalRecordRepository;
+    @Autowired
+    NotificationRepository notificationRepository;
 
     public Boolean createPatient(PatientCreationRequest request) {
         try {
@@ -182,6 +187,7 @@ public class FwService {
                 patient.get().setDoctor(doctor);
                 patient.get().setFieldWorker(fieldWorker);
                 patientRepository.save(patient.get());
+                System.out.println(submitFile(request.getQnName(), id));
             }
             return "RED";
         }
@@ -197,6 +203,7 @@ public class FwService {
                 patient.get().setDoctor(doctor);
                 patient.get().setFieldWorker(fieldWorker);
                 patientRepository.save(patient.get());
+                System.out.println(submitFile(request.getQnName(), id));
             }
             return "YELLOW";
         }
@@ -366,5 +373,38 @@ public class FwService {
             return patientDTO;
         }
         return null;
+    }
+
+//    public List<ProfileDTO> getProfiles(String email) {
+//        List<Notification> notifications = notificationRepository.findBySender(email);
+//        List<ProfileDTO> profileDTOS = new ArrayList<>();
+//
+//    }
+
+    public Map<String, List<ChatDTO>> getAllChats(String email1, String email2){
+        List<Notification> chats = notificationRepository.findAll();
+
+        // Filter notifications based on sender and receiver
+        chats = chats.stream()
+                .filter(chat -> (chat.getSender().equals(email1) && chat.getReceiver().equals(email2)) ||
+                        (chat.getSender().equals(email2) && chat.getReceiver().equals(email1)))
+                .collect(Collectors.toList());
+
+        // Sort the list by timestamp in ascending order
+        chats.sort(Comparator.comparing(Notification::getTimestamp));
+
+        Map<String, List<ChatDTO>> groupedChats = chats.stream()
+                .collect(Collectors.groupingBy(Notification::getDate,
+                        Collectors.mapping(this::convertToChatDTO, Collectors.toList())));
+        return groupedChats;
+    }
+
+    private ChatDTO convertToChatDTO(Notification notification) {
+        ChatDTO chatDTO = new ChatDTO();
+        chatDTO.setId(idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getSender()).getUniqueId())).getPublicId());
+        chatDTO.setKey(notification.getId().intValue());
+        chatDTO.setData(notification.getMessage());
+        chatDTO.setTime(notification.getTime());
+        return chatDTO;
     }
 }

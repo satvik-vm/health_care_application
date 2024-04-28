@@ -39,7 +39,7 @@ public class NotificationService {
         msg.setMessage(messageContent);
         msg.setSender(sender);
         msg.setIsRead(false);
-        msg.setTimestamp(Date.from(java.time.Instant.now()));
+//        msg.setTimestamp(Date.from(java.time.Instant.now()));
         notificationRepository.save(msg);
     }
 }

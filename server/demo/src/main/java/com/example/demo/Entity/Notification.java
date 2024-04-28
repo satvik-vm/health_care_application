@@ -18,11 +18,15 @@ public class Notification {
 
     private String message;
 
-    private Date timestamp;
+    private String date;
+
+    private String time;
 
     private Boolean isRead;
 
     private String receiver;
 
     private String sender;
+
+    private Date timestamp;
 }
