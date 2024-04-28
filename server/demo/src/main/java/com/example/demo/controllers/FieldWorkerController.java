@@ -7,6 +7,7 @@ import com.example.demo.Entity.Question;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.dto.PatientDTO;
 import com.example.demo.dto.QuestionDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
@@ -150,8 +151,8 @@ public class FieldWorkerController {
     }
 
     @PostMapping("/qLogic")
-    public String getCategorization(@RequestBody QuestionnaireResponseRequest request) throws GeneralSecurityException, IOException {
-        return fwService.getCategorizedClass(request);
+    public String getCategorization(@RequestBody QuestionnaireResponseRequest request, Principal principal) throws GeneralSecurityException, IOException {
+        return fwService.getCategorizedClass(request, principal.getName());
     }
 
     @PostMapping("/uploadDescMsg")
@@ -230,5 +231,10 @@ public class FieldWorkerController {
     @GetMapping("/isLoggedIn")
     public boolean isLoggedIn(Principal principal) {
         return principal != null;
+    }
+
+    @PostMapping("/patientLogIn")
+    public PatientDTO patientLogIn(@RequestBody String aabhaId, Principal principal) {
+        return fwService.patientLogIn(aabhaId, principal.getName());
     }
 }

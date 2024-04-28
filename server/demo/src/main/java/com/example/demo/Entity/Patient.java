@@ -57,7 +57,7 @@ public class Patient {
 
     @ManyToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="fw_id")
-    private FieldWorker fw;
+    private FieldWorker fieldWorker;
 
     @OneToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="user_id", nullable = false)

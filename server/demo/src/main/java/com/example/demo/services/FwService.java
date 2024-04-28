@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
+import com.example.demo.dto.PatientDTO;
 import com.example.demo.models.AnswerResponse;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.PatientCreationRequest;
@@ -119,7 +120,7 @@ public class FwService {
         }
     }
 
-    public String getCategorizedClass(QuestionnaireResponseRequest request) throws IOException, GeneralSecurityException {
+    public String getCategorizedClass(QuestionnaireResponseRequest request, String email) throws IOException, GeneralSecurityException {
         int n1 = 0;
         int n2 = 0;
         int score = 0;
@@ -129,7 +130,6 @@ public class FwService {
         List<AnswerResponse> answers = request.getAnswers();
         for(AnswerResponse answer : answers)
         {
-//            System.out.println("mukul");
             Optional<Question> question =  questionRepository.findById(idMappingRepository.findById(answer.getQid()).get().getPrivateId().toString());
             Answer ans = new Answer();
 
@@ -177,8 +177,10 @@ public class FwService {
                 patient.get().setHealthStatus("RED");
                 Hospital hospital = hospitalService.allocateHospital(patient.get().getSubDivision(), patient.get().getDistrict());
                 Doctor doctor = doctorService.allocateDoctor(hospital);
+                FieldWorker fieldWorker = assignFieldWorker(email);
                 patient.get().setHospital(hospital);
                 patient.get().setDoctor(doctor);
+                patient.get().setFieldWorker(fieldWorker);
                 patientRepository.save(patient.get());
             }
             return "RED";
@@ -190,8 +192,10 @@ public class FwService {
                 patient.get().setHealthStatus("YELLOW");
                 Hospital hospital = hospitalService.allocateHospital(patient.get().getSubDivision(), patient.get().getDistrict());
                 Doctor doctor = doctorService.allocateDoctor(hospital);
+                FieldWorker fieldWorker = assignFieldWorker(email);
                 patient.get().setHospital(hospital);
                 patient.get().setDoctor(doctor);
+                patient.get().setFieldWorker(fieldWorker);
                 patientRepository.save(patient.get());
             }
             return "YELLOW";
@@ -316,5 +320,51 @@ public class FwService {
     public int getPatientPublicKey(String aabha) {
         Patient patient = patientRepository.findByAabhaId(aabha);
         return idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId();
+    }
+
+    public FieldWorker assignFieldWorker(String email) {
+        FieldWorker fw = fieldWorkerRepository.findByUser_Email(email);
+        FwTeam team = fw.getTeam();
+        if(team != null)
+        {
+            List<FieldWorker> fieldWorkers = fieldWorkerRepository.findByTeam_Id(team.getId());
+            int mini = Integer.MAX_VALUE;
+            FieldWorker assignedfFieldWorker = fw;
+            for(FieldWorker worker : fieldWorkers)
+            {
+                int n = getNumberOfPatientsAssignedToFieldWorker(worker.getUser().getEmail());
+                if(n < mini)
+                {
+                    mini = n;
+                    assignedfFieldWorker = worker;
+                }
+            }
+            return assignedfFieldWorker;
+        }
+        else
+        {
+            return fw;
+        }
+    }
+    public int getNumberOfPatientsAssignedToFieldWorker(String email) {
+        FieldWorker fieldWorker = fieldWorkerRepository.findByUser_Email(email);
+        List<Patient> patients = patientRepository.findByFieldWorker(fieldWorker);
+        return patients.size();
+    }
+
+    public PatientDTO patientLogIn(String aabhaId, String name) {
+        Patient patient = patientRepository.findByAabhaId(aabhaId);
+        if(patient.getFieldWorker().getUser().getEmail().equals(name))
+        {
+            PatientDTO patientDTO = new PatientDTO();
+            int publicId = idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId();
+            patientDTO.setPublicId(publicId);
+            patientDTO.setAabhaId(patient.getAabhaId());
+            patientDTO.setFirstName(patient.getUser().getFirstName());
+            patientDTO.setLastName(patient.getUser().getLastName());
+            patientDTO.setStatus(patient.getHealthStatus());
+            return patientDTO;
+        }
+        return null;
     }
 }

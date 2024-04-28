@@ -1,5 +1,6 @@
 package com.example.demo.Repository;
 
+import com.example.demo.Entity.FieldWorker;
 import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +20,6 @@ public interface PatientRepository extends JpaRepository<Patient, String> {
     List<Patient> findByDoctor_User_Email(String email);
 
     List<Patient> findByDoctor_User_EmailAndHealthStatusIn(String email, List<String> statusList);
+
+    List<Patient> findByFieldWorker(FieldWorker fieldWorker);
 }
