@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class PrescriptionRequest {
-    int id;
-    String prescription;
+    String medicine;
+    String test;
+    String precaution;
 }

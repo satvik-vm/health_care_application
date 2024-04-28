@@ -3,8 +3,10 @@ package com.example.demo.controllers;
 
 import com.example.demo.Entity.Patient;
 import com.example.demo.dto.PatientDTO;
+import com.example.demo.models.FollowUpRequest;
 import com.example.demo.models.PrescriptionRequest;
 import com.example.demo.services.DoctorService;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,10 +36,9 @@ public class DoctorController {
         return doctorService.seeReport(id, email);
     }
 
-    @PostMapping("/prescription")
-    public String givePrescription(@RequestBody PrescriptionRequest request) throws IOException, GeneralSecurityException {
-        System.out.println("mukul");
-        return doctorService.givePrescription(request.getId(), request.getPrescription());
+    @PostMapping("/followup")
+    public String giveFollowup(@RequestBody FollowUpRequest request) throws IOException, GeneralSecurityException {
+        return doctorService.giveFollowUp(request);
     }
 
     @GetMapping("/getDocName")

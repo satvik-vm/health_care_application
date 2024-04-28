@@ -4,6 +4,7 @@ import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import com.example.demo.dto.PatientDTO;
 import com.example.demo.models.DriveResponse;
+import com.example.demo.models.FollowUpRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,7 +90,9 @@ public class DoctorService {
     }
 
 
-    public String givePrescription(int id, String prescription) throws IOException, GeneralSecurityException {
+    public String giveFollowUp(FollowUpRequest request) throws IOException, GeneralSecurityException {
+        int id = request.getId();
+        String prescription = request.getPrescription().getMedicine();
         Optional<IdMapping> idMappingOptional = idMappingRepository.findById(id);
         if (!idMappingOptional.isPresent()) {
             throw new IllegalArgumentException("No IdMapping found with id: " + id);
