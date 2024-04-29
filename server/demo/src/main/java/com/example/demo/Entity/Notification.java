@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -28,5 +28,5 @@ public class Notification {
 
     private String sender;
 
-    private Date timestamp;
+    private LocalDateTime timestamp;
 }

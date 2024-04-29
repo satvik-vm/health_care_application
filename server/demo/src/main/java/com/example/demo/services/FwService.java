@@ -1,5 +1,6 @@
 package com.example.demo.services;
-
+import com.example.demo.dto.LastMsgDTO;
+import javafx.util.Pair;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import com.example.demo.dto.ChatDTO;
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -375,11 +375,43 @@ public class FwService {
         return null;
     }
 
-//    public List<ProfileDTO> getProfiles(String email) {
-//        List<Notification> notifications = notificationRepository.findBySender(email);
-//        List<ProfileDTO> profileDTOS = new ArrayList<>();
-//
-//    }
+    public List<ProfileDTO> getProfiles(String email) {
+        List<Notification> chats = notificationRepository.findAll();
+        // Filter notifications where either sender or receiver is the provided email
+        chats = chats.stream()
+                .filter(chat -> chat.getSender().equals(email) || chat.getReceiver().equals(email))
+                .collect(Collectors.toList());
+
+        // Group by sender and receiver pairs and select the latest notification in each group
+        Map<Pair<String, String>, Notification> latestNotifications = new HashMap<>();
+        for (Notification chat : chats) {
+            Pair<String, String> pair = new Pair<>(chat.getSender(), chat.getReceiver());
+            if (!latestNotifications.containsKey(pair) ||
+                    latestNotifications.get(pair).getTimestamp().isBefore(chat.getTimestamp())) {
+                latestNotifications.put(pair, chat);
+            }
+        }
+
+        // Convert the selected notifications into ProfileDTO objects and return
+        List<ProfileDTO> profiles = new ArrayList<>();
+        for (Notification notification : latestNotifications.values()) {
+            ProfileDTO profile = new ProfileDTO();
+            int id = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(email).getUniqueId())).getPublicId();
+            int id1 = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getSender()).getUniqueId())).getPublicId();
+            int id2 = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getReceiver()).getUniqueId())).getPublicId();
+            profile.setId(id1 == id ? id2 : id1);
+            profile.setName(userRepository.getUserByUsername(id1 == id ? notification.getReceiver() : notification.getSender()).getFirstName());
+            LastMsgDTO lastMsgDTO = new LastMsgDTO();
+            lastMsgDTO.setMsg(notification.getMessage());
+            lastMsgDTO.setTime(notification.getTime());
+            lastMsgDTO.setDate(notification.getDate());
+            lastMsgDTO.setId(id1);
+            profile.setData(lastMsgDTO);
+            profiles.add(profile);
+        }
+
+        return profiles;
+    }
 
     public Map<String, List<ChatDTO>> getAllChats(String email1, String email2){
         List<Notification> chats = notificationRepository.findAll();

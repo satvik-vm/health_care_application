@@ -239,8 +239,8 @@ public class FieldWorkerController {
         return fwService.patientLogIn(aabhaId, principal.getName());
     }
 
-//    @GetMapping("/getProfiles")
-//    public List<ProfileDTO> getAllChats(Principal principal) {
-//        return fwService.getProfiles(principal.getName());
-//    }
+    @GetMapping("/getProfiles")
+    public List<ProfileDTO> getAllChats(Principal principal) {
+        return fwService.getProfiles(principal.getName());
+    }
 }

@@ -7,5 +7,5 @@ import lombok.Data;
 public class ProfileDTO {
     int id;
     String name;
-    ChatDTO chat;
+    LastMsgDTO data;
 }
