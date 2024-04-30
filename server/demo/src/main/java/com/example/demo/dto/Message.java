@@ -6,4 +6,6 @@ import lombok.Data;
 public class Message {
     private String messageContent;
     private String to;
+    String date;
+    String time;
 }

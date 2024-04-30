@@ -45,6 +45,6 @@ public class MessageController {
         ResponseMessage response = new ResponseMessage(message.getMessageContent());
         notificationService.sendPrivateNotification(message.getTo());
         messagingTemplate.convertAndSendToUser(message.getTo(), "/topic/private-messages", response);
-        notificationService.createNotification(principal.getName(), message.getTo(), message.getMessageContent());
+        notificationService.createNotification(principal.getName(), message);
     }
 }

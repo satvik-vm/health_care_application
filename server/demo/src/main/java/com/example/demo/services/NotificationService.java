@@ -2,11 +2,13 @@ package com.example.demo.services;
 
 import com.example.demo.Entity.Notification;
 import com.example.demo.Repository.NotificationRepository;
+import com.example.demo.dto.Message;
 import com.example.demo.dto.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
@@ -33,13 +35,15 @@ public class NotificationService {
         messagingTemplate.convertAndSendToUser(userId,"/topic/private-notifications", message);
     }
 
-    public void createNotification(String sender, String to, String messageContent) {
+    public void createNotification(String sender, Message req) {
         Notification msg = new Notification();
-        msg.setReceiver(to);
-        msg.setMessage(messageContent);
+        msg.setReceiver(req.getTo());
+        msg.setMessage(req.getMessageContent());
         msg.setSender(sender);
         msg.setIsRead(false);
-//        msg.setTimestamp(Date.from(java.time.Instant.now()));
+        msg.setTimestamp(LocalDateTime.now());
+        msg.setDate(req.getDate());
+        msg.setTime(req.getTime());
         notificationRepository.save(msg);
     }
 }
