@@ -5,6 +5,7 @@ import com.example.demo.Repository.FieldWorkerRepository;
 import com.example.demo.Repository.FwTeamRepository;
 import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.SupervisorRepository;
+import com.example.demo.dto.FieldWorkerDTO;
 import com.example.demo.models.AssignGuidelinesRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -200,5 +201,20 @@ public class SupervisorService {
         }
 
         return response;
+    }
+
+    public List<FieldWorkerDTO> getAllFieldWorkers(String email) {
+        Supervisor supervisor = supervisorRepository.findByUser_Email(email);
+        District district = supervisor.getDistrict();
+        List<FieldWorker> fieldWorkers = fieldWorkerRepository.findByDistrict(district);
+        List<FieldWorkerDTO> fieldWorkerDTOs = new ArrayList<>();
+        for (FieldWorker fieldWorker : fieldWorkers) {
+            FieldWorkerDTO fieldWorkerDTO = new FieldWorkerDTO();
+            fieldWorkerDTO.setUid(idMappingRepository.findByPrivateId(UUID.fromString(fieldWorker.getUser().getUniqueId())).getPublicId());
+            fieldWorkerDTO.setFirstName(fieldWorker.getUser().getFirstName());
+            fieldWorkerDTO.setLastName(fieldWorker.getUser().getLastName());
+            fieldWorkerDTOs.add(fieldWorkerDTO);
+        }
+        return fieldWorkerDTOs;
     }
 }

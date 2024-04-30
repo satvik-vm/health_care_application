@@ -5,7 +5,10 @@ import com.example.demo.Repository.DistrictRepository;
 import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.dto.ChatDTO;
+import com.example.demo.dto.FieldWorkerDTO;
 import com.example.demo.dto.NotificationDTO;
+import com.example.demo.dto.ProfileDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -58,6 +61,8 @@ public class SupervisorController {
     private IdMappingRepository idMappingRepository;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private FwService fwService;
 
     @GetMapping("/hello")
     public String helloWorld()
@@ -274,5 +279,19 @@ public class SupervisorController {
     @GetMapping("/viewTeams")
     public List<Map<String, String>> viewTeams() {
         return supervisorService.viewTeams();
+    }
+
+    @GetMapping("/getProfiles")
+    public List<ProfileDTO> getProfiles(Principal principal) {
+        return fwService.getProfiles(principal.getName());
+    }
+
+    @GetMapping("/getChats")
+    public Map<String, List<ChatDTO>> getChats(@RequestParam("id") int id, Principal principal) {
+        return fwService.getAllChats(id, principal.getName());
+    }
+    @GetMapping("/getAllFieldWorkers")
+    public List<FieldWorkerDTO> getAllFieldWorkers(Principal principal) {
+        return supervisorService.getAllFieldWorkers(principal.getName());
     }
 }

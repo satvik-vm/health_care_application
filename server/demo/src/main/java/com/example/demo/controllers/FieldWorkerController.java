@@ -7,9 +7,7 @@ import com.example.demo.Entity.Question;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.IdMappingRepository;
 import com.example.demo.Repository.UserRepository;
-import com.example.demo.dto.PatientDTO;
-import com.example.demo.dto.ProfileDTO;
-import com.example.demo.dto.QuestionDTO;
+import com.example.demo.dto.*;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -240,7 +238,17 @@ public class FieldWorkerController {
     }
 
     @GetMapping("/getProfiles")
-    public List<ProfileDTO> getAllChats(Principal principal) {
+    public List<ProfileDTO> getProfiles(Principal principal) {
         return fwService.getProfiles(principal.getName());
+    }
+
+    @GetMapping("/getChats")
+    public Map<String, List<ChatDTO>> getChats(@RequestParam("id") int id, Principal principal) {
+        return fwService.getAllChats(id, principal.getName());
+    }
+
+    @GetMapping("/getSupervisor")
+    public SupervisorDTO getSupervisor(Principal principal) {
+        return fwService.getSupervisor(principal.getName());
     }
 }

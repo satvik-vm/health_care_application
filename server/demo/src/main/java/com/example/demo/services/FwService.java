@@ -1,11 +1,8 @@
 package com.example.demo.services;
-import com.example.demo.dto.LastMsgDTO;
+import com.example.demo.dto.*;
 import javafx.util.Pair;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
-import com.example.demo.dto.ChatDTO;
-import com.example.demo.dto.PatientDTO;
-import com.example.demo.dto.ProfileDTO;
 import com.example.demo.models.AnswerResponse;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.PatientCreationRequest;
@@ -66,6 +63,8 @@ public class FwService {
     MedicalRecordRepository medicalRecordRepository;
     @Autowired
     NotificationRepository notificationRepository;
+    @Autowired
+    SupervisorRepository supervisorRepository;
 
     public Boolean createPatient(PatientCreationRequest request) {
         try {
@@ -413,7 +412,9 @@ public class FwService {
         return profiles;
     }
 
-    public Map<String, List<ChatDTO>> getAllChats(String email1, String email2){
+    public Map<String, List<ChatDTO>> getAllChats(int id, String email2){
+        String uid = idMappingRepository.findById(id).get().getPrivateId().toString();
+        String email1 = userRepository.findById(uid).get().getEmail();
         List<Notification> chats = notificationRepository.findAll();
 
         // Filter notifications based on sender and receiver
@@ -438,5 +439,16 @@ public class FwService {
         chatDTO.setData(notification.getMessage());
         chatDTO.setTime(notification.getTime());
         return chatDTO;
+    }
+
+    public SupervisorDTO getSupervisor(String email) {
+        FieldWorker fw = fieldWorkerRepository.findByUser_Email(email);
+        District district = fw.getDistrict();
+        Supervisor supervisor = supervisorRepository.findByDistrict(district);
+        SupervisorDTO supervisorDTO = new SupervisorDTO();
+        supervisorDTO.setFirstName(supervisor.getUser().getFirstName());
+        supervisorDTO.setLastName(supervisor.getUser().getLastName());
+        supervisorDTO.setUser_id(idMappingRepository.findByPrivateId(UUID.fromString(supervisor.getUser().getUniqueId())).getPublicId());
+        return supervisorDTO;
     }
 }
