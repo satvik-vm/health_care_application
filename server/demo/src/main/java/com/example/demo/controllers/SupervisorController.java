@@ -7,7 +7,6 @@ import com.example.demo.Repository.SupervisorRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.dto.ChatDTO;
 import com.example.demo.dto.FieldWorkerDTO;
-import com.example.demo.dto.NotificationDTO;
 import com.example.demo.dto.ProfileDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
@@ -16,12 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
@@ -33,19 +30,14 @@ import java.util.*;
 public class SupervisorController {
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     SupervisorRepository supervisorRepository;
-
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Autowired
     EmailSenderService emailSenderService;
-
     @Autowired
     UserService userService;
-
     @Autowired
     private RoleService roleService;
 
@@ -291,6 +283,7 @@ public class SupervisorController {
     public Map<String, List<ChatDTO>> getChats(@RequestParam("id") int id, Principal principal) {
         return fwService.getAllChats(id, principal.getName());
     }
+
     @GetMapping("/getAllFieldWorkers")
     public List<FieldWorkerDTO> getAllFieldWorkers(Principal principal) {
         return supervisorService.getAllFieldWorkers(principal.getName());

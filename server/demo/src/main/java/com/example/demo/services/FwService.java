@@ -68,7 +68,7 @@ public class FwService {
     @Autowired
     SupervisorRepository supervisorRepository;
 
-    public JsonNode createPatient(PatientCreationRequest request) {
+    public PatientDTO createPatient(PatientCreationRequest request) {
         try {
             String roleName = request.getRole().getName();
             Role role = roleService.getOrCreateRole(roleName);
@@ -119,17 +119,13 @@ public class FwService {
             patient.setDistrict(request.getDistrict());
             patient.setSubDivision(request.getSubDivision());
             patientRepository.save(patient);
-
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectNode result = mapper.createObjectNode();
-
-            ObjectNode patientNode = mapper.createObjectNode();
-            System.out.println("hello Aryan");
-            System.out.println(patient.getId());
-            patientNode.put("id", patient.getId());
-
-            result.set("patient", patientNode);
-            return result;
+            PatientDTO patientDTO = new PatientDTO();
+            patientDTO.setPublicId(idMapping.getPublicId());
+            patientDTO.setAabhaId(patient.getAabhaId());
+            patientDTO.setFirstName(user.getFirstName());
+            patientDTO.setLastName(user.getLastName());
+            patientDTO.setStatus(patient.getHealthStatus());
+            return patientDTO;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

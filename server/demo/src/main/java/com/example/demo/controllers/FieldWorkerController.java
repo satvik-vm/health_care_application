@@ -139,7 +139,7 @@ public class FieldWorkerController {
     }
 
     @PostMapping("/regPatient")
-    public JsonNode regPatient(@RequestBody PatientCreationRequest request)
+    public PatientDTO regPatient(@RequestBody PatientCreationRequest request)
     {
         return fwService.createPatient(request);
     }
