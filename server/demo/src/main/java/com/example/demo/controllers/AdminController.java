@@ -225,4 +225,9 @@ public class AdminController {
         return generalService.getHospitals(state, district, subDistrict);
     }
 
+    @GetMapping("/isLoggedIn")
+    public boolean isLoggedIn(Principal principal) {
+        return (principal != null);
+    }
+
 }

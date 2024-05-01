@@ -22,7 +22,7 @@ public class HospitalController {
     GeneralService generalService;
 
     @PostMapping("/regDoctor")
-    public String registerDoctor(@RequestBody List<DoctorCreationRequest> request, Principal principal)
+    public boolean registerDoctor(@RequestBody List<DoctorCreationRequest> request, Principal principal)
     {
         String hospitalEmail = principal.getName();
         System.out.println(hospitalEmail);
@@ -53,5 +53,10 @@ public class HospitalController {
     public JsonNode getAllDoctors(Principal principal)
     {
         return hospitalService.getAllDoctors(principal.getName());
+    }
+
+    @GetMapping("/isLoggedIn")
+    public boolean isLoggedIn(Principal principal) {
+        return (principal != null);
     }
 }

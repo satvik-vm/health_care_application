@@ -276,6 +276,7 @@ public class SupervisorController {
     public boolean assignTeam(@RequestBody List<Integer> list) {
         return supervisorService.assignTeam(list);
     }
+
     @GetMapping("/viewTeams")
     public List<Map<String, String>> viewTeams() {
         return supervisorService.viewTeams();
@@ -293,5 +294,10 @@ public class SupervisorController {
     @GetMapping("/getAllFieldWorkers")
     public List<FieldWorkerDTO> getAllFieldWorkers(Principal principal) {
         return supervisorService.getAllFieldWorkers(principal.getName());
+    }
+
+    @GetMapping("/isLoggedIn")
+    public boolean isLoggedIn(Principal principal) {
+        return (principal != null);
     }
 }

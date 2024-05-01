@@ -57,6 +57,11 @@ public class DoctorController {
         return doctorService.updatePatientStatus(publicId);
     }
 
+    @GetMapping("/isLoggedIn")
+    public boolean isLoggedIn(Principal principal) {
+        return (principal != null);
+    }
+
 
 //    @GetMapping("/viewHealthyPatient")
 //    public List<Patient> viewHealthyPatients(Principal principal){

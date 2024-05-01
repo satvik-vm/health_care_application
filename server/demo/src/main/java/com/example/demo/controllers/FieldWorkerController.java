@@ -230,7 +230,7 @@ public class FieldWorkerController {
 
     @GetMapping("/isLoggedIn")
     public boolean isLoggedIn(Principal principal) {
-        return principal != null;
+        return (principal != null);
     }
 
     @PostMapping("/patientLogIn")

@@ -44,7 +44,7 @@ public class HospitalService {
     private IdMappingRepository idMappingRepository;
 
     @Transactional
-    public String createDoctors(List<DoctorCreationRequest> requests, String hospitalEmail)
+    public boolean createDoctors(List<DoctorCreationRequest> requests, String hospitalEmail)
     {
         try{
             for(DoctorCreationRequest request : requests)
@@ -69,13 +69,13 @@ public class HospitalService {
                 doctor.setHospital(hospitalRepository.findByUser_Email(hospitalEmail));
                 doctorRepository.save(doctor);
             }
-            return "Doctors Successfully added to the hospital";
+            return true;
         }
         catch (Exception e)
         {
             e.printStackTrace();
             System.out.println("Error Occurring");
-            return "Doctors not added to the hospital";
+            return false;
         }
     }
 
@@ -160,8 +160,9 @@ public class HospitalService {
 
     public JsonNode getAllDoctors(String email) {
         String currentDirectory = System.getProperty("user.dir");
+        String osName = System.getProperty("os.name").toLowerCase();
         System.setProperty("user.dir", currentDirectory + "/../Json");
-        String relativePath = "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
+        String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json" : "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
         String jsonFilePath = new File(relativePath).getAbsolutePath();
         System.out.println("hello" + email);
         ObjectMapper mapper = new ObjectMapper();
