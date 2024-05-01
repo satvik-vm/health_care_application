@@ -161,7 +161,7 @@ public class HospitalService {
     public JsonNode getAllDoctors(String email) {
         String currentDirectory = System.getProperty("user.dir");
         System.setProperty("user.dir", currentDirectory + "/../Json");
-        String relativePath = "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
+        String relativePath = "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
         String jsonFilePath = new File(relativePath).getAbsolutePath();
         System.out.println("hello" + email);
         ObjectMapper mapper = new ObjectMapper();

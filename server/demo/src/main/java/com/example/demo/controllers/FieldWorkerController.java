@@ -10,6 +10,7 @@ import com.example.demo.Repository.UserRepository;
 import com.example.demo.dto.*;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -138,7 +139,7 @@ public class FieldWorkerController {
     }
 
     @PostMapping("/regPatient")
-    public Boolean regPatient(@RequestBody PatientCreationRequest request)
+    public JsonNode regPatient(@RequestBody PatientCreationRequest request)
     {
         return fwService.createPatient(request);
     }

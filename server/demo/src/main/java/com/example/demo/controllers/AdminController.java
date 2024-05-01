@@ -170,8 +170,9 @@ public class AdminController {
     }
 
     @PostMapping("/setQn")
-    public boolean setQuestionnaire(@RequestParam String name)
+    public boolean setQuestionnaire(@RequestBody String name)
     {
+        System.out.println(name);
         return adminService.createQuestionnaire(name);
     }
 
@@ -186,7 +187,7 @@ public class AdminController {
     @GetMapping("/getQn")
     public int getQuestionnaire(@RequestParam("name") String name)
     {
-        System.out.println(name);
+//        System.out.println(name);
         return adminService.getQuestionnaireByName(name);
     }
 

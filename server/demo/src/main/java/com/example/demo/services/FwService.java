@@ -1,5 +1,7 @@
 package com.example.demo.services;
 import com.example.demo.dto.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.util.Pair;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
@@ -66,7 +68,7 @@ public class FwService {
     @Autowired
     SupervisorRepository supervisorRepository;
 
-    public Boolean createPatient(PatientCreationRequest request) {
+    public JsonNode createPatient(PatientCreationRequest request) {
         try {
             String roleName = request.getRole().getName();
             Role role = roleService.getOrCreateRole(roleName);
@@ -117,10 +119,20 @@ public class FwService {
             patient.setDistrict(request.getDistrict());
             patient.setSubDivision(request.getSubDivision());
             patientRepository.save(patient);
-            return true;
+
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode result = mapper.createObjectNode();
+
+            ObjectNode patientNode = mapper.createObjectNode();
+            System.out.println("hello Aryan");
+            System.out.println(patient.getId());
+            patientNode.put("id", patient.getId());
+
+            result.set("patient", patientNode);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
