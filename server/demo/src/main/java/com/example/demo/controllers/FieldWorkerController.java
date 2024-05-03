@@ -244,7 +244,7 @@ public class FieldWorkerController {
     }
 
     @GetMapping("/getChats")
-    public Map<String, List<ChatDTO>> getChats(@RequestParam("id") int id, Principal principal) {
+    public Map<String, List<ChatDTO>> getChats(@RequestParam("id") String id, Principal principal) {
         return fwService.getAllChats(id, principal.getName());
     }
 

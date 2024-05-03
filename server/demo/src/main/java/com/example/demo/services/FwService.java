@@ -420,9 +420,7 @@ public class FwService {
         return profiles;
     }
 
-    public Map<String, List<ChatDTO>> getAllChats(int id, String email2){
-        String uid = idMappingRepository.findById(id).get().getPrivateId().toString();
-        String email1 = userRepository.findById(uid).get().getEmail();
+    public Map<String, List<ChatDTO>> getAllChats(String email1, String email2){
         List<Notification> chats = notificationRepository.findAll();
 
         // Filter notifications based on sender and receiver
