@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ProfileDTO {
-    int id;
+    String id;
     String name;
     LastMsgDTO data;
 }

@@ -91,17 +91,6 @@ public class SupervisorService {
 
     }
 
-
-    public String getSupervisorIdByEmail(String email) {
-        Supervisor supervisor = supervisorRepository.findByUser_Email(email);
-        if (supervisor != null) {
-            return supervisor.getId(); // Assuming getId() returns the supervisor ID
-        } else {
-            return "-1";
-        }
-
-    }
-
     public String getSupState(String email) {
         Supervisor supervisor = supervisorRepository.findByUser_Email(email);
         if (supervisor != null) {

@@ -406,13 +406,13 @@ public class FwService {
             int id = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(email).getUniqueId())).getPublicId();
             int id1 = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getSender()).getUniqueId())).getPublicId();
             int id2 = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getReceiver()).getUniqueId())).getPublicId();
-            profile.setId(id1 == id ? id2 : id1);
+            profile.setId(id1 == id ? notification.getReceiver() : notification.getSender());
             profile.setName(userRepository.getUserByUsername(id1 == id ? notification.getReceiver() : notification.getSender()).getFirstName());
             LastMsgDTO lastMsgDTO = new LastMsgDTO();
             lastMsgDTO.setMsg(notification.getMessage());
             lastMsgDTO.setTime(notification.getTime());
             lastMsgDTO.setDate(notification.getDate());
-            lastMsgDTO.setId(id1);
+            lastMsgDTO.setId(notification.getSender());
             profile.setData(lastMsgDTO);
             profiles.add(profile);
         }
@@ -442,7 +442,7 @@ public class FwService {
 
     private ChatDTO convertToChatDTO(Notification notification) {
         ChatDTO chatDTO = new ChatDTO();
-        chatDTO.setId(idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getSender()).getUniqueId())).getPublicId());
+        chatDTO.setId(notification.getSender());
         chatDTO.setKey(notification.getId().intValue());
         chatDTO.setData(notification.getMessage());
         chatDTO.setTime(notification.getTime());

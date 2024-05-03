@@ -202,12 +202,6 @@ public class SupervisorController {
             return ResponseEntity.ok("Could not transfer field worker");
     }
 
-    @GetMapping("/supId")
-    public String getSupervisorId(Principal principal) {
-        String loggedInUserEmail = principal.getName();
-        return supervisorService.getSupervisorIdByEmail(loggedInUserEmail);
-    }
-
     @GetMapping("/dob")
     public Boolean getDob(Principal principal){
         String email = principal.getName();
@@ -255,11 +249,11 @@ public class SupervisorController {
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
-    @MessageMapping("/")
-    @SendTo("/all/messages")
-    public Notification send(final Notification notification) throws Exception{
-        return notification;
-    }
+//    @MessageMapping("/")
+//    @SendTo("/all/messages")
+//    public Notification send(final Notification notification) throws Exception{
+//        return notification;
+//    }
     @PostMapping("/assignGuidelines")
     public String assignGuidelines(@RequestBody AssignGuidelinesRequest request) {
         return supervisorService.assignGuidelines(request);

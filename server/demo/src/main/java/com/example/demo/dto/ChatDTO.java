@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ChatDTO {
-    int id;
+    String id;
     int key;
     String data;
     String time;

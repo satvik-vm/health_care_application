@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class LastMsgDTO {
-    int id;
+    String id;
     String msg;
     String date;
     String time;
