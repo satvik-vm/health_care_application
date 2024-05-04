@@ -36,8 +36,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Allow only this origin
-                    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3001")); // Allow only this origin
+                    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://10.0.2.2:8081")); // Allow only this origin
                     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")); // Allow these HTTP methods
                     configuration.setAllowedHeaders(Arrays.asList("*")); // Allow all headers
                     configuration.setAllowCredentials(true);

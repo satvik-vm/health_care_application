@@ -65,7 +65,7 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
             email = UUID.randomUUID().toString();
         }
 
-        LOG.info("User with email '{}' opened the page", email);
+        LOG.info("User with email '{}' opened the page. ", email);
 
         return new UserPrincipal(email);
     }
