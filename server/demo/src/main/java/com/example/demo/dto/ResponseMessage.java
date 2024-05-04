@@ -4,12 +4,14 @@ import lombok.Data;
 
 @Data
 public class ResponseMessage {
-    private String content;
+    private Message message;
+    private String from;
 
     public ResponseMessage() {
     }
 
-    public ResponseMessage(String content) {
-        this.content = content;
+    public ResponseMessage(Message message, String from) {
+        this.message = message;
+        this.from = from;
     }
 }

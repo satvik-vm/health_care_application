@@ -25,6 +25,7 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws-message")
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .setAllowedOrigins("http://localhost:3000")
+                .setAllowedOrigins("http://localhost:3001")
                 .withSockJS();
     }
 }

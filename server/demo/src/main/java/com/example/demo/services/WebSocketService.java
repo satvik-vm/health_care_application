@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.Message;
 import com.example.demo.dto.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,17 +17,17 @@ public class WebSocketService {
         this.notificationService = notificationService;
     }
 
-    public void notifyFrontend(final String message) {
-        ResponseMessage response = new ResponseMessage(message);
-        notificationService.sendGlobalNotification();
+//    public void notifyFrontend(final String message) {
+//        ResponseMessage response = new ResponseMessage(message);
+//        notificationService.sendGlobalNotification();
+//
+//        messagingTemplate.convertAndSend("/topic/messages", response);
+//    }
 
-        messagingTemplate.convertAndSend("/topic/messages", response);
-    }
-
-    public void notifyUser(final String id, final String message) {
-        ResponseMessage response = new ResponseMessage(message);
-
-        notificationService.sendPrivateNotification(id);
-        messagingTemplate.convertAndSendToUser(id, "/topic/private-messages", response);
-    }
+//    public void notifyUser(final String id, final Message message) {
+//        ResponseMessage response = new ResponseMessage(message);
+//
+//        notificationService.sendPrivateNotification(id);
+//        messagingTemplate.convertAndSendToUser(id, "/topic/private-messages", response);
+//    }
 }

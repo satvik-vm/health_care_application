@@ -28,13 +28,13 @@ public class MessageController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @MessageMapping("/message")
-    @SendTo("/topic/messages")
-    public ResponseMessage getMessage(final Message message) throws InterruptedException {
-        Thread.sleep(1000);
-        notificationService.sendGlobalNotification();
-        return new ResponseMessage(HtmlUtils.htmlEscape(message.getMessageContent()));
-    }
+//    @MessageMapping("/message")
+//    @SendTo("/topic/messages")
+//    public ResponseMessage getMessage(final Message message) throws InterruptedException {
+//        Thread.sleep(1000);
+//        notificationService.sendGlobalNotification();
+//        return new ResponseMessage(HtmlUtils.htmlEscape(message.getMessageContent()));
+//    }
 
     @MessageMapping("/private-message")
     @SendToUser("/topic/private-messages")
@@ -42,8 +42,8 @@ public class MessageController {
                                              final Principal principal) throws InterruptedException {
         Thread.sleep(1000);
         System.out.println(message.getTo());
-        ResponseMessage response = new ResponseMessage(message.getMessageContent());
-        notificationService.sendPrivateNotification(message.getTo());
+        ResponseMessage response = new ResponseMessage(message, principal.getName());
+        notificationService.sendPrivateNotification(message, principal.getName());
         messagingTemplate.convertAndSendToUser(message.getTo(), "/topic/private-messages", response);
         notificationService.createNotification(principal.getName(), message);
     }

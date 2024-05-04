@@ -23,16 +23,16 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    public void sendGlobalNotification() {
-        ResponseMessage message = new ResponseMessage("Global Notification");
+//    public void sendGlobalNotification() {
+//        ResponseMessage message = new ResponseMessage("Global Notification");
+//
+//        messagingTemplate.convertAndSend("/topic/global-notifications", message);
+//    }
+//
+    public void sendPrivateNotification(final Message message, final String senderId) {
+        ResponseMessage msg = new ResponseMessage(message, senderId);
 
-        messagingTemplate.convertAndSend("/topic/global-notifications", message);
-    }
-
-    public void sendPrivateNotification(final String userId) {
-        ResponseMessage message = new ResponseMessage("Private Notification");
-
-        messagingTemplate.convertAndSendToUser(userId,"/topic/private-notifications", message);
+        messagingTemplate.convertAndSendToUser(message.getTo(),"/topic/private-notifications", msg);
     }
 
     public void createNotification(String sender, Message req) {
