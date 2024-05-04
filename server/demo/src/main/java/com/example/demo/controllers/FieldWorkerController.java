@@ -55,6 +55,11 @@ public class FieldWorkerController {
     @Autowired
     IdMappingRepository idmappingRepository;
 
+    @GetMapping("/name")
+    public String getName(Principal principal)
+    {
+        return userService.getName(principal.getName());
+    }
     @PostMapping("/modifyDetails")
     public Boolean modifyDetails(@RequestBody ModifyUserRequest request)
     {

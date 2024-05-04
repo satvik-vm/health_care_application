@@ -56,10 +56,10 @@ public class SupervisorController {
     @Autowired
     private FwService fwService;
 
-    @GetMapping("/hello")
-    public String helloWorld()
+    @GetMapping("/name")
+    public String getName(Principal principal)
     {
-        return "Hello, Mukul !!";
+        return userService.getName(principal.getName());
     }
 
     @PostMapping("/modifyDetails")

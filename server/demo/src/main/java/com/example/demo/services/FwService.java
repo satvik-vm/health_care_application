@@ -259,6 +259,7 @@ public class FwService {
         Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(()->new RuntimeException("Doctor not found"));
 
         List<Map<String, Object>> questionAnswersList = new ArrayList<>();
+        System.out.println("test1");
 
         for (Question question : questions) {
             Answer answer = answerRepository.findByQuestionIdAndPatientId(question.getId(), patientId);

@@ -24,7 +24,7 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-message")
                 .setHandshakeHandler(new UserHandshakeHandler())
-                .setAllowedOrigins("http://localhost:3000", "http://10.0.2.2:8081")
+                .setAllowedOrigins("http://localhost:3000", "https://10.0.2.2:8081")
                 .withSockJS();
     }
 }
