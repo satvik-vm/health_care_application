@@ -393,7 +393,12 @@ public class FwService {
         // Group by sender and receiver pairs and select the latest notification in each group
         Map<Pair<String, String>, Notification> latestNotifications = new HashMap<>();
         for (Notification chat : chats) {
-            Pair<String, String> pair = new Pair<>(chat.getSender(), chat.getReceiver());
+            String e2 = chat.getReceiver();
+            if(chat.getSender().equals(email))
+                e2 = chat.getReceiver();
+            else if(chat.getReceiver().equals(email))
+                e2 = chat.getSender();
+            Pair<String, String> pair = new Pair<>(email, e2);
             if (!latestNotifications.containsKey(pair) ||
                     latestNotifications.get(pair).getTimestamp().isBefore(chat.getTimestamp())) {
                 latestNotifications.put(pair, chat);
