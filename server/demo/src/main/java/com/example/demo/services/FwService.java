@@ -408,7 +408,8 @@ public class FwService {
             int id1 = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getSender()).getUniqueId())).getPublicId();
             int id2 = idMappingRepository.findByPrivateId(UUID.fromString(userRepository.getUserByUsername(notification.getReceiver()).getUniqueId())).getPublicId();
             profile.setId(id1 == id ? notification.getReceiver() : notification.getSender());
-            profile.setName(userRepository.getUserByUsername(id1 == id ? notification.getReceiver() : notification.getSender()).getFirstName());
+            String fullName = userRepository.getUserByUsername(id1 == id ? notification.getReceiver() : notification.getSender()).getFirstName() + " " + userRepository.getUserByUsername(id1 == id ? notification.getReceiver() : notification.getSender()).getLastName();
+            profile.setName(fullName);
             LastMsgDTO lastMsgDTO = new LastMsgDTO();
             lastMsgDTO.setMsg(notification.getMessage());
             lastMsgDTO.setTime(notification.getTime());
