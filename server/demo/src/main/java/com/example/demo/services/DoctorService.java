@@ -35,6 +35,10 @@ public class DoctorService {
     GoogleDriveService googleDriveService;
     @Autowired
     IdMappingRepository idMappingRepository;
+    @Autowired
+    AdminService adminService;
+    @Autowired
+    QuestionnaireRepository questionnaireRepository;
     public Doctor allocateDoctor(Hospital hospital)
     {
         List<Doctor> doctors = doctorRepository.findByHospitalId(hospital.getId());
@@ -247,4 +251,13 @@ public class DoctorService {
         }
 
     }
+
+//    public boolean setFollowUpQuestion(int publicId) {
+//        String name = "patient_" + publicId;
+//        if(adminService.createQuestionnaire(name)){
+//            int questionnaireId = adminService.getQuestionnaireByName(name);
+//
+//        }
+//
+//    }
 }

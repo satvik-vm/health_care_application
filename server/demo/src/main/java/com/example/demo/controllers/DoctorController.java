@@ -5,6 +5,8 @@ import com.example.demo.Entity.Patient;
 import com.example.demo.dto.PatientDTO;
 import com.example.demo.models.FollowUpRequest;
 import com.example.demo.models.PrescriptionRequest;
+import com.example.demo.models.QuestionRequest;
+import com.example.demo.services.AdminService;
 import com.example.demo.services.DoctorService;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ import java.util.List;
 public class DoctorController {
     @Autowired
     private DoctorService doctorService;
+    @Autowired
+    private AdminService adminService;
     @GetMapping("/viewPatients")
     public List<PatientDTO> viewPatients(Principal principal)
     {
@@ -52,6 +56,7 @@ public class DoctorController {
 
         return doctorService.viewActivePatients(principal.getName(), statusList);
     }
+
     @PutMapping("/patientDone")
     public Boolean updatePatientStatus(@RequestParam("id") int publicId){
         return doctorService.updatePatientStatus(publicId);
@@ -61,6 +66,29 @@ public class DoctorController {
     public boolean isLoggedIn(Principal principal) {
         return (principal != null);
     }
+
+//    @PostMapping("/setQn")
+//    public boolean setQuestionnaire(@RequestParam int publicId)
+//    {
+//        String name = "patient_" + publicId;
+//        return adminService.createQuestionnaire(name);
+//    }
+
+//    @GetMapping("/getQn")
+//    public int getQuestionnaire(@RequestParam int publicId)
+//    {
+//
+//        return adminService.getQuestionnaireByName(name);
+//    }
+//
+//    // API to set follow up question
+//    @PostMapping("/setFollowUpQ")
+//    public boolean setFollowUpQuestion(@RequestBody QuestionRequest request)
+//    {
+//        int questionnaireId = adminService.getQuestionnaireByName(name);
+//        request.setQnId();
+//        return adminService.createQuestion(request);
+//    }
 
 
 //    @GetMapping("/viewHealthyPatient")
