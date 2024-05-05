@@ -1,5 +1,7 @@
 package com.example.demo.services;
 
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import com.example.demo.dto.DoctorQuestionDTO;
@@ -7,6 +9,7 @@ import com.example.demo.dto.PatientDTO;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.FollowUpRequest;
 import com.example.demo.models.PrescriptionRequest;
+import com.example.demo.models.TaskCreationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +20,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DoctorService {
@@ -39,6 +45,10 @@ public class DoctorService {
     AdminService adminService;
     @Autowired
     QuestionnaireRepository questionnaireRepository;
+    @Autowired
+    SocketIOServer server;
+    @Autowired
+    TaskRepository taskRepository;
     public Doctor allocateDoctor(Hospital hospital)
     {
         List<Doctor> doctors = doctorRepository.findByHospitalId(hospital.getId());
@@ -128,6 +138,11 @@ public class DoctorService {
 
             // Add the new JSON object to the list of existing JSON objects
             existingJson.add(newJson);
+            TaskCreationRequest taskCreationRequest = new TaskCreationRequest();
+            taskCreationRequest.setTask_type("prescription");
+            taskCreationRequest.setDescription("Prescription for " + patient.getUser().getFirstName() + " " + patient.getUser().getLastName() + " has been uploaded");
+            taskCreationRequest.setPId(id);
+            createTask(taskCreationRequest);
         }
         else if(request.getType().equals("appointment"))
         {
@@ -136,10 +151,27 @@ public class DoctorService {
             newJson.put("timestamp", request.getTimestamp());
             newJson.put("type", request.getType());
             newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
-            newJson.put("appointment", request.getAppointment());
+            newJson.put("appointment", "Date: " + request.getAppointment().getDate() + " Time: " + request.getAppointment().getTime() + " Duration: " + request.getAppointment().getDuration());
 
             // Add the new JSON object to the list of existing JSON objects
             existingJson.add(newJson);
+            TaskCreationRequest taskCreationRequest1 = new TaskCreationRequest();
+            taskCreationRequest1.setTask_type("appointment_for_doctor");
+            taskCreationRequest1.setDescription("Appointment for " + patient.getUser().getFirstName() + " " + patient.getUser().getLastName() + " has been scheduled");
+            taskCreationRequest1.setPId(id);
+            taskCreationRequest1.setDate(request.getAppointment().getDate());
+            taskCreationRequest1.setTime(request.getAppointment().getTime());
+            taskCreationRequest1.setDuration(request.getAppointment().getDuration());
+            createTask(taskCreationRequest1);
+            TaskCreationRequest taskCreationRequest2 = new TaskCreationRequest();
+            taskCreationRequest2.setTask_type("appointment_for_field_worker");
+            taskCreationRequest2.setDescription("Appointment for " + patient.getUser().getFirstName() + " " + patient.getUser().getLastName() + " has been scheduled");
+            taskCreationRequest2.setPId(id);
+            taskCreationRequest2.setDate(request.getAppointment().getDate());
+            taskCreationRequest2.setTime(request.getAppointment().getTime());
+            taskCreationRequest2.setDuration(request.getAppointment().getDuration());
+            createTask(taskCreationRequest2);
+
         }
         else if(request.getType().equals("questionnaire"))
         {
@@ -161,7 +193,26 @@ public class DoctorService {
 
             // Add the new JSON object to the list of existing JSON objects
             existingJson.add(newJson);
+            
+            TaskCreationRequest taskCreationRequest = new TaskCreationRequest();
+            taskCreationRequest.setTask_type("questionnaire");
+            taskCreationRequest.setDescription("Questionnaire for " + patient.getUser().getFirstName() + " " + patient.getUser().getLastName() + " has been uploaded");
+            taskCreationRequest.setPId(id);
+            createTask(taskCreationRequest);
         }
+        else if(request.getType().equals("changeStatus"))
+        {
+            // Create a new JSON object for the follow-up
+            Map<String, Object> newJson = new HashMap<>();
+            newJson.put("timestamp", request.getTimestamp());
+            newJson.put("type", request.getType());
+            newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
+            newJson.put("status", request.getStatus());
+            patient.setHealthStatus(request.getStatus());
+            patientRepository.save(patient);
+            existingJson.add(newJson);
+        }
+
 
         // Convert the updated list of JSON objects back to a JSON string
         String updatedJsonContent = mapper.writeValueAsString(existingJson);
@@ -252,12 +303,153 @@ public class DoctorService {
 
     }
 
-//    public boolean setFollowUpQuestion(int publicId) {
-//        String name = "patient_" + publicId;
-//        if(adminService.createQuestionnaire(name)){
-//            int questionnaireId = adminService.getQuestionnaireByName(name);
-//
-//        }
-//
-//    }
+    public List<PatientDTO> getNewPatients(String email)
+    {
+        List<Patient> patients = patientRepository.findByDoctor_User_Email(email);
+        List<PatientDTO> patientDTOs = new ArrayList<>();
+        for (Patient patient : patients) {
+            if(patient.getMostRecentVisit() == null)
+            {
+                PatientDTO patientDTO = new PatientDTO();
+                patientDTO.setPublicId(idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId());
+                patientDTO.setAabhaId(patient.getAabhaId());
+                patientDTO.setFirstName(patient.getUser().getFirstName());
+                patientDTO.setLastName(patient.getUser().getLastName());
+                patientDTO.setStatus(patient.getHealthStatus());
+                patientDTOs.add(patientDTO);
+            }
+        }
+        return patientDTOs;
+    }
+    public void createTask(TaskCreationRequest request)
+    {
+        Task task = new Task();
+        IdMapping idMapping = new IdMapping();
+        idMapping.setPrivateId(UUID.fromString(task.getId()));
+        idMappingRepository.save(idMapping);
+        String task_type = request.getTask_type();
+        task.setTask_type(task_type);
+        Optional<Patient> optionalPatient = patientRepository.findById(idMappingRepository.findById(request.getPId()).get().getPrivateId().toString());
+        if(optionalPatient.isPresent())
+        {
+            if(task_type.equals("prescription")) {
+                task.setDescription(request.getDescription());
+                LocalDateTime timestamp = LocalDateTime.now().plusDays(2);
+
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String date = timestamp.format(dateFormatter);
+
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                String time = timestamp.format(timeFormatter);
+                task.setTimestamp(timestamp);
+                task.setDate(date);
+                task.setTime(time);
+                task.setAssignedTime(LocalDateTime.now());
+                task.setPatient(optionalPatient.get());
+                task.setFieldWorker(optionalPatient.get().getFieldWorker());
+                task.setStatus(false);
+                Collection<SocketIOClient> allClients = server.getAllClients();
+                for (SocketIOClient client : allClients) {
+                    String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
+                    if (email.equals(optionalPatient.get().getFieldWorker().getUser().getEmail())) {
+                        client.sendEvent("receive_notification", task);
+                    }
+                }
+                taskRepository.save(task);
+            }
+            else if(task_type.equals("appointment_for_doctor"))
+            {
+                task.setDescription(request.getDescription());
+                task.setAssignedTime(LocalDateTime.now());
+                task.setPatient(optionalPatient.get());
+                task.setDoctor(optionalPatient.get().getDoctor());
+                task.setStatus(false);
+                task.setDuration(request.getDuration());
+                String date = request.getDate(); // assuming format is "yyyy-MM-dd"
+                String time = request.getTime(); // assuming format is "HH:mm"
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                LocalDateTime dateTime = LocalDateTime.parse(date + " " + time, formatter);
+
+                task.setTimestamp(dateTime);
+                task.setDate(date);
+                task.setTime(time);
+                taskRepository.save(task);
+            }
+            else if(task_type.equals("appointment_for_field_worker"))
+            {
+                task.setDescription(request.getDescription());
+                task.setAssignedTime(LocalDateTime.now());
+                task.setPatient(optionalPatient.get());
+                task.setFieldWorker(optionalPatient.get().getFieldWorker());
+                task.setStatus(false);
+                task.setDuration(request.getDuration());
+                task.setTimestamp(LocalDateTime.now().plusDays(2));
+                task.setDate(request.getDate());
+                task.setTime(request.getTime());
+                Collection<SocketIOClient> allClients = server.getAllClients();
+                for (SocketIOClient client : allClients) {
+                    String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
+                    if (email.equals(optionalPatient.get().getFieldWorker().getUser().getEmail())) {
+                        client.sendEvent("receive_notification", task);
+                    }
+                }
+                taskRepository.save(task);
+            }
+            else if(task_type.equals("questionnaire"))
+            {
+                task.setDescription(request.getDescription());
+                task.setAssignedTime(LocalDateTime.now());
+                task.setPatient(optionalPatient.get());
+                task.setStatus(false);
+                task.setFieldWorker(optionalPatient.get().getFieldWorker());
+                task.setDuration(request.getDuration());
+                LocalDateTime timestamp = LocalDateTime.now().plusDays(2);
+
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String date = timestamp.format(dateFormatter);
+
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                String time = timestamp.format(timeFormatter);
+                task.setTimestamp(timestamp);
+                task.setDate(date);
+                task.setTime(time);
+                Collection<SocketIOClient> allClients = server.getAllClients();
+                for (SocketIOClient client : allClients) {
+                    String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
+                    if (email.equals(optionalPatient.get().getFieldWorker().getUser().getEmail())) {
+                        client.sendEvent("receive_notification", task);
+                    }
+                }
+                taskRepository.save(task);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid task type: " + task_type);
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException("No patient found with id: " + request.getPId());
+        }
+    }
+
+    public List<PatientDTO> viewVisitedPatients(String email, List<String> statusList) {
+        List<Patient> patientList = patientRepository.findByDoctor_User_EmailAndHealthStatusIn(email, statusList);
+        List<PatientDTO> patientDTOs = new ArrayList<>();
+        for (Patient patient : patientList) {
+            if(patient.getMostRecentVisit() != null)
+            {
+                PatientDTO patientDTO = new PatientDTO();
+                patientDTO.setPublicId(idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId());
+                patientDTO.setAabhaId(patient.getAabhaId());
+                patientDTO.setFirstName(patient.getUser().getFirstName());
+                patientDTO.setLastName(patient.getUser().getLastName());
+                patientDTO.setStatus(patient.getHealthStatus());
+                patientDTOs.add(patientDTO);
+            }
+        }
+
+        return patientDTOs;
+    }
 }

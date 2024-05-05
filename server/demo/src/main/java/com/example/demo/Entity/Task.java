@@ -29,14 +29,17 @@ public class Task {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
+    @Column(name = "assigned_time")
+    private LocalDateTime assignedTime;
+
     @Column(name = "duration")
     private Duration duration;
 
     @Column(name = "status")
     private Boolean status;
 
-    @Column(name = "profile")
-    private String profile;
+    @Column(name = "task_type")
+    private String task_type;
 
     @ManyToOne(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinColumn(name="patient_id")

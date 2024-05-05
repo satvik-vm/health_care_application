@@ -57,6 +57,12 @@ public class DoctorController {
         return doctorService.viewActivePatients(principal.getName(), statusList);
     }
 
+    @GetMapping("/viewVisitedPatient")
+    public List<PatientDTO> viewVisitedPatients(Principal principal){
+        List<String> statusList = Arrays.asList("GREEN");
+        return doctorService.viewVisitedPatients(principal.getName(), statusList);
+    }
+
     @PutMapping("/patientDone")
     public Boolean updatePatientStatus(@RequestParam("id") int publicId){
         return doctorService.updatePatientStatus(publicId);
@@ -65,6 +71,11 @@ public class DoctorController {
     @GetMapping("/isLoggedIn")
     public boolean isLoggedIn(Principal principal) {
         return (principal != null);
+    }
+
+    @GetMapping("/newPatients")
+    public List<PatientDTO> viewNewPatients(Principal principal){
+        return doctorService.getNewPatients(principal.getName());
     }
 
 //    @PostMapping("/setQn")
