@@ -23,8 +23,12 @@ public class FwTeam {
     @Column(name = "teamName")
     private String teamName;
 
-    @Column(name = "teamRepresentative")
-    private String teamRepresentative;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="user_id")
+    private FieldWorker teamRepresentative;
+
+    @Column(name = "taskCompleted")
+    private int taskCompleted;
 
     public FwTeam() {
         this.id = UUID.randomUUID().toString();

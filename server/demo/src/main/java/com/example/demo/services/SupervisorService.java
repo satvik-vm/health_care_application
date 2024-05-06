@@ -178,12 +178,12 @@ public class SupervisorService {
 
         for (FwTeam team : teams) {
             int publicId = idMappingRepository.findByPrivateId(UUID.fromString(team.getId())).getPublicId();
-            String representative = team.getTeamRepresentative(); // Assuming getRepresentative() returns the representative of the team
+            FieldWorker representative = team.getTeamRepresentative(); // Assuming getRepresentative() returns the representative of the team
             String guidelines = team.getGuidelines(); // Assuming getGuidelines() returns the guidelines of the team
 
             Map<String, String> teamDetails = new HashMap<>();
             teamDetails.put("publicId", String.valueOf(publicId));
-            teamDetails.put("representative", representative);
+            teamDetails.put("representative", representative.getUser().getFirstName()+" "+representative.getUser().getLastName());
             teamDetails.put("guidelines", guidelines);
 
             response.add(teamDetails);
