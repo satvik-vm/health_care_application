@@ -258,12 +258,12 @@ public class FieldWorkerController {
         return fwService.getSupervisor(principal.getName());
     }
 
-    @GetMapping("viewAllTasks")
+    @GetMapping("/viewAllTasks")
     public List<TaskDTO> viewAllTasks(Principal principal) {
         return fwService.viewAllTasks(principal.getName());
     }
 
-    @GetMapping("viewAllTasksBytDate")
+    @GetMapping("/viewAllTasksBytDate")
     public List<TaskDTO> viewAllTasksByDate(@RequestParam("date") String date, Principal principal) {
         return fwService.viewAllTasksByDate(principal.getName(), date);
     }
@@ -274,7 +274,7 @@ public class FieldWorkerController {
     }
 
     @PostMapping("/completeTask")
-    public boolean completeTask(@RequestBody AnswerDTO request, Principal principal) throws IOException, GeneralSecurityException {
+    public boolean completeTask(@RequestBody PatientFollowUpResponse request, Principal principal) throws IOException, GeneralSecurityException {
         return fwService.doTask(request, principal.getName());
     }
 }

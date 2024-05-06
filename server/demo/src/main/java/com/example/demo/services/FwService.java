@@ -267,16 +267,25 @@ public class FwService {
         for (Question question : questions) {
             Answer answer = answerRepository.findByQuestionIdAndPatientId(question.getId(), patientId);
             Map<String, Object> questionAnswers = new HashMap<>();
-            if(answer.getMcqAns() != null)
-                questionAnswers.put(question.getQuestion(), answer.getMcqAns());
-            else if(answer.getRangeAns() != 0)
+            if(question.getType().equals("mcq"))
             {
-                int rangeAns = answer.getRangeAns();
-                String rangeAnsAsString = String.valueOf(rangeAns);
-                questionAnswers.put(question.getQuestion(), rangeAnsAsString);
+                questionAnswers.put("question", question.getQuestion());
+                questionAnswers.put("A", question.getOptionA());
+                questionAnswers.put("B", question.getOptionB());
+                questionAnswers.put("C", question.getOptionA());
+                questionAnswers.put("D", question.getOptionA());
+                questionAnswers.put("answer", answer.getMcqAns());
+            }
+            else if(question.getType().equals("range"))
+            {
+                questionAnswers.put("question", question.getQuestion());
+                questionAnswers.put("answer", answer.getRangeAns());
             }
             else if(answer.getSubjAns() != null)
-                questionAnswers.put(question.getQuestion(), answer.getSubjAns());
+            {
+                questionAnswers.put("question", question.getQuestion());
+                questionAnswers.put("answer", answer.getSubjAns());
+            }
             questionAnswersList.add(questionAnswers);
         }
 
@@ -531,7 +540,7 @@ public class FwService {
         return taskDTOS;
     }
 
-    public boolean doTask(AnswerDTO request, String email) throws IOException, GeneralSecurityException {
+    public boolean doTask(PatientFollowUpResponse request, String email) throws IOException, GeneralSecurityException {
         int id = request.getId();
         Task tsk = taskRepository.findById(idMappingRepository.findById(id).get().getPrivateId().toString()).orElseThrow(()->new RuntimeException("Task not found"));
         FieldWorker fieldWorker = fieldWorkerRepository.findByUser_Email(email);
@@ -542,7 +551,7 @@ public class FwService {
             {
                 if(tsk.getTask_type().equals("questionnaire"))
                 {
-                    Map<String, Object> newJson = new HashMap<>();
+                    List<Map<String, Object>> newJsonlist = new ArrayList<>();
                     MedicalRecord mr = medicalRecordRepository.findByPatient_Id(patient.get().getId());
                     String url = generalService.decrypt(mr.getRecord());
                     String existingJsonContent = googleDriveService.readJsonFromUrl(url);
@@ -551,32 +560,42 @@ public class FwService {
                     if (!jsonList.isEmpty()) {
                         Map<String, Object> lastElement = jsonList.get(jsonList.size() - 1);
                         List<Map<String, Object>> doctorQuestionnaire = (List<Map<String, Object>>) lastElement.get("doctorQuestionnaire");
+                        int i =0;
+                        List<AnswerDTO> answers = request.getAnswers();
                         for(Map<String, Object> question : doctorQuestionnaire)
                         {
+                            System.out.println(question);
+                            Map<String, Object> newJson = new HashMap<>();
                             if(question.get("type").equals("descriptive"))
                             {
                                 newJson.put("type", "descriptive");
                                 newJson.put("question", question.get("question"));
-                                newJson.put("answer", request.getSubjAns());
+                                newJson.put("answer", answers.get(i).getSubjAns());
                             }
                             else if(question.get("type").equals("mcq"))
                             {
                                 newJson.put("type", "mcq");
                                 newJson.put("question", question.get("question"));
-                                newJson.put("answer", request.getMcqAns());
+                                newJson.put("A", question.get("optA"));
+                                newJson.put("B", question.get("optB"));
+                                newJson.put("C", question.get("optC"));
+                                newJson.put("D", question.get("optD"));
+                                newJson.put("answer", answers.get(i).getMcqAns());
                             }
                             else if(question.get("type").equals("range"))
                             {
                                 newJson.put("type", "range");
                                 newJson.put("question", question.get("question"));
-                                newJson.put("answer", request.getRangeAns());
+                                newJson.put("answer", answers.get(i).getRangeAns());
                             }
+                            i++;
+                            newJsonlist.add(newJson);
                         }
                         Map<String, Object> newOuterJson = new HashMap<>();
                         newOuterJson.put("timestamp", LocalDateTime.now().toString());
                         newOuterJson.put("type", "doctorQuestionAnswer");
-                        newJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
-                        newOuterJson.put("doctorQuestionAnswer", newJson);
+                        newOuterJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
+                        newOuterJson.put("doctorQuestionAnswer", newJsonlist);
                         jsonList.remove(jsonList.size() - 1);
                         jsonList.add(newOuterJson);
 
@@ -656,10 +675,12 @@ public class FwService {
                         sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
 
                         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                        System.out.println("scheduling delayed task");
                         Runnable task = () -> {
                             sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription Update, Please take status for the prescription of the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                            System.out.println("executed delayed task");
                         };
-                        executor.schedule(task, days, TimeUnit.DAYS);
+                        executor.schedule(task, 1, TimeUnit.MINUTES);
                         tsk.setStatus(true);
                         taskRepository.save(tsk);
                         return true;

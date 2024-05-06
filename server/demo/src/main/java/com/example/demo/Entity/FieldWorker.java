@@ -23,6 +23,9 @@ public class FieldWorker {
     @Column(name = "state", nullable = false)
     private String state;
 
+    @Column(name = "task_completed")
+    private int taskCompleted;
+
     @ManyToOne
     @JoinColumn(name = "district_id", nullable = false)
     private District district;

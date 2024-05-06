@@ -6,6 +6,7 @@ import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import com.example.demo.dto.DoctorQuestionDTO;
 import com.example.demo.dto.PatientDTO;
+import com.example.demo.dto.TaskDTO;
 import com.example.demo.models.DriveResponse;
 import com.example.demo.models.FollowUpRequest;
 import com.example.demo.models.PrescriptionRequest;
@@ -90,6 +91,7 @@ public class DoctorService {
             patientDTO.setFirstName(patient.getUser().getFirstName());
             patientDTO.setLastName(patient.getUser().getLastName());
             patientDTO.setStatus(patient.getHealthStatus());
+            patientDTO.setDistrict(patient.getDistrict());
             patientDTOs.add(patientDTO);
         }
 
@@ -274,6 +276,7 @@ public class DoctorService {
             patientDTO.setFirstName(patient.getUser().getFirstName());
             patientDTO.setLastName(patient.getUser().getLastName());
             patientDTO.setStatus(patient.getHealthStatus());
+            patientDTO.setDistrict(patient.getDistrict());
             patientDTOs.add(patientDTO);
         }
 
@@ -464,5 +467,26 @@ public class DoctorService {
         }
 
         return patientDTOs;
+    }
+
+    public List<TaskDTO> getTasksByDate(String date, String email) {
+        Doctor doctor = doctorRepository.findByUser_Email(email);
+        List<Task> tasks = taskRepository.findByDoctorAndDateAndStatus(doctor, date, false);
+        List<TaskDTO> taskDTOs = new ArrayList<>();
+        for (Task task : tasks) {
+            TaskDTO taskDTO = new TaskDTO();
+            taskDTO.setId(idMappingRepository.findByPrivateId(UUID.fromString(task.getId())).getPublicId());
+            taskDTO.setDescription(task.getDescription());
+            taskDTO.setDate(task.getDate());
+            taskDTO.setTime(task.getTime());
+            taskDTO.setType(task.getTask_type());
+            taskDTO.setPid(idMappingRepository.findByPrivateId(UUID.fromString(task.getPatient().getId())).getPublicId());
+            taskDTO.setStatus(task.getStatus());
+            taskDTO.setAssignedTime(task.getAssignedTime());
+            taskDTO.setDeadline(task.getTimestamp());
+            taskDTO.setDuration(task.getDuration());
+            taskDTOs.add(taskDTO);
+        }
+        return taskDTOs;
     }
 }

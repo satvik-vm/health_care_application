@@ -7,5 +7,4 @@ public class AnswerDTO {
     String subjAns;
     String mcqAns;
     String rangeAns;
-    int id;
 }

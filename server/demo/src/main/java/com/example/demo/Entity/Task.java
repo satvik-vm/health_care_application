@@ -11,7 +11,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Table(name = "entity")
+@Table(name = "fw_task")
 public class Task {
     @Id
     @Column(name = "task_id")
