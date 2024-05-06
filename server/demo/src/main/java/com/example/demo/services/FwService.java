@@ -746,7 +746,11 @@ public class FwService {
         for (SocketIOClient client : allClients) {
             String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
             if (email.equals(receiver)){
-                client.sendEvent("receive_notification", notification);
+                Collection<String>allRooms = client.getAllRooms();
+                for(String room : allRooms) {
+                    if(room.equals("NotificationRoom"))
+                        client.sendEvent("receive_notification", notification);
+                }
             }
         }
         notificationRepository.save(notification);

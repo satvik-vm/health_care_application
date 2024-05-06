@@ -353,7 +353,11 @@ public class DoctorService {
                 for (SocketIOClient client : allClients) {
                     String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
                     if (email.equals(optionalPatient.get().getFieldWorker().getUser().getEmail())) {
-                        client.sendEvent("receive_notification", task);
+                        Collection<String>allRooms = client.getAllRooms();
+                        for(String room : allRooms) {
+                            if(room.equals("NotificationRoom"))
+                                client.sendEvent("receive_notification", task);
+                        }
                     }
                 }
                 taskRepository.save(task);
@@ -392,7 +396,11 @@ public class DoctorService {
                 for (SocketIOClient client : allClients) {
                     String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
                     if (email.equals(optionalPatient.get().getFieldWorker().getUser().getEmail())) {
-                        client.sendEvent("receive_notification", task);
+                        Collection<String>allRooms = client.getAllRooms();
+                        for(String room : allRooms) {
+                            if(room.equals("NotificationRoom"))
+                                client.sendEvent("receive_notification", task);
+                        }
                     }
                 }
                 taskRepository.save(task);
@@ -419,7 +427,11 @@ public class DoctorService {
                 for (SocketIOClient client : allClients) {
                     String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
                     if (email.equals(optionalPatient.get().getFieldWorker().getUser().getEmail())) {
-                        client.sendEvent("receive_notification", task);
+                        Collection<String>allRooms = client.getAllRooms();
+                        for(String room : allRooms) {
+                            if(room.equals("NotificationRoom"))
+                                client.sendEvent("receive_notification", task);
+                        }
                     }
                 }
                 taskRepository.save(task);
