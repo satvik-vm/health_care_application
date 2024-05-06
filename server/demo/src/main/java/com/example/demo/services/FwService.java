@@ -1,12 +1,12 @@
 package com.example.demo.services;
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
 import com.example.demo.dto.*;
+import com.example.demo.models.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import javafx.util.Pair;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
-import com.example.demo.models.AnswerResponse;
-import com.example.demo.models.DriveResponse;
-import com.example.demo.models.PatientCreationRequest;
-import com.example.demo.models.QuestionnaireResponseRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +17,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +66,10 @@ public class FwService {
     NotificationRepository notificationRepository;
     @Autowired
     SupervisorRepository supervisorRepository;
+    @Autowired
+    TaskRepository taskRepository;
+    @Autowired
+    SocketIOServer server;
 
     public PatientDTO createPatient(PatientCreationRequest request) {
         try {
@@ -458,5 +466,289 @@ public class FwService {
         supervisorDTO.setLastName(supervisor.getUser().getLastName());
         supervisorDTO.setUser_id(idMappingRepository.findByPrivateId(UUID.fromString(supervisor.getUser().getUniqueId())).getPublicId());
         return supervisorDTO;
+    }
+
+    public Map<String, Object> checkFollowUp(int id, String fw_email) throws IOException {
+        Patient patient = patientRepository.findById(idMappingRepository.findById(id).get().getPrivateId().toString()).orElseThrow(()->new RuntimeException("Patient not found"));
+        FieldWorker fieldWorker = fieldWorkerRepository.findByUser_Email(fw_email);
+        MedicalRecord mr = medicalRecordRepository.findByPatient_Id(patient.getId());
+        if(patient.getFieldWorker().getUser().getEmail().equals(fw_email))
+        {
+            String url = generalService.decrypt(mr.getRecord());
+            System.out.println(url);
+            String jsonContent = googleDriveService.readJsonFromUrl(url);
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, Object>> jsonList = objectMapper.readValue(jsonContent, List.class);
+            if (!jsonList.isEmpty()) {
+                Map<String, Object> lastElement = jsonList.get(jsonList.size() - 1);
+                return lastElement;
+            }
+        }
+        return null;
+    }
+
+    public List<TaskDTO> viewAllTasks(String email) {
+        FieldWorker fieldWorker = fieldWorkerRepository.findByUser_Email(email);
+        List<Task> tasks = taskRepository.findByFieldWorkerAndStatus(fieldWorker, false);
+        List<TaskDTO> taskDTOS = new ArrayList<>();
+        for(Task task : tasks)
+        {
+            TaskDTO taskDTO = new TaskDTO();
+            taskDTO.setId(idMappingRepository.findByPrivateId(UUID.fromString(task.getId())).getPublicId());
+            taskDTO.setPid(idMappingRepository.findByPrivateId(UUID.fromString(task.getPatient().getId())).getPublicId());
+            taskDTO.setType(task.getTask_type());
+            taskDTO.setDate(task.getDate());
+            taskDTO.setTime(task.getTime());
+            taskDTO.setAssignedTime(task.getAssignedTime());
+            taskDTO.setDeadline(task.getTimestamp());
+            taskDTO.setDescription(task.getDescription());
+            taskDTO.setStatus(task.getStatus());
+            taskDTOS.add(taskDTO);
+        }
+        taskDTOS.sort((TaskDTO t1, TaskDTO t2) -> t2.getDeadline().compareTo(t1.getDeadline()));
+        return taskDTOS;
+    }
+
+    public List<TaskDTO> viewAllTasksByDate(String email, String date) {
+        FieldWorker fieldWorker = fieldWorkerRepository.findByUser_Email(email);
+        List<Task> tasks = taskRepository.findByFieldWorkerAndDateAndStatus(fieldWorker, date, false);
+        List<TaskDTO> taskDTOS = new ArrayList<>();
+        for(Task task : tasks)
+        {
+            TaskDTO taskDTO = new TaskDTO();
+            taskDTO.setId(idMappingRepository.findByPrivateId(UUID.fromString(task.getId())).getPublicId());
+            taskDTO.setPid(idMappingRepository.findByPrivateId(UUID.fromString(task.getPatient().getId())).getPublicId());
+            taskDTO.setType(task.getTask_type());
+            taskDTO.setDate(task.getDate());
+            taskDTO.setTime(task.getTime());
+            taskDTO.setAssignedTime(task.getAssignedTime());
+            taskDTO.setDeadline(task.getTimestamp());
+            taskDTO.setDescription(task.getDescription());
+            taskDTO.setStatus(task.getStatus());
+            taskDTOS.add(taskDTO);
+        }
+        taskDTOS.sort((TaskDTO t1, TaskDTO t2) -> t2.getDeadline().compareTo(t1.getDeadline()));
+        return taskDTOS;
+    }
+
+    public boolean doTask(AnswerDTO request, String email) throws IOException, GeneralSecurityException {
+        int id = request.getId();
+        Task tsk = taskRepository.findById(idMappingRepository.findById(id).get().getPrivateId().toString()).orElseThrow(()->new RuntimeException("Task not found"));
+        FieldWorker fieldWorker = fieldWorkerRepository.findByUser_Email(email);
+        if(tsk.getFieldWorker().getUser().getEmail().equals(email))
+        {
+            Optional<Patient> patient = patientRepository.findById(tsk.getPatient().getId());
+            if(patient.isPresent())
+            {
+                if(tsk.getTask_type().equals("questionnaire"))
+                {
+                    Map<String, Object> newJson = new HashMap<>();
+                    MedicalRecord mr = medicalRecordRepository.findByPatient_Id(patient.get().getId());
+                    String url = generalService.decrypt(mr.getRecord());
+                    String existingJsonContent = googleDriveService.readJsonFromUrl(url);
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<Map<String, Object>> jsonList = mapper.readValue(existingJsonContent, new TypeReference<List<Map<String, Object>>>(){});
+                    if (!jsonList.isEmpty()) {
+                        Map<String, Object> lastElement = jsonList.get(jsonList.size() - 1);
+                        List<Map<String, Object>> doctorQuestionnaire = (List<Map<String, Object>>) lastElement.get("doctorQuestionnaire");
+                        for(Map<String, Object> question : doctorQuestionnaire)
+                        {
+                            if(question.get("type").equals("descriptive"))
+                            {
+                                newJson.put("type", "descriptive");
+                                newJson.put("question", question.get("question"));
+                                newJson.put("answer", request.getSubjAns());
+                            }
+                            else if(question.get("type").equals("mcq"))
+                            {
+                                newJson.put("type", "mcq");
+                                newJson.put("question", question.get("question"));
+                                newJson.put("answer", request.getMcqAns());
+                            }
+                            else if(question.get("type").equals("range"))
+                            {
+                                newJson.put("type", "range");
+                                newJson.put("question", question.get("question"));
+                                newJson.put("answer", request.getRangeAns());
+                            }
+                        }
+                        Map<String, Object> newOuterJson = new HashMap<>();
+                        newOuterJson.put("timestamp", LocalDateTime.now().toString());
+                        newOuterJson.put("type", "doctorQuestionAnswer");
+                        newJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
+                        newOuterJson.put("doctorQuestionAnswer", newJson);
+                        jsonList.remove(jsonList.size() - 1);
+                        jsonList.add(newOuterJson);
+
+                        String updatedJsonContent = mapper.writeValueAsString(jsonList);
+
+                        // Write the updated JSON content to a temporary file
+                        Path tempFilePath = Files.createTempFile(generalService.encrypt(patient.get().getUser().getEmail()), ".json");
+                        Files.write(tempFilePath, updatedJsonContent.getBytes());
+
+                        // Remove the old file from Google Drive
+                        String fileId = url.substring(url.lastIndexOf('/') + 1);
+                        googleDriveService.removeFile(fileId);
+
+                        // Upload the new file to Google Drive
+                        File tempFile = tempFilePath.toFile();
+                        DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile);
+                        System.out.println(driveResponse.getUrl());
+
+                        // Update the record in the database
+                        String uploadedFileUrl = driveResponse.getUrl();
+                        mr.setRecord(generalService.encrypt(uploadedFileUrl));
+                        medicalRecordRepository.save(mr);
+
+                        // Delete the temporary file
+                        Files.delete(tempFilePath);
+                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Questionnaire is answered successfully by the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+
+                        tsk.setStatus(true);
+                        taskRepository.save(tsk);
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+
+                }
+                else if(tsk.getTask_type().equals("prescription"))
+                {
+                    MedicalRecord mr = medicalRecordRepository.findByPatient_Id(patient.get().getId());
+                    String url = generalService.decrypt(mr.getRecord());
+                    String existingJsonContent = googleDriveService.readJsonFromUrl(url);
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<Map<String, Object>> jsonList = mapper.readValue(existingJsonContent, new TypeReference<List<Map<String, Object>>>(){});
+                    if (!jsonList.isEmpty()) {
+                        Map<String, Object> lastElement = jsonList.get(jsonList.size() - 1);
+                        Map<String, Object> preescriptionMap = (Map<String, Object>) lastElement.get("prescription");
+                        int days = (int) preescriptionMap.get("days");
+                        Map<String, Object> newJson = new HashMap<>();
+                        newJson.put("timestamp", LocalDateTime.now().toString());
+                        newJson.put("type", "prescriptionUpdate");
+                        newJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
+                        newJson.put("status", "completed");
+                        jsonList.add(newJson);
+
+                        String updatedJsonContent = mapper.writeValueAsString(jsonList);
+
+                        // Write the updated JSON content to a temporary file
+                        Path tempFilePath = Files.createTempFile(generalService.encrypt(patient.get().getUser().getEmail()), ".json");
+                        Files.write(tempFilePath, updatedJsonContent.getBytes());
+
+                        // Remove the old file from Google Drive
+                        String fileId = url.substring(url.lastIndexOf('/') + 1);
+                        googleDriveService.removeFile(fileId);
+
+                        // Upload the new file to Google Drive
+                        File tempFile = tempFilePath.toFile();
+                        DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile);
+                        System.out.println(driveResponse.getUrl());
+
+                        // Update the record in the database
+                        String uploadedFileUrl = driveResponse.getUrl();
+                        mr.setRecord(generalService.encrypt(uploadedFileUrl));
+                        medicalRecordRepository.save(mr);
+
+                        // Delete the temporary file
+                        Files.delete(tempFilePath);
+                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+
+                        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                        Runnable task = () -> {
+                            sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription Update, Please take status for the prescription of the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                        };
+                        executor.schedule(task, days, TimeUnit.DAYS);
+                        tsk.setStatus(true);
+                        taskRepository.save(tsk);
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else if(tsk.getTask_type().equals("appointment_for_field_worker"))
+                {
+                    MedicalRecord mr = medicalRecordRepository.findByPatient_Id(patient.get().getId());
+                    String url = generalService.decrypt(mr.getRecord());
+                    String existingJsonContent = googleDriveService.readJsonFromUrl(url);
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<Map<String, Object>> jsonList = mapper.readValue(existingJsonContent, new TypeReference<List<Map<String, Object>>>(){});
+                    if (!jsonList.isEmpty()) {
+                        Map<String, Object> newJson = new HashMap<>();
+                        newJson.put("timestamp", LocalDateTime.now().toString());
+                        newJson.put("type", "appointmentUpdate");
+                        newJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
+                        newJson.put("status", "completed");
+                        jsonList.add(newJson);
+
+                        String updatedJsonContent = mapper.writeValueAsString(jsonList);
+
+                        // Write the updated JSON content to a temporary file
+                        Path tempFilePath = Files.createTempFile(generalService.encrypt(patient.get().getUser().getEmail()), ".json");
+                        Files.write(tempFilePath, updatedJsonContent.getBytes());
+
+                        // Remove the old file from Google Drive
+                        String fileId = url.substring(url.lastIndexOf('/') + 1);
+                        googleDriveService.removeFile(fileId);
+
+                        // Upload the new file to Google Drive
+                        File tempFile = tempFilePath.toFile();
+                        DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile);
+                        System.out.println(driveResponse.getUrl());
+
+                        // Update the record in the database
+                        String uploadedFileUrl = driveResponse.getUrl();
+                        mr.setRecord(generalService.encrypt(uploadedFileUrl));
+                        medicalRecordRepository.save(mr);
+
+                        // Delete the temporary file
+                        Files.delete(tempFilePath);
+                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Appointment is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                        tsk.setStatus(true);
+                        taskRepository.save(tsk);
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    private void sendNotification(String sender, String receiver, String content) {
+        Notification notification = new Notification();
+        notification.setSender(sender);
+        notification.setReceiver(receiver);
+        notification.setMessage(content);
+        LocalDateTime timestamp = LocalDateTime.now().plusDays(2);
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String date = timestamp.format(dateFormatter);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String time = timestamp.format(timeFormatter);
+        notification.setDate(date);
+        notification.setTime(time);
+        notification.setIsRead(false);
+        Collection<SocketIOClient> allClients = server.getAllClients();
+        for (SocketIOClient client : allClients) {
+            String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
+            if (email.equals(receiver)){
+                client.sendEvent("receive_notification", notification);
+            }
+        }
+        notificationRepository.save(notification);
     }
 }

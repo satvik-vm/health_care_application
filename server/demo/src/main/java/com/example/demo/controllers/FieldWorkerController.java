@@ -257,4 +257,24 @@ public class FieldWorkerController {
     public SupervisorDTO getSupervisor(Principal principal) {
         return fwService.getSupervisor(principal.getName());
     }
+
+    @GetMapping("viewAllTasks")
+    public List<TaskDTO> viewAllTasks(Principal principal) {
+        return fwService.viewAllTasks(principal.getName());
+    }
+
+    @GetMapping("viewAllTasksBytDate")
+    public List<TaskDTO> viewAllTasksByDate(@RequestParam("date") String date, Principal principal) {
+        return fwService.viewAllTasksByDate(principal.getName(), date);
+    }
+
+    @GetMapping("/checkFollowUp")
+    public Map<String, Object> checkFollowUp(@RequestParam("id") int id, Principal principal) throws IOException {
+        return fwService.checkFollowUp(id, principal.getName());
+    }
+
+    @PostMapping("/completeTask")
+    public boolean completeTask(@RequestBody AnswerDTO request, Principal principal) throws IOException, GeneralSecurityException {
+        return fwService.doTask(request, principal.getName());
+    }
 }

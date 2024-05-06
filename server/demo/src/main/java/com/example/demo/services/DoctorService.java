@@ -129,6 +129,7 @@ public class DoctorService {
             prescriptionMap.put("medicine", prescriptionRequest.getMedicine());
             prescriptionMap.put("test", prescriptionRequest.getTest());
             prescriptionMap.put("precaution", prescriptionRequest.getPrecaution());
+            prescriptionMap.put("days", prescriptionRequest.getDays());
 
             Map<String, Object> newJson = new HashMap<>();
             newJson.put("timestamp", request.getTimestamp());

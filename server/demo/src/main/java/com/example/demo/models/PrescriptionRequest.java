@@ -7,4 +7,6 @@ public class PrescriptionRequest {
     String medicine;
     String test;
     String precaution;
+
+    int days;
 }
