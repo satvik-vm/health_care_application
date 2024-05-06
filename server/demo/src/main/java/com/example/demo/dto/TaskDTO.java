@@ -3,6 +3,7 @@ package com.example.demo.dto;
 
 import lombok.Data;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,5 +16,6 @@ public class TaskDTO {
     String date;
     String time;
     boolean status;
+    Duration duration;
     String description;
 }
