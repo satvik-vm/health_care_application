@@ -90,6 +90,7 @@ public class DoctorService {
             patientDTO.setFirstName(patient.getUser().getFirstName());
             patientDTO.setLastName(patient.getUser().getLastName());
             patientDTO.setStatus(patient.getHealthStatus());
+            patientDTO.setDistrict(patient.getDistrict());
             patientDTOs.add(patientDTO);
         }
 
@@ -274,6 +275,7 @@ public class DoctorService {
             patientDTO.setFirstName(patient.getUser().getFirstName());
             patientDTO.setLastName(patient.getUser().getLastName());
             patientDTO.setStatus(patient.getHealthStatus());
+            patientDTO.setDistrict(patient.getDistrict());
             patientDTOs.add(patientDTO);
         }
 
