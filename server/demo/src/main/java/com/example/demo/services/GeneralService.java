@@ -21,7 +21,7 @@ public class GeneralService {
         String currentDirectory = System.getProperty("user.dir");
         System.setProperty("user.dir", currentDirectory + "/../Json");
         String osName = System.getProperty("os.name").toLowerCase();
-        String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+        String relativePath = osName.equals("mac") ? "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
         String jsonFilePath = new File(relativePath).getAbsolutePath();
         // Create ObjectMapper instance
         ObjectMapper mapper = new ObjectMapper();
@@ -45,7 +45,7 @@ public class GeneralService {
             String currentDirectory = System.getProperty("user.dir");
             System.setProperty("user.dir", currentDirectory + "/../Json");
             String osName = System.getProperty("os.name").toLowerCase();
-            String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+            String relativePath = osName.equals("mac") ? "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
 //            String relativePath = "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
             String jsonFilePath = new File(relativePath).getAbsolutePath();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -75,7 +75,7 @@ public class GeneralService {
             String currentDirectory = System.getProperty("user.dir");
             System.setProperty("user.dir", currentDirectory + "/../Json");
             String osName = System.getProperty("os.name").toLowerCase();
-            String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+            String relativePath = osName.equals("mac") ? "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
 //            String relativePath = "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
             String jsonFilePath = new File(relativePath).getAbsolutePath();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -110,7 +110,7 @@ public class GeneralService {
             String currentDirectory = System.getProperty("user.dir");
             System.setProperty("user.dir", currentDirectory + "/../Json");
             String osName = System.getProperty("os.name").toLowerCase();
-            String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "demo/src/main/java/com/example/demo/Json/5States_Combined.json";
+            String relativePath = osName.equals("mac") ? "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json" : "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
 //            String relativePath = "server/demo/src/main/java/com/example/demo/Json/5States_Combined.json";
             String jsonFilePath = new File(relativePath).getAbsolutePath();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -128,7 +128,7 @@ public class GeneralService {
         String currentDirectory = System.getProperty("user.dir");
         System.setProperty("user.dir", currentDirectory + "/../Json");
         String osName = System.getProperty("os.name").toLowerCase();
-        String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json" : "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
+        String relativePath = osName.equals("mac") ? "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json" : "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
 //        String relativePath = "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
         String jsonFilePath = new File(relativePath).getAbsolutePath();
         ObjectMapper mapper = new ObjectMapper();
