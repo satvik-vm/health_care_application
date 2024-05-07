@@ -19,7 +19,9 @@ public class Answer {
 
     private String mcqAns;
 
-    private String subjAns;
+    @Lob
+    @Column(name = "audio_bytea", columnDefinition = "BYTEA")
+    private byte[] subjAns;
 
     private int rangeAns;
 

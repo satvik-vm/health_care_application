@@ -1,11 +1,9 @@
 package com.example.demo.services;
 
 import com.example.demo.Entity.*;
-import com.example.demo.Repository.FieldWorkerRepository;
-import com.example.demo.Repository.FwTeamRepository;
-import com.example.demo.Repository.IdMappingRepository;
-import com.example.demo.Repository.SupervisorRepository;
+import com.example.demo.Repository.*;
 import com.example.demo.dto.FieldWorkerDTO;
+import com.example.demo.dto.SurveyByRegionDTO;
 import com.example.demo.models.AssignGuidelinesRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -35,6 +33,9 @@ public class SupervisorService {
 
     @Autowired
     private FwTeamRepository fwTeamRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
 
 
     public Supervisor getDetails(String id){
@@ -206,4 +207,17 @@ public class SupervisorService {
         }
         return fieldWorkerDTOs;
     }
+
+    public SurveyByRegionDTO getSurveyDetailsByRegion(String area) {
+        int redPatients = patientRepository.countBySubDivisionAndHealthStatus(area, "RED");
+        int yellowPatients = patientRepository.countBySubDivisionAndHealthStatus(area, "YELLOW");
+        int greenPatients = patientRepository.countBySubDivisionAndHealthStatus(area, "GREEN");
+        SurveyByRegionDTO surveyByRegionDTO = new SurveyByRegionDTO();
+        surveyByRegionDTO.setRed(redPatients);
+        surveyByRegionDTO.setYellow(yellowPatients);
+        surveyByRegionDTO.setGreen(greenPatients);
+        return surveyByRegionDTO;
+    }
+
+
 }

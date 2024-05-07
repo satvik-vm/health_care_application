@@ -22,4 +22,6 @@ public interface PatientRepository extends JpaRepository<Patient, String> {
     List<Patient> findByDoctor_User_EmailAndHealthStatusIn(String email, List<String> statusList);
 
     List<Patient> findByFieldWorker(FieldWorker fieldWorker);
+
+    int countBySubDivisionAndHealthStatus(String subDivision, String healthStatus);
 }

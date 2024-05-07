@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
@@ -256,7 +257,7 @@ public class FwService {
         {
             DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
             answer.setQuestion(question.get());
-            answer.setSubjAns(generalService.encrypt(res.getUrl()));
+            answer.setSubjAns(generalService.encrypt(res.getUrl()).getBytes(StandardCharsets.UTF_8));
             if(patient.isPresent())
                 answer.setPatient(patient.get());
             answerRepository.save(answer);

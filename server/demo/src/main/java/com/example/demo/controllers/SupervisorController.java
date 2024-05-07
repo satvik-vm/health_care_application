@@ -8,6 +8,7 @@ import com.example.demo.Repository.UserRepository;
 import com.example.demo.dto.ChatDTO;
 import com.example.demo.dto.FieldWorkerDTO;
 import com.example.demo.dto.ProfileDTO;
+import com.example.demo.dto.SurveyByRegionDTO;
 import com.example.demo.models.*;
 import com.example.demo.services.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -286,5 +287,10 @@ public class SupervisorController {
     @GetMapping("/isLoggedIn")
     public boolean isLoggedIn(Principal principal) {
         return (principal != null);
+    }
+
+    @GetMapping("/getSurveyDetailsByRegion")
+    public SurveyByRegionDTO getSurveyDetailsByRegion(@RequestParam("subDistrict") String subDistrict) {
+        return supervisorService.getSurveyDetailsByRegion(subDistrict);
     }
 }
