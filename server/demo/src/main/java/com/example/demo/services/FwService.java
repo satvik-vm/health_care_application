@@ -285,6 +285,7 @@ public class FwService {
             Map<String, Object> questionAnswers = new HashMap<>();
             if(question.getType().equals("mcq"))
             {
+                questionAnswers.put("type", question.getType());
                 questionAnswers.put("question", question.getQuestion());
                 questionAnswers.put("A", question.getOptionA());
                 questionAnswers.put("B", question.getOptionB());
@@ -294,11 +295,13 @@ public class FwService {
             }
             else if(question.getType().equals("range"))
             {
+                questionAnswers.put("type", question.getType());
                 questionAnswers.put("question", question.getQuestion());
                 questionAnswers.put("answer", answer.getRangeAns());
             }
             else if(answer.getSubjAns() != null)
             {
+                questionAnswers.put("type", question.getType());
                 questionAnswers.put("question", question.getQuestion());
                 questionAnswers.put("answer", answer.getSubjAns());
             }
