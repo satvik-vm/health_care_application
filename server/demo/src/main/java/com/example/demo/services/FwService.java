@@ -70,6 +70,8 @@ public class FwService {
     @Autowired
     TaskRepository taskRepository;
     @Autowired
+    UpdateForPatientRepository updateForPatientRepository;
+    @Autowired
     SocketIOServer server;
 
     public PatientDTO createPatient(PatientCreationRequest request) {
@@ -338,8 +340,14 @@ public class FwService {
         mr.setRecord(url);
         medicalRecordRepository.save(mr);
 
-        sendNotification(patient.getFieldWorker().getUser().getEmail(), patient.getDoctor().getUser().getEmail(), "New Patient have been assigned to you");
-
+        PatientDTO patientDTO = new PatientDTO();
+        patientDTO.setPublicId(id);
+        patientDTO.setAabhaId(patient.getAabhaId());
+        patientDTO.setFirstName(patient.getUser().getFirstName());
+        patientDTO.setLastName(patient.getUser().getLastName());
+        patientDTO.setStatus(patient.getHealthStatus());
+        patientDTO.setDistrict(patient.getDistrict());
+        sendUpdate(patientDTO, patient.getFieldWorker().getUser().getEmail(), patient.getDoctor().getUser().getEmail(), patient.getSubDivision(), "New Patient is assigned to you");
         return "File uploaded successfully";
     }
 
@@ -637,8 +645,15 @@ public class FwService {
 
                         // Delete the temporary file
                         Files.delete(tempFilePath);
-                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Questionnaire is answered successfully by the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
-
+//                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Questionnaire is answered successfully by the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                        PatientDTO patientDTO = new PatientDTO();
+                        patientDTO.setPublicId(idMappingRepository.findByPrivateId(UUID.fromString(patient.get().getId())).getPublicId());
+                        patientDTO.setAabhaId(patient.get().getAabhaId());
+                        patientDTO.setFirstName(patient.get().getUser().getFirstName());
+                        patientDTO.setLastName(patient.get().getUser().getLastName());
+                        patientDTO.setStatus(patient.get().getHealthStatus());
+                        patientDTO.setDistrict(patient.get().getDistrict());
+                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Questionnaire is answered successfully by the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
                         tsk.setStatus(true);
                         taskRepository.save(tsk);
                         return true;
@@ -688,12 +703,20 @@ public class FwService {
 
                         // Delete the temporary file
                         Files.delete(tempFilePath);
-                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
-
+//                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                        PatientDTO patientDTO = new PatientDTO();
+                        patientDTO.setPublicId(idMappingRepository.findByPrivateId(UUID.fromString(patient.get().getId())).getPublicId());
+                        patientDTO.setAabhaId(patient.get().getAabhaId());
+                        patientDTO.setFirstName(patient.get().getUser().getFirstName());
+                        patientDTO.setLastName(patient.get().getUser().getLastName());
+                        patientDTO.setStatus(patient.get().getHealthStatus());
+                        patientDTO.setDistrict(patient.get().getDistrict());
+                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Prescription is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
                         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
                         System.out.println("scheduling delayed task");
                         Runnable task = () -> {
-                            sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription Update, Please take status for the prescription of the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+//                            sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription Update, Please take status for the prescription of the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                            sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Prescription Update, Please take status for the prescription of the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
                             System.out.println("executed delayed task");
                         };
                         executor.schedule(task, 1, TimeUnit.MINUTES);
@@ -742,7 +765,16 @@ public class FwService {
 
                         // Delete the temporary file
                         Files.delete(tempFilePath);
-                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Appointment is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+
+                        PatientDTO patientDTO = new PatientDTO();
+                        patientDTO.setPublicId(idMappingRepository.findByPrivateId(UUID.fromString(patient.get().getId())).getPublicId());
+                        patientDTO.setAabhaId(patient.get().getAabhaId());
+                        patientDTO.setFirstName(patient.get().getUser().getFirstName());
+                        patientDTO.setLastName(patient.get().getUser().getLastName());
+                        patientDTO.setStatus(patient.get().getHealthStatus());
+                        patientDTO.setDistrict(patient.get().getDistrict());
+                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Appointment is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+//                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Appointment is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
                         tsk.setStatus(true);
                         taskRepository.save(tsk);
                         return true;
@@ -764,11 +796,19 @@ public class FwService {
         }
     }
 
-    private void sendNotification(String sender, String receiver, String content) {
-        Notification notification = new Notification();
-        notification.setSender(sender);
-        notification.setReceiver(receiver);
-        notification.setMessage(content);
+    private void sendUpdate(PatientDTO dto, String sender, String receiver, String area, String msg)
+    {
+        UpdateForPatient updateForPatient = new UpdateForPatient();
+        updateForPatient.setAabhaId(dto.getAabhaId());
+        updateForPatient.setFirstName(dto.getFirstName());
+        updateForPatient.setLastName(dto.getLastName());
+        updateForPatient.setDistrict(dto.getDistrict());
+        updateForPatient.setStatus(dto.getStatus());
+        updateForPatient.setPid(dto.getPublicId());
+        updateForPatient.setSender(sender);
+        updateForPatient.setReceiver(receiver);
+        updateForPatient.setMessage(msg);
+        updateForPatient.setArea(area);
         LocalDateTime timestamp = LocalDateTime.now().plusDays(2);
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -776,9 +816,10 @@ public class FwService {
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         String time = timestamp.format(timeFormatter);
-        notification.setDate(date);
-        notification.setTime(time);
-        notification.setIsRead(false);
+        updateForPatient.setDate(date);
+        updateForPatient.setTime(time);
+        updateForPatient.setIsRead(false);
+
         Collection<SocketIOClient> allClients = server.getAllClients();
         for (SocketIOClient client : allClients) {
             String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
@@ -786,10 +827,15 @@ public class FwService {
                 Collection<String>allRooms = client.getAllRooms();
                 for(String room : allRooms) {
                     if(room.equals("NotificationRoom"))
-                        client.sendEvent("receive_notification", notification);
+                        client.sendEvent("receive_notification", updateForPatient);
                 }
             }
         }
-        notificationRepository.save(notification);
+
+        updateForPatientRepository.save(updateForPatient);
+
+
+
     }
+
 }
