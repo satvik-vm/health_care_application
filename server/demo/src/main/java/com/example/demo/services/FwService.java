@@ -381,8 +381,8 @@ public class FwService {
 
     public PatientDTO patientLogIn(String aabhaId, String name) {
         Patient patient = patientRepository.findByAabhaId(aabhaId);
-        if(patient.getFieldWorker().getUser().getEmail().equals(name))
-        {
+//        if(patient.getFieldWorker().getUser().getEmail().equals(name))
+//        {
             PatientDTO patientDTO = new PatientDTO();
             int publicId = idMappingRepository.findByPrivateId(UUID.fromString(patient.getId())).getPublicId();
             patientDTO.setPublicId(publicId);
@@ -391,8 +391,8 @@ public class FwService {
             patientDTO.setLastName(patient.getUser().getLastName());
             patientDTO.setStatus(patient.getHealthStatus());
             return patientDTO;
-        }
-        return null;
+//        }
+//        return null;
     }
 
     public List<ProfileDTO> getProfiles(String email) {

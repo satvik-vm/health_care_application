@@ -162,7 +162,7 @@ public class HospitalService {
         String currentDirectory = System.getProperty("user.dir");
         String osName = System.getProperty("os.name").toLowerCase();
         System.setProperty("user.dir", currentDirectory + "/../Json");
-        String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json" : "server/demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
+        String relativePath = osName.equals("mac") ? "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json" : "demo/src/main/java/com/example/demo/Json/Updated_hospital_data_doctors_5States.json";
         String jsonFilePath = new File(relativePath).getAbsolutePath();
         System.out.println("hello" + email);
         ObjectMapper mapper = new ObjectMapper();
