@@ -143,6 +143,9 @@ public class FwService {
         String pid = idMappingRepository.findById(id).get().getPrivateId().toString();
         Optional<Patient> patient = patientRepository.findById(pid);
         List<AnswerResponse> answers = request.getAnswers();
+        System.out.println("ANSWERS");
+
+        System.out.println(answers);
         for(AnswerResponse answer : answers)
         {
             Optional<Question> question =  questionRepository.findById(idMappingRepository.findById(answer.getQid()).get().getPrivateId().toString());
@@ -165,6 +168,9 @@ public class FwService {
                 if(question.get().getType().equals("mcq"))
                 {
                     ans.setMcqAns(answer.getMcqAns());
+
+                    System.out.println("CHALL JAAA BC");
+
                     if(answer.getMcqAns().equals("A"))
                         score+=0;
                     else if(answer.getMcqAns().equals("B"))
@@ -198,6 +204,7 @@ public class FwService {
                 patient.get().setFieldWorker(fieldWorker);
                 patientRepository.save(patient.get());
                 System.out.println(submitFile(request.getQnName(), id));
+                System.out.println("Hospital and doc assigned");
             }
             return "RED";
         }
@@ -214,6 +221,7 @@ public class FwService {
                 patient.get().setFieldWorker(fieldWorker);
                 patientRepository.save(patient.get());
                 System.out.println(submitFile(request.getQnName(), id));
+                System.out.println("Hospital and doc assigned");
             }
             return "YELLOW";
         }
@@ -266,6 +274,7 @@ public class FwService {
 
         for (Question question : questions) {
             Answer answer = answerRepository.findByQuestionIdAndPatientId(question.getId(), patientId);
+            if (answer == null) continue;
             Map<String, Object> questionAnswers = new HashMap<>();
             if(question.getType().equals("mcq"))
             {
@@ -306,8 +315,8 @@ public class FwService {
         DriveResponse driveResponse = googleDriveService.uploadMedicalFileToDrive(tempFile.toFile());
 
         if (Files.exists(tempFile)) {
-            Files.delete(tempFile);
-            System.out.println("File deleted successfully: " + tempFile.toAbsolutePath());
+//            Files.delete(tempFile);
+            System.out.println("File created successfully: " + tempFile.toAbsolutePath());
         } else {
             System.out.println("File does not exist: " + tempFile.toAbsolutePath());
         }
@@ -767,7 +776,11 @@ public class FwService {
         for (SocketIOClient client : allClients) {
             String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
             if (email.equals(receiver)){
-                client.sendEvent("receive_notification", notification);
+                Collection<String>allRooms = client.getAllRooms();
+                for(String room : allRooms) {
+                    if(room.equals("NotificationRoom"))
+                        client.sendEvent("receive_notification", notification);
+                }
             }
         }
         notificationRepository.save(notification);

@@ -24,7 +24,7 @@ public class FieldWorker {
     private String state;
 
     @Column(name = "task_completed")
-    private int taskCompleted;
+    private int taskCompleted = 0;
 
     @ManyToOne
     @JoinColumn(name = "district_id", nullable = false)
