@@ -293,4 +293,7 @@ public class SupervisorController {
     public SurveyByRegionDTO getSurveyDetailsByRegion(@RequestParam("subDistrict") String subDistrict) {
         return supervisorService.getSurveyDetailsByRegion(subDistrict);
     }
+
+
+
 }

@@ -259,7 +259,7 @@ public class FwService {
         {
             DriveResponse res = googleDriveService.uploadDescriptiveMsgToDrive(tempFile);
             answer.setQuestion(question.get());
-            answer.setSubjAns(generalService.encrypt(res.getUrl()).getBytes(StandardCharsets.UTF_8));
+            answer.setSubjAns(generalService.encrypt(res.getUrl()));
             if(patient.isPresent())
                 answer.setPatient(patient.get());
             answerRepository.save(answer);

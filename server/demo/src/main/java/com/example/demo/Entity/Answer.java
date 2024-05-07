@@ -20,8 +20,7 @@ public class Answer {
     private String mcqAns;
 
     @Lob
-    @Column(name = "audio_bytea", columnDefinition = "BYTEA")
-    private byte[] subjAns;
+    private String subjAns;
 
     private int rangeAns;
 
