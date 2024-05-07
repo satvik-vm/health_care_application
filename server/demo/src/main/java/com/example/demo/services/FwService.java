@@ -337,6 +337,8 @@ public class FwService {
         mr.setRecord(url);
         medicalRecordRepository.save(mr);
 
+        sendNotification(patient.getFieldWorker().getUser().getEmail(), patient.getDoctor().getUser().getEmail(), "New Patient have been assigned to you");
+
         return "File uploaded successfully";
     }
 
