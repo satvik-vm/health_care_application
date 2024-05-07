@@ -187,6 +187,10 @@ public class FwService {
                     score+= (10- answer.getRangeAns())*10;
                     n2++;
                 }
+                else if(question.get().getType().equals("descriptive"))
+                {
+                    ans.setSubjAns(answer.getSubjAns());
+                }
                 answerRepository.save(ans);
             }
         }
