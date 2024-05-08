@@ -596,7 +596,7 @@ public class FwService {
             {
                 if(tsk.getTask_type().equals("questionnaire"))
                 {
-                    List<Map<String, Object>> newJsonlist = new ArrayList<>();
+                    Map<String, Object> newJson = new HashMap<>();
                     MedicalRecord mr = medicalRecordRepository.findByPatient_Id(patient.get().getId());
                     String url = generalService.decrypt(mr.getRecord());
                     String existingJsonContent = googleDriveService.readJsonFromUrl(url);
@@ -604,43 +604,17 @@ public class FwService {
                     List<Map<String, Object>> jsonList = mapper.readValue(existingJsonContent, new TypeReference<List<Map<String, Object>>>(){});
                     if (!jsonList.isEmpty()) {
                         Map<String, Object> lastElement = jsonList.get(jsonList.size() - 1);
-                        List<Map<String, Object>> doctorQuestionnaire = (List<Map<String, Object>>) lastElement.get("doctorQuestionnaire");
-                        int i =0;
-                        List<AnswerDTO> answers = request.getAnswers();
-                        for(Map<String, Object> question : doctorQuestionnaire)
-                        {
-                            System.out.println(question);
-                            Map<String, Object> newJson = new HashMap<>();
-                            if(question.get("type").equals("descriptive"))
-                            {
-                                newJson.put("type", "descriptive");
-                                newJson.put("question", question.get("question"));
-                                newJson.put("answer", answers.get(i).getSubjAns());
-                            }
-                            else if(question.get("type").equals("mcq"))
-                            {
-                                newJson.put("type", "mcq");
-                                newJson.put("question", question.get("question"));
-                                newJson.put("A", question.get("optA"));
-                                newJson.put("B", question.get("optB"));
-                                newJson.put("C", question.get("optC"));
-                                newJson.put("D", question.get("optD"));
-                                newJson.put("answer", answers.get(i).getMcqAns());
-                            }
-                            else if(question.get("type").equals("range"))
-                            {
-                                newJson.put("type", "range");
-                                newJson.put("question", question.get("question"));
-                                newJson.put("answer", answers.get(i).getRangeAns());
-                            }
-                            i++;
-                            newJsonlist.add(newJson);
-                        }
+                        Map<String, Object> doctorQuestionnaire = (Map<String, Object>) lastElement.get("doctorQuestionnaire");
+                        String question = (String) doctorQuestionnaire.get("question");
+                        String answer = request.getAnswer();
+                        newJson.put("question", question);
+                        newJson.put("answer", answer);
+                        newJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
                         Map<String, Object> newOuterJson = new HashMap<>();
-                        newOuterJson.put("timestamp", LocalDateTime.now().toString());
-                        newOuterJson.put("type", "doctorQuestionAnswer");
-                        newOuterJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
-                        newOuterJson.put("doctorQuestionAnswer", newJsonlist);
+                        newOuterJson.put("timestamp", request.getTimestamp());
+                        newOuterJson.put("type", "doctorQuestionnaire");
+                        newOuterJson.put("doctor", patient.get().getDoctor().getUser().getFirstName() + " " + patient.get().getDoctor().getUser().getLastName());
+                        newOuterJson.put("doctorQuestionnaire", newJson);
                         jsonList.remove(jsonList.size() - 1);
                         jsonList.add(newOuterJson);
 
@@ -696,7 +670,7 @@ public class FwService {
                         Map<String, Object> preescriptionMap = (Map<String, Object>) lastElement.get("prescription");
                         int days = (int) preescriptionMap.get("days");
                         Map<String, Object> newJson = new HashMap<>();
-                        newJson.put("timestamp", LocalDateTime.now().toString());
+                        newJson.put("timestamp", request.getTimestamp());
                         newJson.put("type", "prescriptionUpdate");
                         newJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
                         newJson.put("status", "completed");
@@ -758,7 +732,7 @@ public class FwService {
                     List<Map<String, Object>> jsonList = mapper.readValue(existingJsonContent, new TypeReference<List<Map<String, Object>>>(){});
                     if (!jsonList.isEmpty()) {
                         Map<String, Object> newJson = new HashMap<>();
-                        newJson.put("timestamp", LocalDateTime.now().toString());
+                        newJson.put("timestamp", request.getTimestamp());
                         newJson.put("type", "appointmentUpdate");
                         newJson.put("fieldWorker", fieldWorker.getUser().getFirstName() + " " + fieldWorker.getUser().getLastName());
                         newJson.put("status", "completed");
