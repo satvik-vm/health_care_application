@@ -9,6 +9,7 @@ import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.io.File;
@@ -843,5 +844,12 @@ public class FwService {
         }
         return updateForPatient;
     }
+
+//    @Scheduled(fixedRate = 60*60*1000)
+//    public void reAssignTask()
+//    {
+//        Task tasks = taskRepository.
+//    }
+
 
 }

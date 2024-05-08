@@ -400,8 +400,13 @@ public class DoctorService {
                 task.setStatus(false);
                 task.setDuration(request.getDuration());
                 task.setTimestamp(LocalDateTime.now().plusDays(2));
-                task.setDate(request.getDate());
-                task.setTime(request.getTime());
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String date = task.getTimestamp().format(dateFormatter);
+
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                String time = task.getTimestamp().format(timeFormatter);
+                task.setDate(date);
+                task.setTime(time);
                 task.setAppointment(request.getAppointment());
                 Collection<SocketIOClient> allClients = server.getAllClients();
                 for (SocketIOClient client : allClients) {
