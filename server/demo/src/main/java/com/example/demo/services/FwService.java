@@ -350,7 +350,7 @@ public class FwService {
         patientDTO.setLastName(patient.getUser().getLastName());
         patientDTO.setStatus(patient.getHealthStatus());
         patientDTO.setDistrict(patient.getDistrict());
-        sendUpdate(patientDTO, patient.getFieldWorker().getUser().getEmail(), patient.getDoctor().getUser().getEmail(), patient.getSubDivision(), "New Patient is assigned to you");
+        sendUpdate(patientDTO, patient.getFieldWorker().getUser().getEmail(), patient.getDoctor().getUser().getEmail(), patient.getSubDivision(), "New Patient");
         return "File uploaded successfully";
     }
 
@@ -653,7 +653,7 @@ public class FwService {
                         patientDTO.setLastName(patient.get().getUser().getLastName());
                         patientDTO.setStatus(patient.get().getHealthStatus());
                         patientDTO.setDistrict(patient.get().getDistrict());
-                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Questionnaire is answered successfully by the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Questionnaire Answered");
                         tsk.setStatus(true);
                         taskRepository.save(tsk);
                         return true;
@@ -711,12 +711,12 @@ public class FwService {
                         patientDTO.setLastName(patient.get().getUser().getLastName());
                         patientDTO.setStatus(patient.get().getHealthStatus());
                         patientDTO.setDistrict(patient.get().getDistrict());
-                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Prescription is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Prescription Given");
                         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
                         System.out.println("scheduling delayed task");
                         Runnable task = () -> {
 //                            sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Prescription Update, Please take status for the prescription of the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
-                            sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Prescription Update, Please take status for the prescription of the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                            sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Prescription Update");
                             System.out.println("executed delayed task");
                         };
                         executor.schedule(task, 1, TimeUnit.MINUTES);
@@ -773,7 +773,7 @@ public class FwService {
                         patientDTO.setLastName(patient.get().getUser().getLastName());
                         patientDTO.setStatus(patient.get().getHealthStatus());
                         patientDTO.setDistrict(patient.get().getDistrict());
-                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Appointment is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
+                        sendUpdate(patientDTO, patient.get().getFieldWorker().getUser().getEmail(), patient.get().getDoctor().getUser().getEmail(), patient.get().getSubDivision(), "Appointment Given");
 //                        sendNotification(email, patient.get().getDoctor().getUser().getEmail(), "Appointment is given successfully to the patient " + patient.get().getUser().getFirstName() + " " + patient.get().getUser().getLastName());
                         tsk.setStatus(true);
                         taskRepository.save(tsk);
