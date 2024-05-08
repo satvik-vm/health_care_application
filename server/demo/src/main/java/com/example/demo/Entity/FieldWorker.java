@@ -25,6 +25,10 @@ public class FieldWorker {
 
     @Column(name = "task_completed")
     private int taskCompleted = 0;
+    @Column(name = "task_missed")
+    private int taskMissed = 0;
+    @Column(name = "task_assigned")
+    private int taskAssigned = 0;
 
     @ManyToOne
     @JoinColumn(name = "district_id", nullable = false)

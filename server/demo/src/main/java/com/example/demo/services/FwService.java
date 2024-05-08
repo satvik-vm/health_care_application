@@ -845,11 +845,44 @@ public class FwService {
         return updateForPatient;
     }
 
-//    @Scheduled(fixedRate = 60*60*1000)
-//    public void reAssignTask()
-//    {
-//        Task tasks = taskRepository.
-//    }
+    @Scheduled(fixedRate = 60*60*1000)
+    public void reAssignTask()
+    {
+        List<Task> tasks = taskRepository.findAll();
+        for(Task task : tasks)
+        {
+            Patient patient = task.getPatient();
+            if(task.getTimestamp().isBefore(LocalDateTime.now()) && !task.getStatus())
+            {
+                patient.getFieldWorker().setTaskMissed(patient.getFieldWorker().getTaskMissed()+1);
+                task.setTimestamp(LocalDateTime.now().plusDays(2));
+                Collection<SocketIOClient> allClients = server.getAllClients();
+                for (SocketIOClient client : allClients) {
+                    String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
+                    Supervisor supervisor = supervisorRepository.findByDistrict(patient.getFieldWorker().getDistrict());
+                    Notification notification = new Notification();
+                    notification.setSender(patient.getUser().getEmail());
+                    notification.setReceiver(supervisor.getUser().getEmail());
+                    notification.setMessage("I have not completed my task on time with task id "+task.getId());
+                    notification.setTimestamp(LocalDateTime.now());
 
+                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    String date = notification.getTimestamp().format(dateFormatter);
 
+                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                    String time = notification.getTimestamp().format(timeFormatter);
+                    notification.setDate(date);
+                    notification.setTime(time);
+                    notification.setIsRead(false);
+                    if (email.equals(supervisor.getUser().getEmail())){
+                        Collection<String>allRooms = client.getAllRooms();
+                        for(String room : allRooms) {
+                            if(room.equals("NotificationRoom"))
+                                client.sendEvent("read_message", notification);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
