@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.Entity.Patient;
 import com.example.demo.Entity.Task;
+import com.example.demo.Entity.UpdateForPatient;
 import com.example.demo.dto.PatientDTO;
 import com.example.demo.dto.TaskDTO;
 import com.example.demo.models.FollowUpRequest;
@@ -80,9 +81,14 @@ public class DoctorController {
         return doctorService.getNewPatients(principal.getName());
     }
 
-    @GetMapping("GetTasksByDate")
+    @GetMapping("/GetTasksByDate")
     public List<TaskDTO> getTasksByDate(@RequestParam String date, Principal principal){
         return doctorService.getTasksByDate(date, principal.getName());
+    }
+
+    @GetMapping("/getNotifications")
+    public List<UpdateForPatient> getUpdates(Principal principal){
+        return doctorService.getUpdates(principal.getName());
     }
 
 //    @PostMapping("/setQn")

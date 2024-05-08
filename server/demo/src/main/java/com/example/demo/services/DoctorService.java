@@ -50,6 +50,8 @@ public class DoctorService {
     SocketIOServer server;
     @Autowired
     TaskRepository taskRepository;
+    @Autowired
+    UpdateForPatientRepository updateForPatientRepository;
     public Doctor allocateDoctor(Hospital hospital)
     {
         List<Doctor> doctors = doctorRepository.findByHospitalId(hospital.getId());
@@ -494,5 +496,9 @@ public class DoctorService {
             taskDTOs.add(taskDTO);
         }
         return taskDTOs;
+    }
+
+    public List<UpdateForPatient> getUpdates(String email) {
+        return updateForPatientRepository.findByReceiver(email);
     }
 }

@@ -277,4 +277,5 @@ public class FieldWorkerController {
     public boolean completeTask(@RequestBody PatientFollowUpResponse request, Principal principal) throws IOException, GeneralSecurityException {
         return fwService.doTask(request, principal.getName());
     }
+
 }
