@@ -12,6 +12,8 @@ public class PatientFollowUpResponse {
 
     String timestamp;
 
+    String aabha;
+
     @Lob
     String answer;
 }

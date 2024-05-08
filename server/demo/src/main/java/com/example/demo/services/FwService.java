@@ -594,6 +594,11 @@ public class FwService {
             Optional<Patient> patient = patientRepository.findById(tsk.getPatient().getId());
             if(patient.isPresent())
             {
+                if(!(patient.get().getAabhaId().equals(request.getAabha())))
+                {
+                    System.out.println("aabha id does not match");
+                    return false;
+                }
                 if(tsk.getTask_type().equals("questionnaire"))
                 {
                     Map<String, Object> newJson = new HashMap<>();
@@ -793,7 +798,7 @@ public class FwService {
 
     private void sendUpdate(PatientDTO dto, String sender, String receiver, String area, String msg)
     {
-        UpdateForPatient updateForPatient = new UpdateForPatient();
+        UpdateForPatient updateForPatient = getOrCreateUpdateForPatient(dto.getPublicId());
         updateForPatient.setAabhaId(dto.getAabhaId());
         updateForPatient.setFirstName(dto.getFirstName());
         updateForPatient.setLastName(dto.getLastName());
@@ -828,9 +833,15 @@ public class FwService {
         }
 
         updateForPatientRepository.save(updateForPatient);
+    }
 
-
-
+    UpdateForPatient getOrCreateUpdateForPatient(int pid) {
+        UpdateForPatient updateForPatient = updateForPatientRepository.findByPid(pid);
+        if (updateForPatient == null) {
+            updateForPatient = new UpdateForPatient();
+            return updateForPatient;
+        }
+        return updateForPatient;
     }
 
 }
