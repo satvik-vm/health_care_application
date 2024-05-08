@@ -12,5 +12,14 @@ public class TaskCreationRequest {
     String date;
     String time;
     Duration duration;
+    String medicine;
+    String test;
+    String precaution;
+    int days;
+
+    String appointment;
+
+    String question;
+
     int pId;
 }

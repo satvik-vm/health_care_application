@@ -53,7 +53,17 @@ public class Task {
     @JoinColumn(name="doctor_id")
     private Doctor doctor;
 
+    private String medicine;
+    private String test;
+    private String precaution;
+    private int days;
+
+    private String appointment;
+
+    private String question;
+
     public Task(){
         this.id = UUID.randomUUID().toString();
+        this.days = 0;
     }
 }

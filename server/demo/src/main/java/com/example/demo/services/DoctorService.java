@@ -144,6 +144,10 @@ public class DoctorService {
             TaskCreationRequest taskCreationRequest = new TaskCreationRequest();
             taskCreationRequest.setTask_type("prescription");
             taskCreationRequest.setDescription("Prescription for " + patient.getUser().getFirstName() + " " + patient.getUser().getLastName() + " has been uploaded");
+            taskCreationRequest.setMedicine(request.getPrescription().getMedicine());
+            taskCreationRequest.setDays(request.getPrescription().getDays());
+            taskCreationRequest.setTest(request.getPrescription().getTest());
+            taskCreationRequest.setPrecaution(request.getPrescription().getPrecaution());
             taskCreationRequest.setPId(id);
             createTask(taskCreationRequest);
         }
@@ -154,7 +158,7 @@ public class DoctorService {
             newJson.put("timestamp", request.getTimestamp());
             newJson.put("type", request.getType());
             newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
-            newJson.put("appointment", "Date: " + request.getAppointment().getDate() + " Time: " + request.getAppointment().getTime() + " Duration: " + request.getAppointment().getDuration());
+            newJson.put("appointment", "Date: " + request.getAppointment().getDate() + " Time: " + request.getAppointment().getTime());
 
             // Add the new JSON object to the list of existing JSON objects
             existingJson.add(newJson);
@@ -164,7 +168,6 @@ public class DoctorService {
             taskCreationRequest1.setPId(id);
             taskCreationRequest1.setDate(request.getAppointment().getDate());
             taskCreationRequest1.setTime(request.getAppointment().getTime());
-            taskCreationRequest1.setDuration(request.getAppointment().getDuration());
             createTask(taskCreationRequest1);
             TaskCreationRequest taskCreationRequest2 = new TaskCreationRequest();
             taskCreationRequest2.setTask_type("appointment_for_field_worker");
@@ -172,11 +175,11 @@ public class DoctorService {
             taskCreationRequest2.setPId(id);
             taskCreationRequest2.setDate(request.getAppointment().getDate());
             taskCreationRequest2.setTime(request.getAppointment().getTime());
-            taskCreationRequest2.setDuration(request.getAppointment().getDuration());
+            taskCreationRequest2.setAppointment("Date: " + request.getAppointment().getDate() + " Time: " + request.getAppointment().getTime());
             createTask(taskCreationRequest2);
 
         }
-        else if(request.getType().equals("questionnaire"))
+        else if(request.getType().equals("doctorQuestionnaire"))
         {
             // Create a new JSON object for the follow-up
             Map<String, Object> newJson = new HashMap<>();
@@ -185,14 +188,12 @@ public class DoctorService {
             newJson.put("doctor", doctor.getUser().getFirstName()); // replace with appropriate method to get doctor's name
 
             // Convert each DoctorQuestionDTO object to a Map and add it to a list
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Map<String, Object>> doctorQuestionList = new ArrayList<>();
-            for (DoctorQuestionDTO doctorQuestion : request.getDoctorQuestions()) {
-                Map<String, Object> doctorQuestionMap = objectMapper.convertValue(doctorQuestion, new TypeReference<Map<String, Object>>() {});
-                doctorQuestionList.add(doctorQuestionMap);
-            }
+            Map<String, Object> innerJson = new HashMap<>();
+            innerJson.put("question", request.getDoctorQuestion().getQuestion());
+            innerJson.put("answer", "");
+            innerJson.put("fieldWorker", patient.getFieldWorker().getUser().getFirstName() + " " + patient.getFieldWorker().getUser().getLastName());
 
-            newJson.put("doctorQuestionnaire", doctorQuestionList);
+            newJson.put("doctorQuestionnaire", innerJson);
 
             // Add the new JSON object to the list of existing JSON objects
             existingJson.add(newJson);
@@ -201,6 +202,7 @@ public class DoctorService {
             taskCreationRequest.setTask_type("questionnaire");
             taskCreationRequest.setDescription("Questionnaire for " + patient.getUser().getFirstName() + " " + patient.getUser().getLastName() + " has been uploaded");
             taskCreationRequest.setPId(id);
+            taskCreationRequest.setQuestion(request.getDoctorQuestion().getQuestion());
             createTask(taskCreationRequest);
         }
         else if(request.getType().equals("changeStatus"))
@@ -241,7 +243,7 @@ public class DoctorService {
         // Delete the temporary file
         Files.delete(tempFilePath);
 
-        return "Prescription given successfully!";
+        return "FollowUp given successfully!";
     }
 
     public String seeReport(int id, String email) throws IOException {
@@ -351,6 +353,10 @@ public class DoctorService {
                 task.setAssignedTime(LocalDateTime.now());
                 task.setPatient(optionalPatient.get());
                 task.setFieldWorker(optionalPatient.get().getFieldWorker());
+                task.setMedicine(request.getMedicine());
+                task.setDays(request.getDays());
+                task.setTest(request.getTest());
+                task.setPrecaution(request.getPrecaution());
                 task.setStatus(false);
                 Collection<SocketIOClient> allClients = server.getAllClients();
                 for (SocketIOClient client : allClients) {
@@ -372,7 +378,6 @@ public class DoctorService {
                 task.setPatient(optionalPatient.get());
                 task.setDoctor(optionalPatient.get().getDoctor());
                 task.setStatus(false);
-                task.setDuration(request.getDuration());
                 String date = request.getDate(); // assuming format is "yyyy-MM-dd"
                 String time = request.getTime(); // assuming format is "HH:mm"
 
@@ -395,6 +400,7 @@ public class DoctorService {
                 task.setTimestamp(LocalDateTime.now().plusDays(2));
                 task.setDate(request.getDate());
                 task.setTime(request.getTime());
+                task.setAppointment(request.getAppointment());
                 Collection<SocketIOClient> allClients = server.getAllClients();
                 for (SocketIOClient client : allClients) {
                     String email = client.getHandshakeData().getUrlParams().get("email").stream().collect(Collectors.joining());
@@ -424,6 +430,7 @@ public class DoctorService {
                 DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
                 String time = timestamp.format(timeFormatter);
                 task.setTimestamp(timestamp);
+                task.setQuestion(request.getQuestion());
                 task.setDate(date);
                 task.setTime(time);
                 Collection<SocketIOClient> allClients = server.getAllClients();
@@ -484,7 +491,6 @@ public class DoctorService {
             taskDTO.setStatus(task.getStatus());
             taskDTO.setAssignedTime(task.getAssignedTime());
             taskDTO.setDeadline(task.getTimestamp());
-            taskDTO.setDuration(task.getDuration());
             taskDTOs.add(taskDTO);
         }
         return taskDTOs;

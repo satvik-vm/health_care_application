@@ -16,6 +16,16 @@ public class TaskDTO {
     String date;
     String time;
     boolean status;
-    Duration duration;
     String description;
+    String medicine;
+    String test;
+    String precaution;
+    int days;
+
+    String appointment;
+
+    String question;
+
+    String address;
+    String name;
 }

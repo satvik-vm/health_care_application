@@ -529,6 +529,7 @@ public class FwService {
         List<TaskDTO> taskDTOS = new ArrayList<>();
         for(Task task : tasks)
         {
+            Patient patient = task.getPatient();
             TaskDTO taskDTO = new TaskDTO();
             taskDTO.setId(idMappingRepository.findByPrivateId(UUID.fromString(task.getId())).getPublicId());
             taskDTO.setPid(idMappingRepository.findByPrivateId(UUID.fromString(task.getPatient().getId())).getPublicId());
@@ -539,6 +540,14 @@ public class FwService {
             taskDTO.setDeadline(task.getTimestamp());
             taskDTO.setDescription(task.getDescription());
             taskDTO.setStatus(task.getStatus());
+            taskDTO.setName(patient.getUser().getFirstName() + " " + patient.getUser().getLastName());
+            taskDTO.setAddress(patient.getUser().getAddress());
+            taskDTO.setMedicine(task.getMedicine());
+            taskDTO.setTest(task.getTest());
+            taskDTO.setPrecaution(task.getPrecaution());
+            taskDTO.setDays(task.getDays());
+            taskDTO.setAppointment(task.getAppointment());
+            taskDTO.setQuestion(task.getQuestion());
             taskDTOS.add(taskDTO);
         }
         taskDTOS.sort((TaskDTO t1, TaskDTO t2) -> t2.getDeadline().compareTo(t1.getDeadline()));
@@ -551,6 +560,7 @@ public class FwService {
         List<TaskDTO> taskDTOS = new ArrayList<>();
         for(Task task : tasks)
         {
+            Patient patient = task.getPatient();
             TaskDTO taskDTO = new TaskDTO();
             taskDTO.setId(idMappingRepository.findByPrivateId(UUID.fromString(task.getId())).getPublicId());
             taskDTO.setPid(idMappingRepository.findByPrivateId(UUID.fromString(task.getPatient().getId())).getPublicId());
@@ -561,6 +571,14 @@ public class FwService {
             taskDTO.setDeadline(task.getTimestamp());
             taskDTO.setDescription(task.getDescription());
             taskDTO.setStatus(task.getStatus());
+            taskDTO.setName(patient.getUser().getFirstName() + " " + patient.getUser().getLastName());
+            taskDTO.setAddress(patient.getUser().getAddress());
+            taskDTO.setMedicine(task.getMedicine());
+            taskDTO.setTest(task.getTest());
+            taskDTO.setPrecaution(task.getPrecaution());
+            taskDTO.setDays(task.getDays());
+            taskDTO.setAppointment(task.getAppointment());
+            taskDTO.setQuestion(task.getQuestion());
             taskDTOS.add(taskDTO);
         }
         taskDTOS.sort((TaskDTO t1, TaskDTO t2) -> t2.getDeadline().compareTo(t1.getDeadline()));

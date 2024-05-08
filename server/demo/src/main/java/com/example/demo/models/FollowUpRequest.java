@@ -11,7 +11,7 @@ public class FollowUpRequest {
     String type;
     String timestamp;
     PrescriptionRequest prescription;
-    List<DoctorQuestionDTO> doctorQuestions;
+    DoctorQuestionDTO doctorQuestion;
     AppointmentRequest appointment;
     String status;
 }
